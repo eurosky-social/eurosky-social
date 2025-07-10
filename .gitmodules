@@ -1,3 +1,6 @@
 [submodule "ozone"]
 	path = ozone
 	url = https://github.com/erikologic/ozone
+[submodule "indigo"]
+	path = indigo
+	url = https://github.com/erikologic/indigo
