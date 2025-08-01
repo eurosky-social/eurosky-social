@@ -160,7 +160,7 @@ export class FlashesTestClient {
     while (Date.now() - startTime < timeoutMs) {
       try {
         // Check subject status using Ozone API
-        const statusResponse = await this.ozoneAgent.tools.ozone.moderation.queryStatuses({
+        const statusResponse = await this.ozoneAgent.api.tools.ozone.moderation.queryStatuses({
           subject: uri,
           limit: 1
         });
@@ -169,13 +169,13 @@ export class FlashesTestClient {
           const subject = statusResponse.data.subjectStatuses[0];
           
           // Get moderation events for this subject  
-          const eventsResponse = await this.ozoneAgent.tools.ozone.moderation.queryEvents({
+          const eventsResponse = await this.ozoneAgent.api.tools.ozone.moderation.queryEvents({
             subject: uri,
             limit: 10
           });
 
           // Extract labels
-          const labels = subject.labels?.map(label => label.val) || [];
+          const labels = (subject.labels as any)?.map?.((label: any) => label.val) || [];
           
           // Check for expected label
           const hasExpectedLabel = labels.includes(expectedLabel);
