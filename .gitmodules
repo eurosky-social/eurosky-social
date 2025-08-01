@@ -1,9 +1,9 @@
 [submodule "ozone"]
 	path = ozone
-	url = git@github.com:erikologic/ozone
+	url = ../ozone.git
 [submodule "indigo"]
 	path = indigo
-	url = git@github.com:erikologic/indigo
+	url = ../indigo.git
 [submodule "atproto"]
 	path = atproto
-	url = git@github.com:erikologic/atproto.git
+	url = ../atproto.git
