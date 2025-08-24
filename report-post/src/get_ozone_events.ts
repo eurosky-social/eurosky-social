@@ -1,60 +1,73 @@
 #!/usr/bin/env node
 
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
+import { z } from "zod";
 import { createOzoneAdminAgent } from "./auth";
 
+const IdSchema = z.number().int().positive();
+const SubjectSchema = z.string().startsWith("at://");
+
+const ArgsSchema = z.object({
+  reports: z.boolean().optional(),
+  id: IdSchema.optional(),
+  subject: SubjectSchema.optional(),
+}).refine(
+  (data) => {
+    // Only one of id, subject, or reports can be specified
+    const specified = [data.id, data.subject, data.reports].filter(Boolean).length;
+    return specified <= 1;
+  },
+  {
+    message: "Only one of --id, --subject, or --reports can be specified"
+  }
+);
+
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
+  const argv = await yargs(hideBin(process.argv))
+    .option('reports', {
+      type: 'boolean',
+      description: 'Get only report events'
+    })
+    .option('id', {
+      type: 'number',
+      description: 'Get specific event by ID'
+    })
+    .option('subject', {
+      type: 'string',
+      description: 'Get events for specific subject URI'
+    })
+    .help()
+    .parse();
 
-  const agent = await createOzoneAdminAgent();
-
-  // Parse arguments and build query
-  let query: any = { limit: 50, sortDirection: "desc" };
-  let useGetEvent = false;
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-
-    if (arg === "--reports") {
-      query.types = ["tools.ozone.moderation.defs#modEventReport"];
-    } else if (arg === "--id") {
-      const id = args[++i];
-      if (!id || !id.match(/^\d+$/)) {
-        console.error(
-          JSON.stringify({ error: "Invalid or missing ID after --id" }, null, 2)
-        );
-        process.exit(1);
-      }
-      useGetEvent = true;
-      query = { id: parseInt(id) };
-      break; // --id is exclusive
-    } else if (arg === "--subject") {
-      const subject = args[++i];
-      if (!subject) {
-        console.error(
-          JSON.stringify({ error: "Missing subject after --subject" }, null, 2)
-        );
-        process.exit(1);
-      }
-      query.subject = subject;
-    } else {
-      console.error(
-        JSON.stringify({ error: `Unknown argument: ${arg}` }, null, 2)
-      );
-      process.exit(1);
-    }
+  // Validate arguments with Zod
+  const validation = ArgsSchema.safeParse(argv);
+  if (!validation.success) {
+    console.error(JSON.stringify({ 
+      error: "Invalid arguments",
+      details: validation.error.format()
+    }, null, 2));
+    process.exit(1);
   }
 
-  // Execute query
-  if (useGetEvent) {
-    const response = await agent.api.tools.ozone.moderation.getEvent(query);
+  const args = validation.data;
+  const agent = await createOzoneAdminAgent();
+
+  if (args.id) {
+    const response = await agent.api.tools.ozone.moderation.getEvent({ id: args.id });
     console.log(JSON.stringify(response.data, null, 2));
   } else {
-    const response = await agent.api.tools.ozone.moderation.queryEvents(query);
+    const response = await agent.api.tools.ozone.moderation.queryEvents({
+      limit: 50,
+      sortDirection: 'desc',
+      ...args.reports && { types: ['tools.ozone.moderation.defs#modEventReport'] },
+      ...args.subject && { subject: args.subject }
+    });
     console.log(JSON.stringify(response.data.events, null, 2));
   }
 }
 
 main().catch((e) => {
-  console.error(JSON.stringify({ error: e.message }, null, 2));
+  console.error(e);
   process.exit(1);
 });
