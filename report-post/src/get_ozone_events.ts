@@ -43,10 +43,10 @@ async function main(): Promise<void> {
   // Validate arguments with Zod
   const validation = ArgsSchema.safeParse(argv);
   if (!validation.success) {
-    console.error(JSON.stringify({ 
-      error: "Invalid arguments",
-      details: validation.error.format()
-    }, null, 2));
+    console.error("Invalid arguments:");
+    validation.error.issues.forEach(issue => {
+      console.error(`  ${issue.path.join('.')}: ${issue.message}`);
+    });
     process.exit(1);
   }
 
