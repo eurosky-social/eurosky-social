@@ -30,3 +30,18 @@ export async function createOzoneAgent(): Promise<AtpAgent> {
   
   return agent.withProxy("atproto_labeler", labelerIdentity.data.did);
 }
+
+export async function createOzoneAdminAgent(): Promise<AtpAgent> {
+  const agent = new AtpAgent({
+    service: getRequiredEnvVar("PDS_URL"),
+  });
+
+  await agent.login({
+    identifier: getRequiredEnvVar("OZONE_ADMIN_HANDLE"),
+    password: getRequiredEnvVar("OZONE_ADMIN_PASSWORD"),
+  });
+
+  const labelerIdentity = await agent.resolveHandle({handle: "eurosky-ozone.bsky.social"});
+  
+  return agent.withProxy("atproto_labeler", labelerIdentity.data.did);
+}
