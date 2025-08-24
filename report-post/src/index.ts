@@ -11,9 +11,11 @@ console.log("- ts-node src/create_flash_test_image_post.ts kids.jpg   # CSAM tes
 console.log();
 console.log("Reporting and checking:");
 console.log("- ts-node src/report_flash_post.ts <uri> <cid>    # Create moderation report");
-console.log("- ts-node src/check_ozone_reports.ts <id|--all>   # Check reports by ID or list all");
-console.log("- ts-node src/check_moderation_events.ts <uri|--all> # Check events for post or list all");
+console.log("- ts-node src/get_ozone_events.ts                 # Get last 50 events");
+console.log("- ts-node src/get_ozone_events.ts --reports       # Get last 50 reports only");
+console.log("- ts-node src/get_ozone_events.ts --id <id>       # Get specific event by ID");
+console.log("- ts-node src/get_ozone_events.ts --subject <uri> # Get events for specific post");
 console.log();
 console.log("Examples:");
-console.log("- ts-node src/check_ozone_reports.ts 4523");
-console.log("- ts-node src/check_moderation_events.ts 'at://did:plc:abc/app.flashes.feed.post/123'");
+console.log("- ts-node src/get_ozone_events.ts --id 4523");
+console.log("- ts-node src/get_ozone_events.ts --subject 'at://did:plc:abc/app.flashes.feed.post/123'");
