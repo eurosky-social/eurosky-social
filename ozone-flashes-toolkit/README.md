@@ -28,41 +28,69 @@ A TypeScript CLI toolkit for testing the integration of Flashes events on the AT
 
     Edit `.env` with your credentials and service URLs.
 
+
 ## Usage
 
 All commands use `ts-node` for development. Example commands:
 
-- **Create posts:**
-  - Normal:  
-      `ts-node src/create_flash_post.ts`
-  - GTUBE spam:  
-      `ts-node src/create_flash_post.ts --gtube`
-  - Safe image:  
-      `ts-node src/create_flash_post.ts --image dog.jpg`
-  - CSAM test image:  
-      `ts-node src/create_flash_post.ts --image kids.jpg`
-  - Custom text:  
-      `ts-node src/create_flash_post.ts --text "Custom text"`
+### Create posts
 
-- **Report a post:**
+- Normal:  
+    `ts-node src/create_flash_post.ts`
+- GTUBE spam:  
+    `ts-node src/create_flash_post.ts --gtube`
+- Safe image:  
+    `ts-node src/create_flash_post.ts --image dog.jpg`
+- CSAM test image:  
+    `ts-node src/create_flash_post.ts --image kids.jpg`
+- Custom text:  
+    `ts-node src/create_flash_post.ts --text "Custom text"`
 
-   ```bash
-   ts-node src/report_flash_post.ts <uri> <cid> --reasonType <type> [--reason "description"]
-   ```
+### Report a post
 
-  - `<uri>`: AT URI of the post (e.g., `at://did:plc:.../app.bsky.feed.post/abc123`)
-  - `<cid>`: Content ID of the post
-  - `<type>`: Reason type (see below)
+```bash
+ts-node src/report_flash_post.ts <uri> <cid> --reasonType <type> [--reason "description"]
+```
 
-- **Query moderation events:**
-  - Last 50 events:  
-      `ts-node src/get_ozone_events.ts`
-  - Only reports:  
-      `ts-node src/get_ozone_events.ts --reports`
-  - By event ID:  
-      `ts-node src/get_ozone_events.ts --id <id>`
-  - By subject URI:  
-      `ts-node src/get_ozone_events.ts --subject <uri>`
+- `<uri>`: AT URI of the post (e.g., `at://did:plc:.../app.bsky.feed.post/abc123`)
+- `<cid>`: Content ID of the post
+- `<type>`: Reason type (see below)
+
+### Query moderation events
+
+- Last 50 events:  
+    `ts-node src/get_ozone_events.ts`
+- Only reports:  
+    `ts-node src/get_ozone_events.ts --reports`
+- By event ID:  
+    `ts-node src/get_ozone_events.ts --id <id>`
+- By subject URI:  
+    `ts-node src/get_ozone_events.ts --subject <uri>`
+
+### Fetch and hash a flash post's image blob
+
+Use the `get_flash_post.ts` script to fetch a flash post by DID and rkey, validate its structure, extract the image blob, and print its SHA256 hash.
+
+```bash
+ts-node src/get_flash_post.ts --did <did> --rkey <rkey>
+```
+
+- `--did`: The DID of the user (e.g., `did:plc:autcqcg4hsvgdf3hwt4cvci3`)
+- `--rkey`: The record key of the post (e.g., `3lx5ilffuul24`)
+
+The script will:
+- Validate arguments and the post payload with zod
+- Print the post record
+- Extract and follow redirects to fetch the image blob
+- Print the SHA256 hash of the blob
+
+**Example:**
+
+```bash
+ts-node src/get_flash_post.ts --did did:plc:autcqcg4hsvgdf3hwt4cvci3 --rkey 3lx5ilffuul24
+```
+
+If the post or blob is invalid, errors will be printed with details.
 
 ## Reason Types
 
