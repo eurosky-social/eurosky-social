@@ -1,7 +1,7 @@
 {
-  "name": "report-post",
+  "name": "ozone-flashes-toolkit",
   "version": "1.0.0",
-  "description": "TypeScript script to report a specific post to Ozone",
+  "description": "TypeScript scripts to test integration of Ozone with Flashes",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts"
