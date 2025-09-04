@@ -7,3 +7,6 @@
 [submodule "atproto"]
 	path = atproto
 	url = ../atproto.git
+[submodule "did-method-plc"]
+	path = did-method-plc
+	url = https://github.com/erikologic/did-method-plc
