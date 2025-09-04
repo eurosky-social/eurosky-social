@@ -1,0 +1,16 @@
+{
+  "name": "local-atproto",
+  "version": "1.0.0",
+  "description": "This Docker Compose setup provides a local development environment for AT Protocol services.",
+  "main": "test-did.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@atproto/crypto": "^0.4.4",
+    "@did-plc/lib": "^0.0.4"
+  }
+}
