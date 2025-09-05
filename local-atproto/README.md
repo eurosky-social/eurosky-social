@@ -6,6 +6,8 @@ This Docker Compose setup provides a local development environment for AT Protoc
 
 - **PostgreSQL**: Shared database instance for all AT Protocol services
 - **PLC Server**: DID PLC Directory Service
+- **PDS Server**: Personal Data Server
+- **Relay Server**: Real-time message relay service
 
 ## Getting Started
 
