@@ -2,6 +2,8 @@
 
 set -ex
 
+git submodule update --init --recursive
+
 docker compose up -d
 
 postgres_container=$(docker ps --filter "name=postgres" --format '{{.Names}}')
