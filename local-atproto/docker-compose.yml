@@ -37,7 +37,7 @@ services:
       retries: 3
       start_period: 10s
 
-  pds:
+  pds.internal:
     build:
       context: ../atproto
       dockerfile: services/pds/Dockerfile
@@ -47,24 +47,53 @@ services:
       PDS_BLOBSTORE_DISK_LOCATION: /app/data/blobs
       PDS_DATA_DIRECTORY: /app/data
       PDS_DID_PLC_URL: http://plc:3000
-      PDS_HOSTNAME: localhost
+      PDS_HOSTNAME: pds.internal
       PDS_JWT_SECRET: dev-secret-change-in-production
-      PDS_PORT: 3001
+      PDS_PORT: 80
       PDS_SERVICE_HANDLE_DOMAINS: .test
       PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX: da7a7d92e8d8f8e6f2a5a1b8c4d3e2f1a9b7c5d4e3f2a8b6c9d7e5f3a1b4c6d8
       PDS_RECOVERY_DID_KEY: did:key:zQ3shsd3JjGDd8auYXp76QWijpjiwbPUv4oVdcACmXBjYnRsa
       PDS_DISABLE_SSRF_PROTECTION: true
       PDS_DEV_MODE: true
       PDS_INVITE_REQUIRED: false
+      LOG_ENABLED: "true"
+      LOG_LEVEL: "debug"
     ports:
-      - "3001"
+      - "80"
     volumes:
       - pds_data:/app/data
     depends_on:
       plc:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --output-document=/dev/null http://127.0.0.1:3001/xrpc/_health"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --output-document=/dev/null http://127.0.0.1/xrpc/_health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  relay:
+    build:
+      context: ../indigo
+      dockerfile: cmd/relay/Dockerfile
+    environment:
+      DATABASE_URL: postgres://relay:relay@postgres:5432/relay
+      RELAY_PLC_HOST: http://plc:3000
+      RELAY_ADMIN_PASSWORD: admin123
+      RELAY_PERSIST_DIR: /data/relay/persist
+      RELAY_ALLOW_INSECURE_HOSTS: "true"
+      RELAY_DISABLE_REQUEST_CRAWL: "false"
+      ENVIRONMENT: dev
+      LOG_LEVEL: debug
+    ports:
+      - "2470"
+    volumes:
+      - relay_data:/data/relay
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --output-document=/dev/null http://127.0.0.1:2470/_health"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -73,3 +102,4 @@ services:
 volumes:
   postgres_data:
   pds_data:
+  relay_data:
