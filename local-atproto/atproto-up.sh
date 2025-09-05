@@ -2,7 +2,7 @@
 
 set -ex
 
-# docker compose up -d
+docker compose up -d
 
 postgres_container=$(docker ps --filter "name=postgres" --format '{{.Names}}')
 plc_container=$(docker ps --filter "name=plc" --format '{{.Names}}')
