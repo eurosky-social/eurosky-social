@@ -52,3 +52,14 @@ This Docker Compose setup provides a local development environment for AT Protoc
    ```bash
    docker-compose down
    ```
+
+8. Connect to the relay using the [listen_to_relay](../listen_to_relay) script:  
+  _NOTE: listen_to_relay it's not working properly ATM, still some events are visible..._
+
+   ```bash
+   PORT=$(docker compose port relay 2470)
+   echo "Relay port: $PORT"
+
+   cd ../listen_to_relay
+   node index.mjs ws://localhost:$PORT
+   ```
