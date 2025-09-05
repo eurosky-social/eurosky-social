@@ -25,3 +25,7 @@ docker compose restart relay
 
 echo "Service ports:"
 docker compose ps --format "table {{.Name}}\t{{.Service}}\t{{.Publishers}}"
+
+read -p "Press enter to run PDS+relay tests"
+
+node ./test_pds_relay.mjs

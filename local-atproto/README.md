@@ -12,7 +12,7 @@ This Docker Compose setup provides a local development environment for AT Protoc
 1. Start the services:
 
    ```bash
-   docker compose up -d
+   ./atproto-up.sh
    ```
 
 2. Check service health:
@@ -42,7 +42,7 @@ This Docker Compose setup provides a local development environment for AT Protoc
 6. Stop the services, remove the containers, and clean up volumes and images (deletes databases and files):
 
    ```bash
-   docker-compose down -v --rmi all
+   docker-compose down -v
    ```
 
 7. Stop the services and remove containers (keeps databases and files for later use):
