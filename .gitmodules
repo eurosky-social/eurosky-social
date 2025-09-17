@@ -10,3 +10,6 @@
 [submodule "did-method-plc"]
 	path = did-method-plc
 	url = https://github.com/erikologic/did-method-plc
+[submodule "tangled/@smokesignal.events/localdev"]
+	path = tangled/@smokesignal.events/localdev
+	url = https://tangled.sh/@smokesignal.events/localdev
