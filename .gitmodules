@@ -13,3 +13,6 @@
 [submodule "tangled/@smokesignal.events/localdev"]
 	path = tangled/@smokesignal.events/localdev
 	url = https://tangled.sh/@smokesignal.events/localdev
+[submodule "caddy-tailscale"]
+	path = caddy-tailscale
+	url = git@github.com:erikologic/caddy-tailscale.git
