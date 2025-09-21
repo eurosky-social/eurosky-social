@@ -9,10 +9,13 @@
 	url = ../atproto.git
 [submodule "did-method-plc"]
 	path = did-method-plc
-	url = https://github.com/erikologic/did-method-plc
+	url = ../did-method-plc
 [submodule "tangled/@smokesignal.events/localdev"]
 	path = tangled/@smokesignal.events/localdev
 	url = https://tangled.sh/@smokesignal.events/localdev
 [submodule "caddy-tailscale"]
 	path = caddy-tailscale
-	url = git@github.com:erikologic/caddy-tailscale.git
+	url = ../caddy-tailscale.git
+[submodule "u-at-proto"]
+	path = u-at-proto
+	url = ../u-at-proto.git
