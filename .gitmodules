@@ -19,3 +19,6 @@
 [submodule "u-at-proto"]
 	path = u-at-proto
 	url = ../u-at-proto.git
+[submodule "zeppelin-social/bluesky-appview"]
+	path = zeppelin-social/bluesky-appview
+	url = https://github.com/zeppelin-social/bluesky-appview.git
