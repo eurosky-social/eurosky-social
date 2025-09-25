@@ -22,3 +22,6 @@
 [submodule "zeppelin-social/bluesky-appview"]
 	path = zeppelin-social/bluesky-appview
 	url = https://github.com/zeppelin-social/bluesky-appview.git
+[submodule "jetstream"]
+	path = jetstream
+	url = ../jetstream.git
