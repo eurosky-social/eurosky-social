@@ -25,3 +25,9 @@
 [submodule "jetstream"]
 	path = jetstream
 	url = ../jetstream.git
+[submodule "social-app"]
+	path = social-app
+	url = git@github.com:erikologic/social-app.git
+[submodule "feed-generator"]
+	path = feed-generator
+	url = ../feed-generator.git
