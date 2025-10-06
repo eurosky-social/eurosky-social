@@ -19,3 +19,6 @@
 [submodule "feed-generator"]
 	path = feed-generator
 	url = ../feed-generator.git
+[submodule "github-org"]
+	path = github-org
+	url = git@github.com:eurosky-social/.github.git
