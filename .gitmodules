@@ -1,6 +1,3 @@
-[submodule "ozone"]
-	path = ozone
-	url = ../ozone.git
 [submodule "indigo"]
 	path = indigo
 	url = ../indigo.git
@@ -10,18 +7,9 @@
 [submodule "did-method-plc"]
 	path = did-method-plc
 	url = ../did-method-plc
-[submodule "tangled/@smokesignal.events/localdev"]
-	path = tangled/@smokesignal.events/localdev
-	url = https://tangled.sh/@smokesignal.events/localdev
-[submodule "caddy-tailscale"]
-	path = caddy-tailscale
-	url = ../caddy-tailscale.git
 [submodule "u-at-proto"]
 	path = u-at-proto
 	url = ../u-at-proto.git
-[submodule "zeppelin-social/bluesky-appview"]
-	path = zeppelin-social/bluesky-appview
-	url = https://github.com/zeppelin-social/bluesky-appview.git
 [submodule "jetstream"]
 	path = jetstream
 	url = ../jetstream.git
