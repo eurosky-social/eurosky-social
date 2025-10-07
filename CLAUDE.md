@@ -1,1 +1,0 @@
-- when writing code, avoiding adding comments and printing whenever possible, only do it so if the code is particular complicated, prefer write code that is easy to read that having to relay on comments
