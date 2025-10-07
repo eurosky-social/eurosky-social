@@ -1,5 +1,7 @@
 import "dotenv/config";
 import { AtpAgent } from "@atproto/api";
+import { createTestUser } from "./helpers/test-user-factory";
+import { MaildevClient } from "./helpers/maildev-client";
 
 // Environment validation
 const DOMAIN = process.env.DOMAIN;
@@ -11,25 +13,16 @@ if (!PARTITION) {
   throw new Error("PARTITION env var is required");
 }
 
-const PDS_DOMAIN = `pds.${PARTITION}.${DOMAIN}`;
+const PDS_URL = `https://pds.${PARTITION}.${DOMAIN}`;
+const MAILDEV_URL = `https://maildev.${PARTITION}.${DOMAIN}`;
+const TEST_TIMEOUT_MS = 60000;
 
-jest.setTimeout(60000);
+jest.setTimeout(TEST_TIMEOUT_MS);
 
 describe("Account Creation", () => {
   it("create_account_and_return_valid_did_when_given_valid_credentials", async () => {
-    // Arrange
-    const agent = new AtpAgent({ service: `https://${PDS_DOMAIN}` });
-    const username = `test${Math.floor(Math.random() * 10000)}`;
-    const handle = `${username}.${PDS_DOMAIN}`;
-    const email = `${username}@mail.com`;
-    const password = "abc123";
-
-    // Act
-    await agent.createAccount({
-      email,
-      password,
-      handle,
-    });
+    // Arrange & Act
+    const { agent } = await createTestUser(PDS_URL);
 
     const did = agent.session?.did;
 
@@ -40,24 +33,15 @@ describe("Account Creation", () => {
 
   it("fail_when_handle_already_exists", async () => {
     // Arrange
-    const agent = new AtpAgent({ service: `https://${PDS_DOMAIN}` });
-    const username = `test${Math.floor(Math.random() * 10000)}`;
-    const handle = `${username}.${PDS_DOMAIN}`;
-    const firstEmail = `${username}@mail.com`;
-    const secondEmail = `${username}-different@mail.com`;
-    const password = "abc123";
+    const { handle } = await createTestUser(PDS_URL);
 
-    await agent.createAccount({
-      email: firstEmail,
-      password,
-      handle,
-    });
+    const agent = new AtpAgent({ service: PDS_URL });
 
     // Act & Assert
     await expect(
       agent.createAccount({
-        email: secondEmail,
-        password,
+        email: "different@mail.com",
+        password: "abc123",
         handle,
       })
     ).rejects.toThrow();
@@ -65,66 +49,39 @@ describe("Account Creation", () => {
 });
 
 describe("Email Integration", () => {
+  let maildevClient: MaildevClient;
+
+  beforeAll(() => {
+    maildevClient = new MaildevClient(MAILDEV_URL);
+  });
+
   it("send_verification_email_when_confirmation_requested", async () => {
     // Arrange
-    const agent = new AtpAgent({ service: `https://${PDS_DOMAIN}` });
-    const username = `test${Math.floor(Math.random() * 10000)}`;
-    const handle = `${username}.${PDS_DOMAIN}`;
-    const email = `${username}@mail.com`;
-    const password = "abc123";
-
-    await agent.createAccount({
-      email,
-      password,
-      handle,
-    });
-
-    // Clear maildev emails before test
-    await fetch("https://maildev.eurosky.u-at-proto.work/email/all", {
-      method: "DELETE",
-    });
+    const { agent } = await createTestUser(PDS_URL);
+    await maildevClient.clearAllEmails();
 
     // Act
     await agent.com.atproto.server.requestEmailConfirmation();
-
-    // Wait for email delivery
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await maildevClient.waitForDelivery();
 
     // Assert
-    const response = await fetch("https://maildev.eurosky.u-at-proto.work/email");
-    const emails = (await response.json()) as Array<unknown>;
+    const emails = await maildevClient.getEmails();
     expect(emails.length).toBeGreaterThan(0);
   });
 
   it("confirm_email_when_valid_token_provided", async () => {
     // Arrange
-    const agent = new AtpAgent({ service: `https://${PDS_DOMAIN}` });
-    const username = `test${Math.floor(Math.random() * 10000)}`;
-    const handle = `${username}.${PDS_DOMAIN}`;
-    const email = `${username}@mail.com`;
-    const password = "abc123";
-
-    await agent.createAccount({
-      email,
-      password,
-      handle,
-    });
-
-    await fetch("https://maildev.eurosky.u-at-proto.work/email/all", {
-      method: "DELETE",
-    });
+    const { agent, email } = await createTestUser(PDS_URL);
+    await maildevClient.clearAllEmails();
 
     await agent.com.atproto.server.requestEmailConfirmation();
+    await maildevClient.waitForDelivery();
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    const response = await fetch("https://maildev.eurosky.u-at-proto.work/email");
-    const emails = (await response.json()) as Array<{ html: string }>;
-    const tokenMatch = emails[0].html.match(/>([a-z0-9]{5}-[a-z0-9]{5})</i);
-    const token = tokenMatch![1];
+    const emails = await maildevClient.getEmails();
+    const token = maildevClient.extractTokenFromEmail(emails[0]);
 
     // Act
-    await agent.com.atproto.server.confirmEmail({ email, token });
+    await agent.com.atproto.server.confirmEmail({ email, token: token! });
 
     const session = await agent.com.atproto.server.getSession();
 
