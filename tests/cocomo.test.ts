@@ -63,3 +63,36 @@ describe("Account Creation", () => {
     ).rejects.toThrow();
   });
 });
+
+describe("Email Integration", () => {
+  it("send_verification_email_when_confirmation_requested", async () => {
+    // Arrange
+    const agent = new AtpAgent({ service: `https://${PDS_DOMAIN}` });
+    const username = `test${Math.floor(Math.random() * 10000)}`;
+    const handle = `${username}.${PDS_DOMAIN}`;
+    const email = `${username}@mail.com`;
+    const password = "abc123";
+
+    await agent.createAccount({
+      email,
+      password,
+      handle,
+    });
+
+    // Clear maildev emails before test
+    await fetch("https://maildev.eurosky.u-at-proto.work/email/all", {
+      method: "DELETE",
+    });
+
+    // Act
+    await agent.com.atproto.server.requestEmailConfirmation();
+
+    // Wait for email delivery
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Assert
+    const response = await fetch("https://maildev.eurosky.u-at-proto.work/email");
+    const emails = (await response.json()) as Array<unknown>;
+    expect(emails.length).toBeGreaterThan(0);
+  });
+});

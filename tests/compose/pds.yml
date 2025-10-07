@@ -1,0 +1,53 @@
+services:
+  pds:
+    image: ghcr.io/bluesky-social/pds:latest
+    environment:
+      NODE_ENV: production
+      PDS_ADMIN_PASSWORD: admin123
+      PDS_BLOBSTORE_DISK_LOCATION: /app/data/blobs
+      PDS_DATA_DIRECTORY: /app/data
+      PDS_DID_PLC_URL: https://plc.${PARTITION}.${DOMAIN}
+      PDS_HOSTNAME: pds.${PARTITION}.${DOMAIN}
+      PDS_JWT_SECRET: dev-secret-change-in-production
+      PDS_PORT: 3000
+      PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX: da7a7d92e8d8f8e6f2a5a1b8c4d3e2f1a9b7c5d4e3f2a8b6c9d7e5f3a1b4c6d8
+      PDS_RECOVERY_DID_KEY: did:key:zQ3shsd3JjGDd8auYXp76QWijpjiwbPUv4oVdcACmXBjYnRsa
+      PDS_DISABLE_SSRF_PROTECTION: true
+      PDS_DEV_MODE: true
+      PDS_INVITE_REQUIRED: false
+      PDS_BSKY_APP_VIEW_URL: https://bsky.${PARTITION}.${DOMAIN}
+      PDS_BSKY_APP_VIEW_DID: did:web:bsky.${PARTITION}.${DOMAIN}
+      PDS_EMAIL_SMTP_URL: smtp://maildev:1025
+      PDS_EMAIL_FROM_ADDRESS: noreply@pds.${PARTITION}.${DOMAIN}
+      LOG_ENABLED: "true"
+      LOG_LEVEL: "debug"
+    volumes:
+      - pds_data:/app/data
+    depends_on:
+      traefik-https-check:
+        condition: service_healthy
+      plc:
+        condition: service_healthy
+      maildev:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pds.rule=Host(`pds.${PARTITION}.${DOMAIN}`) || HostRegexp(`^.+\\.pds\\.${PARTITION}\\.${DOMAIN}$$`)"
+      - "traefik.http.routers.pds.entrypoints=websecure"
+      - "traefik.http.routers.pds.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.pds.tls.domains[0].main=pds.${PARTITION}.${DOMAIN}"
+      - "traefik.http.routers.pds.tls.domains[0].sans=*.pds.${PARTITION}.${DOMAIN}"
+      - "traefik.http.services.pds.loadbalancer.server.port=3000"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --output-document=/dev/null http://localhost:3000/xrpc/_health",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  pds_data:
