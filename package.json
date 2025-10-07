@@ -1,0 +1,31 @@
+{
+  "name": "eurosky",
+  "version": "1.0.0",
+  "description": "Development monorepo for AT Protocol (Bluesky) tools, services, and ecosystem projects.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eurosky-social/eurosky-social.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eurosky-social/eurosky-social/issues"
+  },
+  "homepage": "https://github.com/eurosky-social/eurosky-social#readme",
+  "devDependencies": {
+    "@atproto/api": "^0.17.1",
+    "@types/jest": "^30.0.0",
+    "@types/ws": "^8.18.1",
+    "dotenv": "^17.2.3",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "ws": "^8.18.3"
+  }
+}

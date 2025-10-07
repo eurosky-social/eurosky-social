@@ -1,0 +1,12 @@
+include:
+  - u-at-proto/traefik/compose.yml
+  - u-at-proto/database/compose.yml
+  # - u-at-proto/observability/compose.yml
+  - u-at-proto/plc/compose.yml
+  - u-at-proto/pds/compose.yml
+  # - u-at-proto/relay/compose.yml
+  # - u-at-proto/moderation/compose.yml
+  # - u-at-proto/appview/compose.yml
+  # - u-at-proto/feedgen/compose.yml
+  # - u-at-proto/social/compose.yml
+  # - u-at-proto/tests/compose.yml
