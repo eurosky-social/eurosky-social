@@ -1,0 +1,63 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+    "name": "Eurosky Social",
+    // https://containers.dev/guide/dockerfile
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+    // With Docker-outside-of-Docker, mount paths are referenced to the host filesytem, so we want to align fs paths...
+    "workspaceFolder": "${localWorkspaceFolder}",
+    // ...and make sure the same file exists in the host and the container
+    "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
+    "runArgs": [
+        // To support DooD networking
+        "--network=host"
+    ],
+    "mounts": [
+        // https://stackoverflow.com/questions/73676584/sharing-ssh-credentials-with-dev-container-in-vscode
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
+    ],
+    // Features to add to the dev container. More info: https://containers.dev/features.
+    "features": {
+        // To run Sonarlint
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "17"
+        },
+        "ghcr.io/devcontainers/features/git-lfs:1": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+    "containerEnv": {
+        "DATABASE_URL": "postgresql://postgres:postgres@db:5432/db"
+    },
+    "updateContentCommand": "git config --global --add safe.directory \"*\"",
+    // Configure tool-specific properties.
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bierner.markdown-mermaid",
+                "DavidAnson.vscode-markdownlint",
+                "dbaeumer.vscode-eslint",
+                "eamodio.gitlens",
+                "esbenp.prettier-vscode",
+                "GitHub.copilot-chat",
+                "GitHub.copilot",
+                "github.vscode-github-actions",
+                "Gruntfuggly.todo-tree",
+                "mhutchie.git-graph",
+                "ms-azuretools.vscode-docker",
+                "ms-playwright.playwright",
+                "ms-vsliveshare.vsliveshare",
+                "Orta.vscode-jest",
+                "redhat.vscode-yaml",
+                "rockingskier.copy-copy-paste",
+                "rvest.vs-code-prettier-eslint",
+                "ryanrosello-og.playwright-vscode-trace-viewer",
+                "timonwong.shellcheck",
+                "VisualStudioExptTeam.intellicode-api-usage-examples",
+                "VisualStudioExptTeam.vscodeintellicode",
+                "YoavBls.pretty-ts-errors"
+            ]
+        }
+    }
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    // "remoteUser": "root"
+}
