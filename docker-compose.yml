@@ -5,6 +5,7 @@ include:
   - u-at-proto/plc/compose.yml
   - tests/compose/maildev.yml
   - tests/compose/pds.yml
+  - tests/compose/ozone.yml
   # - u-at-proto/relay/compose.yml
   # - u-at-proto/moderation/compose.yml
   # - u-at-proto/appview/compose.yml

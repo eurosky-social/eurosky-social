@@ -21,4 +21,7 @@
 	url = ../feed-generator.git
 [submodule "github-org"]
 	path = github-org
-	url = git@github.com:eurosky-social/.github.git
+	url = ../.github.git
+[submodule "ozone"]
+	path = ozone
+	url = git@github.com:eurosky-social/ozone.git

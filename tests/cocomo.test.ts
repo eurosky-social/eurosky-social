@@ -1,6 +1,9 @@
 import "dotenv/config";
-import { AtpAgent } from "@atproto/api";
-import { createTestUser } from "./helpers/test-user-factory";
+import { AtpAgent, ComAtprotoModerationDefs, ComAtprotoRepoStrongRef } from "@atproto/api";
+import {
+  createTestUser,
+  createOzoneModeratorAgent,
+} from "./helpers/test-user-factory";
 import { MaildevClient } from "./helpers/maildev-client";
 
 // Environment validation
@@ -87,5 +90,48 @@ describe("Email Integration", () => {
 
     // Assert
     expect(session.data.emailConfirmed).toBe(true);
+  });
+});
+
+describe("Moderation Report", () => {
+  it("create_spam_report_for_user_post", async () => {
+    // Arrange
+    const { agent } = await createTestUser(PDS_URL);
+
+    const postResult = await agent.app.bsky.feed.post.create(
+      { repo: agent.session!.did },
+      {
+        text: "This is spam content",
+        createdAt: new Date().toISOString(),
+      }
+    );
+
+    // Create Ozone admin session with Ozone proxy
+    const { ozoneAgent, moderatorDid } = await createOzoneModeratorAgent(
+      PDS_URL,
+      PARTITION,
+      DOMAIN,
+      process.env.OZONE_ADMIN_PASSWORD
+    );
+
+    // Act - Create report via Ozone proxy
+    const report = await ozoneAgent.com.atproto.moderation.createReport({
+      reasonType: ComAtprotoModerationDefs.REASONSPAM,
+      subject: {
+        $type: "com.atproto.repo.strongRef",
+        uri: postResult.uri,
+        cid: postResult.cid,
+      },
+      reason: "Spam content detected",
+    });
+
+    // Assert
+    expect(report.data.id).toBeDefined();
+    expect(report.data.reasonType).toBe(ComAtprotoModerationDefs.REASONSPAM);
+    expect(report.data.subject).toMatchObject({
+      $type: "com.atproto.repo.strongRef",
+      uri: postResult.uri,
+    });
+    expect(report.data.reportedBy).toBe(moderatorDid);
   });
 });
