@@ -1,10 +1,9 @@
 import "dotenv/config";
-import { AtpAgent, ComAtprotoModerationDefs, ComAtprotoRepoStrongRef } from "@atproto/api";
-import { cborDecodeMulti } from "@atproto/common";
+import { AtpAgent, ComAtprotoModerationDefs } from "@atproto/api";
 import { createTestUser, createOzoneModeratorAgent } from "./helpers/test-user-factory";
 import { MaildevClient } from "./helpers/maildev-client";
-import { waitForCondition, EventBuffer } from "./helpers/wait-helpers";
-import { WebSocket } from "ws";
+import { waitForCondition } from "./helpers/wait-helpers";
+import { OzoneLabelSubscriber } from "./helpers/ozone-label-subscriber";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -31,8 +30,22 @@ const OZONE_WS_URL = `wss://ozone.${PARTITION}.${DOMAIN}/xrpc/com.atproto.label.
 const TEST_TIMEOUT_MS = 60000;
 const HEPA_PROCESSING_TIMEOUT_MS = 10000; // 10 seconds for async spam detection
 const GTUBE_TEST_STRING = "XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X";
+const FLASH_COLLECTION = "app.flashes.feed.post";
 
 jest.setTimeout(TEST_TIMEOUT_MS);
+
+// Helper to create flash post with GTUBE spam
+async function createGtubeFlashPost(agent: AtpAgent) {
+  return agent.com.atproto.repo.createRecord({
+    repo: agent.session!.did,
+    collection: FLASH_COLLECTION,
+    record: {
+      $type: FLASH_COLLECTION,
+      text: `Flash with GTUBE: ${GTUBE_TEST_STRING}`,
+      createdAt: new Date().toISOString(),
+    },
+  });
+}
 
 describe("Account Creation", () => {
   it("create_account_and_return_valid_did_when_given_valid_credentials", async () => {
@@ -165,15 +178,7 @@ describe("Moderation Report", () => {
 
   it("detect_gtube_spam_in_flash_posts_automatically", async () => {
     const { agent } = await createTestUser(PDS_URL);
-    const flashPost = await agent.com.atproto.repo.createRecord({
-      repo: agent.session!.did,
-      collection: "app.flashes.feed.post",
-      record: {
-        $type: "app.flashes.feed.post",
-        text: `Flash with GTUBE: ${GTUBE_TEST_STRING}`,
-        createdAt: new Date().toISOString(),
-      },
-    });
+    const flashPost = await createGtubeFlashPost(agent);
 
     const { ozoneAgent } = await createOzoneModeratorAgent(
       PDS_URL,
@@ -184,7 +189,7 @@ describe("Moderation Report", () => {
 
     const events = await waitForCondition(
       () => ozoneAgent.tools.ozone.moderation.queryEvents({
-        collections: ["app.flashes.feed.post"],
+        collections: [FLASH_COLLECTION],
         subject: flashPost.data.uri,
         limit: 10,
       }),
@@ -207,76 +212,31 @@ describe("Moderation Report", () => {
     expect((tagEvent as any).event.add).toContain("gtube-flash");
   });
 
-  it("receive_spam_label_via_websocket_when_gtube_detected_in_flash", async () => {
-    let ws: WebSocket | null = null;
+  describe("Label Subscription", () => {
+    let subscriber: OzoneLabelSubscriber;
 
-    try {
-      // Arrange
+    beforeEach(() => {
+      subscriber = new OzoneLabelSubscriber(OZONE_WS_URL);
+    });
+
+    afterEach(() => {
+      subscriber.close();
+    });
+
+    it("receive_spam_label_via_websocket_when_gtube_detected_in_flash", async () => {
       const { agent } = await createTestUser(PDS_URL);
+      await subscriber.connect();
 
-      // Establish WebSocket connection to Ozone label stream
-      ws = new WebSocket(OZONE_WS_URL);
+      const flashPost = await createGtubeFlashPost(agent);
 
-      await new Promise<void>((resolve, reject) => {
-        ws!.on("open", () => resolve());
-        ws!.on("error", (err) => reject(err));
-        setTimeout(() => reject(new Error("WebSocket connection timeout")), 5000);
-      });
-
-      // Create event buffer to collect WebSocket messages
-      const labelBuffer = new EventBuffer<any>();
-
-      ws.on("message", (data: Buffer) => {
-        try {
-          // AT Protocol uses CBOR encoding for WebSocket messages
-          const [header, body] = cborDecodeMulti(new Uint8Array(data));
-          console.log("WebSocket message received:", JSON.stringify({ header, body }, null, 2));
-
-          // Handle AT Protocol label subscription format
-          // body should contain labels array
-          const message = body as any;
-          if (message && message.labels && Array.isArray(message.labels)) {
-            message.labels.forEach((label: any) => labelBuffer.add(label));
-          }
-        } catch (err) {
-          console.error("Error decoding WebSocket message:", err);
-        }
-      });
-
-      ws.on("error", (err) => {
-        // Error will be caught by waitFor timeout
-        console.error("WebSocket error:", err);
-      });
-
-      // Act
-      const flashPost = await agent.com.atproto.repo.createRecord({
-        repo: agent.session!.did,
-        collection: "app.flashes.feed.post",
-        record: {
-          $type: "app.flashes.feed.post",
-          text: `Flash with GTUBE: ${GTUBE_TEST_STRING}`,
-          createdAt: new Date().toISOString(),
-        },
-      });
-
-      const flashPostUri = flashPost.data.uri;
-
-      // Wait for spam label for this specific post
-      const receivedLabel = await labelBuffer.waitFor(
-        (label) => label.val === "spam" && label.uri === flashPostUri,
+      const receivedLabel = await subscriber.waitForLabel(
+        (label) => label.val === "spam" && label.uri === flashPost.data.uri,
         HEPA_PROCESSING_TIMEOUT_MS
       );
 
-      // Assert
-      expect(receivedLabel).toBeDefined();
       expect(receivedLabel.val).toBe("spam");
-      expect(receivedLabel.uri).toBe(flashPostUri);
+      expect(receivedLabel.uri).toBe(flashPost.data.uri);
       expect(receivedLabel.src).toBe(OZONE_SERVER_DID);
-    } finally {
-      // Cleanup
-      if (ws) {
-        ws.close();
-      }
-    }
+    });
   });
 });
