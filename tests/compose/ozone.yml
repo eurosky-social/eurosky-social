@@ -30,8 +30,7 @@ services:
     restart: "no"
 
   ozone:
-    # image:  ghcr.io/eurosky-social/ozone:latest
-    image:  ozone
+    image:  ghcr.io/eurosky-social/ozone:latest
     entrypoint: ["/ozone-entrypoint.sh"]
     environment:
       - OZONE_DB_POSTGRES_URL=postgres://ozone:ozone@postgres:5432/ozone
