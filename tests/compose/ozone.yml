@@ -30,7 +30,8 @@ services:
     restart: "no"
 
   ozone:
-    image: eurosky-ozone:local
+    # image:  ghcr.io/eurosky-social/ozone:latest
+    image:  ozone
     entrypoint: ["/ozone-entrypoint.sh"]
     environment:
       - OZONE_DB_POSTGRES_URL=postgres://ozone:ozone@postgres:5432/ozone
@@ -40,7 +41,9 @@ services:
       - OZONE_APPVIEW_URL=https://bsky.${PARTITION}.${DOMAIN}
       - OZONE_APPVIEW_DID=did:web:bsky.${PARTITION}.${DOMAIN}
       - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
-      - OZONE_MODERATOR_PASSWORD=${OZONE_MODERATOR_PASSWORD}
+      # Runtime config for Next.js UI (injected via layout.tsx)
+      - PLC_DIRECTORY_URL=https://plc.${PARTITION}.${DOMAIN}
+      - HANDLE_RESOLVER_URL=https://bsky.${PARTITION}.${DOMAIN}
       - OZONE_SIGNING_KEY_HEX=da7a7d92e8d8f8e6f2a5a1b8c4d3e2f1a9b7c5d4e3f2a8b6c9d7e5f3a1b4c6d8
       - NODE_ENV=production
       - LOG_ENABLED=true

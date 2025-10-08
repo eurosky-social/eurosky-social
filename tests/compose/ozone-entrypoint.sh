@@ -11,4 +11,7 @@ fi
 ADMIN_DID=$(cat "$DID_FILE")
 echo "Using admin DID: $ADMIN_DID"
 
-OZONE_ADMIN_DIDS="$ADMIN_DID" OZONE_SERVER_DID="$ADMIN_DID" exec dumb-init -- node --enable-source-maps service/index.js
+export OZONE_ADMIN_DIDS="$ADMIN_DID"
+export OZONE_SERVER_DID="$ADMIN_DID"
+
+exec dumb-init -- node --enable-source-maps service/index.js
