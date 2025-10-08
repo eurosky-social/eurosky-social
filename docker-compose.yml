@@ -6,6 +6,7 @@ include:
   - tests/compose/maildev.yml
   - tests/compose/pds.yml
   - tests/compose/ozone.yml
+  - tests/compose/hepa.yml
   - u-at-proto/relay/compose.yml
   # - u-at-proto/moderation/compose.yml
   - u-at-proto/appview/compose.yml

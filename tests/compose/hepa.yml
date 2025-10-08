@@ -1,0 +1,39 @@
+services:
+  hepa:
+    build:
+      context: ../../indigo
+      dockerfile: ./cmd/hepa/Dockerfile
+    entrypoint: ["/hepa-entrypoint.sh"]
+    environment:
+      - ATP_RELAY_HOST=ws://relay:3000
+      - ATP_PLC_HOST=https://plc.${PARTITION}.${DOMAIN}
+      - ATP_OZONE_HOST=https://ozone.${PARTITION}.${DOMAIN}
+      - HEPA_OZONE_AUTH_ADMIN_TOKEN=${OZONE_ADMIN_PASSWORD}
+      - ATP_PDS_HOST=https://pds.${PARTITION}.${DOMAIN}
+      - HEPA_PDS_AUTH_ADMIN_TOKEN=${PDS_ADMIN_PASSWORD:-admin}
+      - HEPA_COLLECTION_FILTER=app.flashes.feed.post
+      - HEPA_CSAM_HOST=http://mock-csam:8080
+      - HEPA_CSAM_API_TOKEN=test-csam-token
+      - GODEBUG=netdns=go
+      - TZ=Etc/UTC
+    volumes:
+      - ozone_data:/data
+      - ./hepa-entrypoint.sh:/hepa-entrypoint.sh:ro
+    depends_on:
+      relay:
+        condition: service_healthy
+      ozone:
+        condition: service_healthy
+      pds:
+        condition: service_healthy
+      mock-csam:
+        condition: service_started
+      setup-ozone:
+        condition: service_completed_successfully
+
+  mock-csam:
+    build:
+      context: ../../indigo/cmd/hepa/mock-csam
+    environment:
+      - MOCK_CSAM_PORT=8080
+      - CSAM_HASHES=0644efbdf54d091448d05cfc745e2e0b41d9ae540d399fe65e0e60272e0431e5

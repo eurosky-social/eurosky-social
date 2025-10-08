@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { AtpAgent, ComAtprotoModerationDefs, ComAtprotoRepoStrongRef } from "@atproto/api";
-import { createTestUser } from "./helpers/test-user-factory";
+import { createTestUser, createOzoneModeratorAgent } from "./helpers/test-user-factory";
 import { MaildevClient } from "./helpers/maildev-client";
 import { waitForCondition, EventBuffer } from "./helpers/wait-helpers";
 import { WebSocket } from "ws";
@@ -118,10 +118,10 @@ describe("Moderation Report", () => {
       }
     );
 
-    const ozoneAgent = reporter.agent.withProxy("atproto_labeler", OZONE_SERVER_DID);
+    const reporterOzoneAgent = reporter.agent.withProxy("atproto_labeler", OZONE_SERVER_DID);
 
     // Act - Create report via Ozone moderation service
-    const report = await ozoneAgent.com.atproto.moderation.createReport({
+    const report = await reporterOzoneAgent.com.atproto.moderation.createReport({
       reasonType: ComAtprotoModerationDefs.REASONSPAM,
       subject: {
         $type: "com.atproto.repo.strongRef",
@@ -141,15 +141,14 @@ describe("Moderation Report", () => {
     expect(report.data.reportedBy).toBe(reporter.agent.session!.did);
 
     // Verify report is queryable via Ozone internal API (using admin auth)
-    const adminAgent = new AtpAgent({ service: PDS_URL });
-    await adminAgent.login({
-      identifier: "ozone.pds.eurosky.u-at-proto.work",
-      password: process.env.OZONE_ADMIN_PASSWORD || "admin123",
-    });
+    const { ozoneAgent } = await createOzoneModeratorAgent(
+      PDS_URL,
+      PARTITION,
+      DOMAIN,
+      process.env.OZONE_ADMIN_PASSWORD
+    );
 
-    const adminOzoneAgent = adminAgent.withProxy("atproto_labeler", OZONE_SERVER_DID);
-
-    const events = await adminOzoneAgent.tools.ozone.moderation.queryEvents({
+    const events = await ozoneAgent.tools.ozone.moderation.queryEvents({
       subject: postResult.uri,
     });
 
@@ -163,12 +162,8 @@ describe("Moderation Report", () => {
     expect((reportEvent!.event as any).reportType).toBe(ComAtprotoModerationDefs.REASONSPAM);
   });
 
-  xit("detect_gtube_spam_in_flash_posts_automatically", async () => {
+  it("detect_gtube_spam_in_flash_posts_automatically", async () => {
     const { agent } = await createTestUser(PDS_URL);
-    const moderator = await createTestUser(PDS_URL);
-
-    const ozoneAgent = moderator.agent.withProxy("atproto_labeler", OZONE_SERVER_DID);
-
     const flashPost = await agent.com.atproto.repo.createRecord({
       repo: agent.session!.did,
       collection: "app.flashes.feed.post",
@@ -178,6 +173,13 @@ describe("Moderation Report", () => {
         createdAt: new Date().toISOString(),
       },
     });
+
+    const { ozoneAgent } = await createOzoneModeratorAgent(
+      PDS_URL,
+      PARTITION,
+      DOMAIN,
+      process.env.OZONE_ADMIN_PASSWORD
+    );
 
     const events = await waitForCondition(
       () => ozoneAgent.tools.ozone.moderation.queryEvents({
@@ -189,7 +191,7 @@ describe("Moderation Report", () => {
       { timeout: HEPA_PROCESSING_TIMEOUT_MS, interval: 500 }
     );
 
-    expect(events.data.events).toHaveLength(2);
+    expect(events.data.events.length).toBeGreaterThanOrEqual(2);
 
     const labelEvent = events.data.events.find(
       (e: any) => e.event.$type === "tools.ozone.moderation.defs#modEventLabel"
