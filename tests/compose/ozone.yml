@@ -1,0 +1,79 @@
+services:
+  setup-ozone:
+    image: eurosky-setup-ozone:latest
+    build:
+      context: ../..
+      dockerfile_inline: |
+        FROM node:20-alpine
+        WORKDIR /app
+        RUN npm install -g tsx
+        COPY setup-ozone-auto.ts .
+        RUN npm install @atproto/api dotenv
+        CMD ["tsx", "setup-ozone-auto.ts"]
+    environment:
+      - PDS_URL=https://pds.${PARTITION}.${DOMAIN}
+      - OZONE_PUBLIC_URL=https://ozone.${PARTITION}.${DOMAIN}
+      - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
+      - MAILDEV_URL=http://maildev:1080
+    volumes:
+      - ozone_data:/data
+      - ../data:/host-data
+    depends_on:
+      traefik-https-check:
+        condition: service_healthy
+      plc:
+        condition: service_healthy
+      pds:
+        condition: service_healthy
+      maildev:
+        condition: service_healthy
+    restart: "no"
+
+  ozone:
+    image: eurosky-ozone:local
+    entrypoint: ["/ozone-entrypoint.sh"]
+    environment:
+      - OZONE_DB_POSTGRES_URL=postgres://ozone:ozone@postgres:5432/ozone
+      - OZONE_DB_MIGRATE=1
+      - OZONE_PUBLIC_URL=https://ozone.${PARTITION}.${DOMAIN}
+      - OZONE_DID_PLC_URL=https://plc.${PARTITION}.${DOMAIN}
+      - OZONE_APPVIEW_URL=https://bsky.${PARTITION}.${DOMAIN}
+      - OZONE_APPVIEW_DID=did:web:bsky.${PARTITION}.${DOMAIN}
+      - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
+      - OZONE_MODERATOR_PASSWORD=${OZONE_MODERATOR_PASSWORD}
+      - OZONE_SIGNING_KEY_HEX=da7a7d92e8d8f8e6f2a5a1b8c4d3e2f1a9b7c5d4e3f2a8b6c9d7e5f3a1b4c6d8
+      - NODE_ENV=production
+      - LOG_ENABLED=true
+      - LOG_LEVEL=debug
+      - PORT=3000
+    volumes:
+      - ozone_data:/data
+      - ./ozone-entrypoint.sh:/ozone-entrypoint.sh:ro
+    depends_on:
+      traefik-https-check:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      plc:
+        condition: service_healthy
+      setup-ozone:
+        condition: service_completed_successfully
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ozone.rule=Host(`ozone.${PARTITION}.${DOMAIN}`)"
+      - "traefik.http.routers.ozone.entrypoints=websecure"
+      - "traefik.http.routers.ozone.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ozone.loadbalancer.server.port=3000"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --output-document=/dev/null http://localhost:3000",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  ozone_data:

@@ -61,12 +61,12 @@ export async function createOzoneModeratorAgent(
     password: ozoneAdminPassword,
   });
 
-  // Resolve Ozone admin DID
+  // Resolve Ozone admin DID (created by setup-ozone-auto.ts)
   const ozoneHandle = `${OZONE_ADMIN_HANDLE_PREFIX}.${partition}.${domain}`;
   const resolveResponse = await pdsAgent.resolveHandle({ handle: ozoneHandle });
   const ozoneDid = resolveResponse.data.did;
 
-  // Create proxy agent for Ozone labeler
+  // Use PDS session to create proxy agent for Ozone labeler
   const ozoneAgent = pdsAgent.withProxy(ATPROTO_LABELER_PROXY_TYPE, ozoneDid);
 
   return {
