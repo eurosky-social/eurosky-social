@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { AtpAgent, ComAtprotoModerationDefs, ComAtprotoRepoStrongRef } from "@atproto/api";
+import { cborDecodeMulti } from "@atproto/common";
 import { createTestUser, createOzoneModeratorAgent } from "./helpers/test-user-factory";
 import { MaildevClient } from "./helpers/maildev-client";
 import { waitForCondition, EventBuffer } from "./helpers/wait-helpers";
@@ -206,7 +207,7 @@ describe("Moderation Report", () => {
     expect((tagEvent as any).event.add).toContain("gtube-flash");
   });
 
-  xit("receive_spam_label_via_websocket_when_gtube_detected_in_flash", async () => {
+  it("receive_spam_label_via_websocket_when_gtube_detected_in_flash", async () => {
     let ws: WebSocket | null = null;
 
     try {
@@ -227,16 +228,18 @@ describe("Moderation Report", () => {
 
       ws.on("message", (data: Buffer) => {
         try {
-          const message = JSON.parse(data.toString());
+          // AT Protocol uses CBOR encoding for WebSocket messages
+          const [header, body] = cborDecodeMulti(new Uint8Array(data));
+          console.log("WebSocket message received:", JSON.stringify({ header, body }, null, 2));
 
-          // Handle AT Protocol WebSocket frame format
-          if (message.commit) {
-            // Message is a commit with labels
-            const labels = message.commit.labels || [];
-            labels.forEach((label: any) => labelBuffer.add(label));
+          // Handle AT Protocol label subscription format
+          // body should contain labels array
+          const message = body as any;
+          if (message && message.labels && Array.isArray(message.labels)) {
+            message.labels.forEach((label: any) => labelBuffer.add(label));
           }
         } catch (err) {
-          // Ignore parse errors, continue processing
+          console.error("Error decoding WebSocket message:", err);
         }
       });
 

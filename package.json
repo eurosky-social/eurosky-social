@@ -19,6 +19,7 @@
   "homepage": "https://github.com/eurosky-social/eurosky-social#readme",
   "devDependencies": {
     "@atproto/api": "^0.17.1",
+    "@atproto/common": "^0.4.12",
     "@types/jest": "^30.0.0",
     "@types/ws": "^8.18.1",
     "dotenv": "^17.2.3",
