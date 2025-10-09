@@ -4,11 +4,31 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const PDS_URL = process.env.PDS_URL || "https://pds.eurosky.u-at-proto.work";
-const OZONE_ADMIN_PASSWORD = process.env.OZONE_ADMIN_PASSWORD || "admin123";
-const OZONE_PUBLIC_URL = process.env.OZONE_PUBLIC_URL || "https://ozone.eurosky.u-at-proto.work";
-const MAILDEV_URL = process.env.MAILDEV_URL || "http://maildev:1080";
-const OZONE_PUBLIC_KEY = "did:key:zQ3shmpAeckFtNe5feYTzPn5sXB6nwwusdDXXCqnsrbBTh3p6";
+function getEnv(key: string) {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Environment variable ${key} is not set`);
+  }
+  return value;
+}
+
+const PDS_DOMAIN = getEnv("PDS_DOMAIN");
+const PLC_DOMAIN = getEnv("PLC_DOMAIN");
+const OZONE_ADMIN_PASSWORD = getEnv("OZONE_ADMIN_PASSWORD");
+const OZONE_DOMAIN = getEnv("OZONE_DOMAIN");
+const MAILDEV_URL = getEnv("MAILDEV_URL");
+const OZONE_PUBLIC_KEY = getEnv("OZONE_PUBLIC_KEY");
+const EMAIL_DOMAIN = getEnv("EMAIL_DOMAIN");
+
+// Derived constants
+const PDS_URL = `https://${PDS_DOMAIN}`;
+const OZONE_URL = `https://${OZONE_DOMAIN}`;
+const OZONE_HANDLE = `ozone.${PDS_DOMAIN}`;
+const OZONE_EMAIL = `ozone@${EMAIL_DOMAIN}`;
+
+// Magic numbers
+const PLC_OPERATION_DELAY_MS = 5000;
+
 
 async function getLatestEmailCode(): Promise<string> {
   const response = await fetch(`${MAILDEV_URL}/email`);
@@ -33,12 +53,11 @@ async function setupOzoneAuto() {
   console.log("Setting up Ozone labeler...");
 
   const agent = new AtpAgent({ service: PDS_URL });
-  const handle = "ozone.pds.eurosky.u-at-proto.work";
-  console.log(`Checking if account ${handle} exists...`);
+  console.log(`Checking if account ${OZONE_HANDLE} exists...`);
 
   let accountExists = false;
   try {
-    const resolveResponse = await agent.resolveHandle({ handle });
+    const resolveResponse = await agent.resolveHandle({ handle: OZONE_HANDLE });
     console.log(`✅ Account already exists with DID: ${resolveResponse.data.did}`);
     accountExists = true;
   } catch (error) {
@@ -48,8 +67,8 @@ async function setupOzoneAuto() {
   if (!accountExists) {
     try {
       const createResponse = await agent.com.atproto.server.createAccount({
-        email: `ozone@eurosky.u-at-proto.work`,
-        handle,
+        email: OZONE_EMAIL,
+        handle: OZONE_HANDLE,
         password: OZONE_ADMIN_PASSWORD,
       });
       console.log(`✅ Created Ozone admin with DID: ${createResponse.data.did}`);
@@ -61,7 +80,7 @@ async function setupOzoneAuto() {
 
   console.log("Logging in...");
   await agent.login({
-    identifier: handle,
+    identifier: OZONE_HANDLE,
     password: OZONE_ADMIN_PASSWORD,
   });
 
@@ -88,10 +107,10 @@ async function setupOzoneAuto() {
   }
 
   await agent.com.atproto.identity.requestPlcOperationSignature();
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  await new Promise(resolve => setTimeout(resolve, PLC_OPERATION_DELAY_MS));
   const token = await getLatestEmailCode();
 
-  const plcLogResponse = await fetch(`https://plc.eurosky.u-at-proto.work/${agent.session!.did}/log`);
+  const plcLogResponse = await fetch(`https://${PLC_DOMAIN}/${agent.session!.did}/log`);
   const plcLog = await plcLogResponse.json();
   const lastOp = plcLog[plcLog.length - 1];
   const existingVerificationMethods: Record<string, string> = lastOp.verificationMethods || {};
@@ -107,7 +126,7 @@ async function setupOzoneAuto() {
       },
       atproto_labeler: {
         type: "AtprotoLabeler",
-        endpoint: OZONE_PUBLIC_URL,
+        endpoint: OZONE_URL,
       },
     },
     verificationMethods: {
@@ -128,7 +147,7 @@ async function setupOzoneAuto() {
 
   console.log("Updating handle...");
   await agent.com.atproto.identity.updateHandle({
-    handle: "ozone.pds.eurosky.u-at-proto.work",
+    handle: OZONE_HANDLE,
   });
   console.log("✅ Handle updated");
 
@@ -192,7 +211,7 @@ async function setupOzoneAuto() {
 
   console.log("✅ Ozone setup complete!");
   console.log(`   Admin DID: ${agent.session!.did}`);
-  console.log(`   Login at: ${OZONE_PUBLIC_URL}`);
+  console.log(`   Login at: ${OZONE_URL}`);
 }
 
 setupOzoneAuto().catch((error) => {

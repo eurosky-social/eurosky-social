@@ -11,10 +11,13 @@ services:
         RUN npm install @atproto/api dotenv
         CMD ["tsx", "setup-ozone-auto.ts"]
     environment:
-      - PDS_URL=https://pds.${PARTITION}.${DOMAIN}
-      - OZONE_PUBLIC_URL=https://ozone.${PARTITION}.${DOMAIN}
+      - PDS_DOMAIN=pds.${PARTITION}.${DOMAIN}
+      - PLC_DOMAIN=plc.${PARTITION}.${DOMAIN}
+      - OZONE_DOMAIN=ozone.${PARTITION}.${DOMAIN}
+      - EMAIL_DOMAIN=${PARTITION}.${DOMAIN}
       - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
       - MAILDEV_URL=http://maildev:1080
+      - OZONE_PUBLIC_KEY=did:key:zQ3shmpAeckFtNe5feYTzPn5sXB6nwwusdDXXCqnsrbBTh3p6
     volumes:
       - ozone_data:/data
       - ../data:/host-data
@@ -30,7 +33,7 @@ services:
     restart: "no"
 
   ozone:
-    image:  ghcr.io/eurosky-social/ozone:latest
+    image: ghcr.io/eurosky-social/ozone:latest
     entrypoint: ["/ozone-entrypoint.sh"]
     environment:
       - OZONE_DB_POSTGRES_URL=postgres://ozone:ozone@postgres:5432/ozone
