@@ -16,3 +16,13 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
+
+  maildev-https-check:
+    extends:
+      file: ../../u-at-proto/templates/compose.yml
+      service: https-check
+    depends_on:
+      maildev:
+        condition: service_healthy
+    environment:
+      HEALTHCHECK_URL: maildev.${PARTITION}.${DOMAIN}

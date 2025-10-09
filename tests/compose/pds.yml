@@ -28,7 +28,7 @@ services:
     depends_on:
       traefik-https-check:
         condition: service_healthy
-      plc:
+      plc-https-check:
         condition: service_healthy
       maildev:
         condition: service_healthy
@@ -50,6 +50,16 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+
+  pds-https-check:
+    extends:
+      file: ../../u-at-proto/templates/compose.yml
+      service: https-check
+    depends_on:
+      pds:
+        condition: service_healthy
+    environment:
+      HEALTHCHECK_URL: pds.${PARTITION}.${DOMAIN}
 
 volumes:
   pds_data:

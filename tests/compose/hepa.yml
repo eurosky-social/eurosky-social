@@ -18,11 +18,11 @@ services:
       - ozone_data:/data
       - ./hepa-entrypoint.sh:/hepa-entrypoint.sh:ro
     depends_on:
-      relay:
+      relay-https-check:
         condition: service_healthy
-      ozone:
+      ozone-https-check:
         condition: service_healthy
-      pds:
+      pds-https-check:
         condition: service_healthy
       mock-csam:
         condition: service_started

@@ -21,9 +21,9 @@ services:
     depends_on:
       traefik-https-check:
         condition: service_healthy
-      plc:
+      plc-https-check:
         condition: service_healthy
-      pds:
+      pds-https-check:
         condition: service_healthy
       maildev:
         condition: service_healthy
@@ -52,11 +52,9 @@ services:
       - ozone_data:/data
       - ./ozone-entrypoint.sh:/ozone-entrypoint.sh:ro
     depends_on:
-      traefik-https-check:
-        condition: service_healthy
       postgres:
         condition: service_healthy
-      plc:
+      plc-https-check:
         condition: service_healthy
       setup-ozone:
         condition: service_completed_successfully
@@ -76,6 +74,16 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+
+  ozone-https-check:
+    extends:
+      file: ../../u-at-proto/templates/compose.yml
+      service: https-check
+    depends_on:
+      ozone:
+        condition: service_healthy
+    environment:
+      HEALTHCHECK_URL: ozone.${PARTITION}.${DOMAIN}
 
 volumes:
   ozone_data:
