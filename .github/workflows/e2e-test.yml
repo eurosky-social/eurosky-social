@@ -34,7 +34,7 @@ jobs:
         id: cache-certs
         uses: actions/cache@v4
         with:
-          path: u-at-proto/traefik/certs/certificates.tar.gz.enc
+          path: traefik/certs/certificates.tar.gz.enc
           key: certificates-${{ github.run_id }}
           restore-keys: |
             certificates-
@@ -43,9 +43,9 @@ jobs:
         env:
           CERT_ENCRYPTION_KEY: ${{ secrets.CERT_ENCRYPTION_KEY }}
         run: |
-          if [ -f "u-at-proto/traefik/certs/certificates.tar.gz.enc" ]; then
+          if [ -f "traefik/certs/certificates.tar.gz.enc" ]; then
             echo "📦 Restoring cached certificates..."
-            openssl enc -aes-256-cbc -d -in u-at-proto/traefik/certs/certificates.tar.gz.enc -out certificates.tar.gz -k "$CERT_ENCRYPTION_KEY"
+            openssl enc -aes-256-cbc -d -in traefik/certs/certificates.tar.gz.enc -out certificates.tar.gz -k "$CERT_ENCRYPTION_KEY"
             echo "📋 Certificate files being restored:"
             tar -tzf certificates.tar.gz
             tar -xzf certificates.tar.gz
@@ -117,7 +117,7 @@ jobs:
             fi
 
             # Always encrypt for potential caching
-            openssl enc -aes-256-cbc -in certificates.tar.gz -out u-at-proto/traefik/certs/certificates.tar.gz.enc -k "$CERT_ENCRYPTION_KEY"
+            openssl enc -aes-256-cbc -in certificates.tar.gz -out traefik/certs/certificates.tar.gz.enc -k "$CERT_ENCRYPTION_KEY"
             rm certificates.tar.gz
           fi
 
@@ -125,7 +125,7 @@ jobs:
         if: always() && env.CERTS_CHANGED == 'true'
         uses: actions/cache/save@v4
         with:
-          path: u-at-proto/traefik/certs/certificates.tar.gz.enc
+          path: traefik/certs/certificates.tar.gz.enc
           key: certificates-${{ github.run_id }}
 
       - name: Stop and remove Docker Compose services
