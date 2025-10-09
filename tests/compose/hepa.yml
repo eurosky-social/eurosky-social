@@ -30,8 +30,9 @@ services:
         condition: service_completed_successfully
 
   mock-csam:
-    build:
-      context: ../../indigo/cmd/hepa/mock-csam
+    # build:
+    #   context: ../../indigo/cmd/hepa/mock-csam
+    image: ghcr.io/eurosky-social/indigo:mock-csam-eurosky-latest
     environment:
       - MOCK_CSAM_PORT=8080
       - CSAM_HASHES=0644efbdf54d091448d05cfc745e2e0b41d9ae540d399fe65e0e60272e0431e5
