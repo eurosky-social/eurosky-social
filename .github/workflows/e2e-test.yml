@@ -1,0 +1,131 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: e2e-tests
+
+env:
+  PARTITION: ${{vars.PARTITION}}
+  DOMAIN: ${{vars.DOMAIN}}
+  TS_TAG: ${{vars.TS_TAG}}
+
+jobs:
+  e2e-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_CLIENT_SECRET }}
+          tags: tag:${{ env.TS_TAG }}
+
+      - name: Restore certificates cache
+        id: cache-certs
+        uses: actions/cache@v4
+        with:
+          path: traefik/certs/certificates.tar.gz.enc
+          key: certificates-${{ github.run_id }}
+          restore-keys: |
+            certificates-
+
+      - name: Decrypt and extract certificates
+        env:
+          CERT_ENCRYPTION_KEY: ${{ secrets.CERT_ENCRYPTION_KEY }}
+        run: |
+          if [ -f "traefik/certs/certificates.tar.gz.enc" ]; then
+            echo "📦 Restoring cached certificates..."
+            openssl enc -aes-256-cbc -d -in traefik/certs/certificates.tar.gz.enc -out certificates.tar.gz -k "$CERT_ENCRYPTION_KEY"
+            echo "📋 Certificate files being restored:"
+            tar -tzf certificates.tar.gz
+            tar -xzf certificates.tar.gz
+            # Store hash of original certificates for comparison
+            sha256sum certificates.tar.gz > original_certs_hash.txt
+            rm certificates.tar.gz
+            echo "✅ Certificates restored successfully"
+            jq '.letsencrypt?.Certificates[]?.domain?.main' traefik/certs/acme.json
+          else
+            echo "ℹ️ No cached certificates found - will generate new ones"
+          fi
+
+      - name: Start Docker Compose services
+        env:
+          TAILSCALE_CLIENT_SECRET: ${{secrets.TAILSCALE_CLIENT_SECRET}}
+          CF_API_EMAIL: ${{secrets.CF_API_EMAIL}}
+          CF_DNS_API_TOKEN: ${{secrets.CF_DNS_API_TOKEN}}
+        run: docker compose up -d --wait
+
+      - name: Run Jest E2E tests
+        env:
+          TAILSCALE_CLIENT_SECRET: ${{secrets.TAILSCALE_CLIENT_SECRET}}
+          CF_API_EMAIL: ${{secrets.CF_API_EMAIL}}
+          CF_DNS_API_TOKEN: ${{secrets.CF_DNS_API_TOKEN}}
+        run: docker compose --profile test run --rm --no-deps e2e-jest
+
+      - name: Show logs
+        if: always()
+        env:
+          TAILSCALE_CLIENT_SECRET: ${{secrets.TAILSCALE_CLIENT_SECRET}}
+          CF_API_EMAIL: ${{secrets.CF_API_EMAIL}}
+          CF_DNS_API_TOKEN: ${{secrets.CF_DNS_API_TOKEN}}
+        run: docker compose logs -n all
+
+      - name: Compress and encrypt certificates
+        if: always()
+        env:
+          CERT_ENCRYPTION_KEY: ${{ secrets.CERT_ENCRYPTION_KEY }}
+        run: |
+          if [ -d "traefik/certs" ]; then
+            sudo chown -R $USER:$USER traefik/certs
+            echo "🔍 Looking for certificate files to archive..."
+
+            # Archive only certificate files, exclude logs and temporary files
+            CERT_FILES=$(find traefik/certs -name "*.crt" -o -name "*.key" -o -name "*.pem" -o -name "acme.json")
+            CERT_COUNT=$(echo "$CERT_FILES" | wc -l)
+            echo "📋 Found $CERT_COUNT certificate files:"
+            echo "$CERT_FILES"
+            jq '.letsencrypt?.Certificates[]?.domain?.main' traefik/certs/acme.json
+
+            echo "$CERT_FILES" | tar -czf certificates.tar.gz --files-from=-
+
+            # Compare hashes to see if certificates changed
+            echo "CERTS_CHANGED=true" >> $GITHUB_ENV
+            if [ -f "original_certs_hash.txt" ]; then
+              NEW_HASH=$(sha256sum certificates.tar.gz)
+              OLD_HASH=$(cat original_certs_hash.txt)
+              echo "🔐 Hash comparison:"
+              echo "  Old: $OLD_HASH"
+              echo "  New: $NEW_HASH"
+              if [ "$NEW_HASH" = "$OLD_HASH" ]; then
+                echo "CERTS_CHANGED=false" >> $GITHUB_ENV
+                echo "✅ Certificates unchanged - skipping cache update"
+              else
+                echo "🔄 Certificates changed - will update cache"
+              fi
+            else
+              echo "🆕 No previous certificates - will create cache"
+            fi
+
+            # Always encrypt for potential caching
+            openssl enc -aes-256-cbc -in certificates.tar.gz -out traefik/certs/certificates.tar.gz.enc -k "$CERT_ENCRYPTION_KEY"
+            rm certificates.tar.gz
+          fi
+
+      - name: Save certificates cache
+        if: always() && env.CERTS_CHANGED == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: traefik/certs/certificates.tar.gz.enc
+          key: certificates-${{ github.run_id }}
+
+      - name: Stop and remove Docker Compose services
+        if: always()
+        run: docker compose down -v
