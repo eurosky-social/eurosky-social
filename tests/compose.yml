@@ -1,0 +1,26 @@
+services:
+  e2e-jest:
+    profiles: ["test"]
+    image: node:22-alpine
+    working_dir: /app
+    environment:
+      - DOMAIN=${DOMAIN}
+      - PARTITION=${PARTITION}
+    volumes:
+      - ./:/app/tests/
+      - ../jest.config.js:/app/jest.config.js
+      - ../package-lock.json:/app/package-lock.json
+      - ../package.json:/app/package.json
+      - ../tsconfig.json:/app/tsconfig.json
+    depends_on:
+      ozone-https-check:
+        condition: service_healthy
+      maildev:
+        condition: service_healthy
+      pds-https-check:
+        condition: service_healthy
+      hepa:
+        condition: service_healthy
+    command: >
+      sh -c "npm install && npm test"
+

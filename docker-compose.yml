@@ -12,4 +12,4 @@ include:
   - u-at-proto/appview/compose.yml
   # - u-at-proto/feedgen/compose.yml
   # - u-at-proto/social/compose.yml
-  # - u-at-proto/tests/compose.yml
+  - tests/compose.yml

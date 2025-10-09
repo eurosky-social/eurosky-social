@@ -6,7 +6,7 @@ services:
       - ATP_RELAY_HOST=ws://relay:3000
       - ATP_PLC_HOST=https://plc.${PARTITION}.${DOMAIN}
       - ATP_OZONE_HOST=https://ozone.${PARTITION}.${DOMAIN}
-      - HEPA_OZONE_AUTH_ADMIN_TOKEN=${OZONE_ADMIN_PASSWORD}
+      - HEPA_OZONE_AUTH_ADMIN_TOKEN=admin123
       - ATP_PDS_HOST=https://pds.${PARTITION}.${DOMAIN}
       - HEPA_PDS_AUTH_ADMIN_TOKEN=${PDS_ADMIN_PASSWORD:-admin}
       - HEPA_COLLECTION_FILTER=app.flashes.feed.post
