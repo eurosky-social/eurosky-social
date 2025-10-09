@@ -34,7 +34,7 @@ jobs:
         id: cache-certs
         uses: actions/cache@v4
         with:
-          path: traefik/certs/certificates.tar.gz.enc
+          path: u-at-proto/traefik/certs/certificates.tar.gz.enc
           key: certificates-${{ github.run_id }}
           restore-keys: |
             certificates-
@@ -43,9 +43,9 @@ jobs:
         env:
           CERT_ENCRYPTION_KEY: ${{ secrets.CERT_ENCRYPTION_KEY }}
         run: |
-          if [ -f "traefik/certs/certificates.tar.gz.enc" ]; then
+          if [ -f "u-at-proto/traefik/certs/certificates.tar.gz.enc" ]; then
             echo "📦 Restoring cached certificates..."
-            openssl enc -aes-256-cbc -d -in traefik/certs/certificates.tar.gz.enc -out certificates.tar.gz -k "$CERT_ENCRYPTION_KEY"
+            openssl enc -aes-256-cbc -d -in u-at-proto/traefik/certs/certificates.tar.gz.enc -out certificates.tar.gz -k "$CERT_ENCRYPTION_KEY"
             echo "📋 Certificate files being restored:"
             tar -tzf certificates.tar.gz
             tar -xzf certificates.tar.gz
@@ -53,7 +53,7 @@ jobs:
             sha256sum certificates.tar.gz > original_certs_hash.txt
             rm certificates.tar.gz
             echo "✅ Certificates restored successfully"
-            jq '.letsencrypt?.Certificates[]?.domain?.main' traefik/certs/acme.json
+            jq '.letsencrypt?.Certificates[]?.domain?.main' u-at-proto/traefik/certs/acme.json
           else
             echo "ℹ️ No cached certificates found - will generate new ones"
           fi
@@ -85,16 +85,16 @@ jobs:
         env:
           CERT_ENCRYPTION_KEY: ${{ secrets.CERT_ENCRYPTION_KEY }}
         run: |
-          if [ -d "traefik/certs" ]; then
-            sudo chown -R $USER:$USER traefik/certs
+          if [ -d "u-at-proto/traefik/certs" ]; then
+            sudo chown -R $USER:$USER u-at-proto/traefik/certs
             echo "🔍 Looking for certificate files to archive..."
 
             # Archive only certificate files, exclude logs and temporary files
-            CERT_FILES=$(find traefik/certs -name "*.crt" -o -name "*.key" -o -name "*.pem" -o -name "acme.json")
+            CERT_FILES=$(find u-at-proto/traefik/certs -name "*.crt" -o -name "*.key" -o -name "*.pem" -o -name "acme.json")
             CERT_COUNT=$(echo "$CERT_FILES" | wc -l)
             echo "📋 Found $CERT_COUNT certificate files:"
             echo "$CERT_FILES"
-            jq '.letsencrypt?.Certificates[]?.domain?.main' traefik/certs/acme.json
+            jq '.letsencrypt?.Certificates[]?.domain?.main' u-at-proto/traefik/certs/acme.json
 
             echo "$CERT_FILES" | tar -czf certificates.tar.gz --files-from=-
 
@@ -117,7 +117,7 @@ jobs:
             fi
 
             # Always encrypt for potential caching
-            openssl enc -aes-256-cbc -in certificates.tar.gz -out traefik/certs/certificates.tar.gz.enc -k "$CERT_ENCRYPTION_KEY"
+            openssl enc -aes-256-cbc -in certificates.tar.gz -out u-at-proto/traefik/certs/certificates.tar.gz.enc -k "$CERT_ENCRYPTION_KEY"
             rm certificates.tar.gz
           fi
 
@@ -125,7 +125,7 @@ jobs:
         if: always() && env.CERTS_CHANGED == 'true'
         uses: actions/cache/save@v4
         with:
-          path: traefik/certs/certificates.tar.gz.enc
+          path: u-at-proto/traefik/certs/certificates.tar.gz.enc
           key: certificates-${{ github.run_id }}
 
       - name: Stop and remove Docker Compose services
