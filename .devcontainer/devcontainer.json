@@ -23,7 +23,8 @@
             "version": "17"
         },
         "ghcr.io/devcontainers/features/git-lfs:1": {},
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+        "ghcr.io/devcontainers/features/go:1": {}
     },
     "containerEnv": {
         "DATABASE_URL": "postgresql://postgres:postgres@db:5432/db"
@@ -54,7 +55,8 @@
                 "timonwong.shellcheck",
                 "VisualStudioExptTeam.intellicode-api-usage-examples",
                 "VisualStudioExptTeam.vscodeintellicode",
-                "YoavBls.pretty-ts-errors"
+                "YoavBls.pretty-ts-errors",
+                "golang.go"
             ]
         }
     }
