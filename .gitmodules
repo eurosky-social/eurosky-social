@@ -25,3 +25,6 @@
 [submodule "ozone"]
 	path = ozone
 	url = git@github.com:eurosky-social/ozone.git
+[submodule "firehose-processor-aas"]
+	path = firehose-processor-aas
+	url = git@github.com:erikologic/firehose-processor-aas.git
