@@ -1,8 +1,6 @@
 services:
   hepa:
-    build:
-      context: ../../indigo
-      dockerfile: ./cmd/hepa/Dockerfile
+    image: ghcr.io/eurosky-social/indigo:hepa-eurosky-latest
     entrypoint: ["/hepa-entrypoint.sh"]
     environment:
       - ATP_RELAY_HOST=ws://relay:3000
