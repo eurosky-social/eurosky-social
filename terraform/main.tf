@@ -10,7 +10,7 @@ resource scaleway_container main {
   registry_image = "docker.io/library/nginx:latest"
   port = 80
   cpu_limit = 1000
-  memory_limit = 1028
+  memory_limit = 1024
   min_scale = 0
   max_scale = 1
   privacy = "public"
