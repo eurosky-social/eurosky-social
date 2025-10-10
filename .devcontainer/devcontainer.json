@@ -24,7 +24,8 @@
         },
         "ghcr.io/devcontainers/features/git-lfs:1": {},
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-        "ghcr.io/devcontainers/features/go:1": {}
+        "ghcr.io/devcontainers/features/go:1": {},
+        "ghcr.io/devcontainers/features/terraform:1": {}
     },
     "containerEnv": {
         "DATABASE_URL": "postgresql://postgres:postgres@db:5432/db"
@@ -56,7 +57,8 @@
                 "VisualStudioExptTeam.intellicode-api-usage-examples",
                 "VisualStudioExptTeam.vscodeintellicode",
                 "YoavBls.pretty-ts-errors",
-                "golang.go"
+                "golang.go",
+                "hashicorp.terraform"
             ]
         }
     }
