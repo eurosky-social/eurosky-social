@@ -42,7 +42,16 @@ jobs:
       STATE_BUCKET: ${{ secrets.STATE_BUCKET }}
 
       # Terraform variables
-      TF_VAR_hostname: ${{ vars.TF_VAR_hostname }}
+      TF_VAR_ozone_hostname: ${{ vars.TF_VAR_ozone_hostname }}
+      TF_VAR_ozone_server_did: ${{ vars.TF_VAR_ozone_server_did }}
+      TF_VAR_ozone_admin_dids: ${{ vars.TF_VAR_ozone_admin_dids }}
+      TF_VAR_ozone_did_plc_url: ${{ vars.TF_VAR_ozone_did_plc_url }}
+      TF_VAR_ozone_appview_url: ${{ vars.TF_VAR_ozone_appview_url }}
+      TF_VAR_ozone_appview_did: ${{ vars.TF_VAR_ozone_appview_did }}
+      TF_VAR_plc_directory_url: ${{ vars.TF_VAR_plc_directory_url }}
+      TF_VAR_handle_resolver_url: ${{ vars.TF_VAR_handle_resolver_url }}
+      TF_VAR_ozone_admin_password: ${{ secrets.TF_VAR_ozone_admin_password }}
+      TF_VAR_ozone_signing_key_hex: ${{ secrets.TF_VAR_ozone_signing_key_hex }}
 
     steps:
       - name: Checkout code
@@ -61,7 +70,7 @@ jobs:
       - name: Terraform Init
         id: init
         run: |
-          terraform init -backend-config="bucket=$STATE_BUCKET" 
+          terraform init -backend-config="bucket=$STATE_BUCKET"
 
       - name: Terraform Validate
         id: validate
