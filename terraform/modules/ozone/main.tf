@@ -60,6 +60,7 @@ resource "scaleway_container" "ozone" {
       HANDLE_RESOLVER_URL   = var.handle_resolver_url
       OZONE_SERVER_DID      = var.ozone_server_did
       OZONE_ADMIN_DIDS      = var.ozone_admin_dids
+      PGOPTIONS             = "-c search_path=public" # TODO check if this can be removed somehow
     },
     var.environment_variables
   )

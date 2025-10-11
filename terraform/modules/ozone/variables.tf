@@ -41,13 +41,13 @@ variable "port" {
 variable "cpu_limit" {
   description = "CPU limit in mCPU (1000 = 1 vCPU)"
   type        = number
-  default     = 2000
+  default     = 250
 }
 
 variable "memory_limit" {
   description = "Memory limit in MB"
   type        = number
-  default     = 2048
+  default     = 256
 }
 
 variable "min_scale" {
@@ -83,7 +83,7 @@ variable "log_level" {
 variable "ozone_db_migrate" {
   description = "Enable database migrations"
   type        = string
-  default     = "1"
+  default     = "0"
 }
 
 variable "environment_variables" {
