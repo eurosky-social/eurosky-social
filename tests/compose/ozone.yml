@@ -7,15 +7,14 @@ services:
         FROM node:20-alpine
         WORKDIR /app
         RUN npm install -g tsx
-        COPY setup-ozone.ts .
-        RUN npm install @atproto/api dotenv commander
-        CMD ["tsx", "setup-ozone.ts", "full-auto"]
+        COPY setup-ozone-auto.ts .
+        RUN npm install @atproto/api dotenv
+        CMD ["tsx", "setup-ozone-auto.ts"]
     environment:
-      - PDS_URL=https://pds.${PARTITION}.${DOMAIN}
-      - PLC_URL=https://plc.${PARTITION}.${DOMAIN}
-      - OZONE_URL=https://ozone.${PARTITION}.${DOMAIN}
-      - OZONE_HANDLE=ozone.pds.${PARTITION}.${DOMAIN}
-      - OZONE_EMAIL=ozone@${PARTITION}.${DOMAIN}
+      - PDS_DOMAIN=pds.${PARTITION}.${DOMAIN}
+      - PLC_DOMAIN=plc.${PARTITION}.${DOMAIN}
+      - OZONE_DOMAIN=ozone.${PARTITION}.${DOMAIN}
+      - EMAIL_DOMAIN=${PARTITION}.${DOMAIN}
       - OZONE_ADMIN_PASSWORD=admin123
       - MAILDEV_URL=http://maildev:1080
       - OZONE_PUBLIC_KEY=did:key:zQ3shmpAeckFtNe5feYTzPn5sXB6nwwusdDXXCqnsrbBTh3p6

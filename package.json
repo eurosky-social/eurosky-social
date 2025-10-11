@@ -4,8 +4,7 @@
   "description": "Development monorepo for AT Protocol (Bluesky) tools, services, and ecosystem projects.",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "setup-ozone": "tsx setup-ozone.ts"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -27,11 +26,7 @@
     "jest": "^30.2.0",
     "ts-jest": "^29.4.4",
     "ts-node": "^10.9.2",
-    "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "ws": "^8.18.3"
-  },
-  "dependencies": {
-    "commander": "^14.0.1"
   }
 }
