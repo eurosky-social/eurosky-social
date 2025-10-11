@@ -1,3 +1,3 @@
-variable "hostname" {
+variable "ozone_hostname" {
   type = string
 }

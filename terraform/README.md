@@ -18,7 +18,9 @@ cp .env.example .env
 
 source .env
 
+# Bootstrap is only needed the first time to create the S3 bucket and upload GitHub secrets
 ./bootstrap.sh
+
 terraform init -backend-config="bucket=$STATE_BUCKET"
 terraform plan
 terraform apply

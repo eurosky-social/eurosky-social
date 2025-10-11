@@ -1,3 +1,4 @@
-output "endpoint" {
-  value = scaleway_container.main.domain_name
+output "ozone_container_url" {
+  description = "The URL of the Ozone container"
+  value       = module.ozone.container_url
 }
