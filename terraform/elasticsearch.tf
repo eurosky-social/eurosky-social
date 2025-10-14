@@ -89,10 +89,20 @@ resource "kubernetes_ingress_v1" "kibana" {
   metadata {
     name      = "kibana"
     namespace = kubernetes_namespace.elasticsearch.metadata[0].name
+
+    annotations = {
+      "cert-manager.io/cluster-issuer" = "letsencrypt-prod"
+    }
   }
 
   spec {
     ingress_class_name = "nginx"
+
+    tls {
+      hosts = ["kibana.scw.eurosky.social"]
+      secret_name = "kibana-tls"
+    }
+
     rule {
       host = "kibana.scw.eurosky.social"
       http {
@@ -109,6 +119,8 @@ resource "kubernetes_ingress_v1" "kibana" {
       }
     }
   }
+
+  depends_on = [helm_release.cert_manager]
 }
 
 resource "scaleway_domain_record" "kibana" {
