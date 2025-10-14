@@ -38,14 +38,15 @@ output "kapsule" {
     value = scaleway_k8s_cluster.kapsule_multi_az.id
 }
 
-resource "scaleway_k8s_pool" "pool-multi-az" {
+# PLAY2-MICRO pools (upgraded from PLAY2-NANO for Elasticsearch)
+resource "scaleway_k8s_pool" "pool-multi-az-v2" {
     for_each = toset(["fr-par-1", "fr-par-2"])
 
-    name                   = "pool-${each.value}"
+    name                   = "pool-v2-${each.value}"
     zone                   = each.value
-    tags                   = ["multi-az"]
+    tags                   = ["multi-az", "v2"]
     cluster_id             = scaleway_k8s_cluster.kapsule_multi_az.id
-    node_type              = "PLAY2-NANO"
+    node_type              = "PLAY2-MICRO"
     size                   = 2
     min_size               = 2
     max_size               = 3
