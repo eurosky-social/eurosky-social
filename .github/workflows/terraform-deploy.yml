@@ -1,12 +1,13 @@
 name: Terraform Deploy
 
 on:
-  workflow_run:
-    workflows: ["E2E Tests"]
-    types:
-      - completed
-    branches:
-      - main
+  # workflow_run:
+  #   workflows: ["E2E Tests"]
+  #   types:
+  #     - completed
+  #   branches:
+  #     - main
+  workflow_dispatch:
 
 concurrency:
   group: terraform-deploy
