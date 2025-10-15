@@ -9,7 +9,7 @@ resource "helm_release" "cloudnativepg" {
 
   repository = "https://cloudnative-pg.github.io/charts"
   chart      = "cloudnative-pg"
-  version    = "0.22.1"
+  version    = "0.26.0"
 
   # CloudNativePG operator configuration
   set {
@@ -18,23 +18,32 @@ resource "helm_release" "cloudnativepg" {
   }
 }
 
-# Namespace for Ozone application and database
-resource "kubernetes_namespace" "ozone" {
+resource "helm_release" "barman_cloud_plugin" {
+  name      = "barman-cloud"
+  namespace = "cnpg-system"
+
+  repository = "https://cloudnative-pg.github.io/charts"
+  chart      = "plugin-barman-cloud"
+  version    = "0.2.0"
+
+  depends_on = [helm_release.cloudnativepg]
+}
+
+resource "kubernetes_namespace" "databases" {
   metadata {
-    name = "ozone"
+    name = "databases"
   }
 
   depends_on = [helm_release.cloudnativepg]
 }
 
-# PostgreSQL Cluster with High Availability
-resource "kubectl_manifest" "ozone_postgres_cluster" {
+resource "kubectl_manifest" "postgres_cluster" {
   yaml_body = <<YAML
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: ozone-db
-  namespace: ${kubernetes_namespace.ozone.metadata[0].name}
+  name: postgres-cluster
+  namespace: ${kubernetes_namespace.databases.metadata[0].name}
 spec:
   instances: 3  # HA with 3 replicas
 
@@ -49,6 +58,18 @@ spec:
   # High Availability configuration
   primaryUpdateStrategy: unsupervised
 
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          cnpg.io/cluster: postgres-cluster
+
+  affinity:
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+
   # Connection pooling with PgBouncer
   postgresql:
     parameters:
@@ -56,28 +77,20 @@ spec:
       shared_buffers: "256MB"
       effective_cache_size: "1GB"
       work_mem: "4MB"
+      wal_compression: "on"  # Compress WAL before archiving
+      archive_timeout: "1h"  # Archive every 1 hour OR when segment full (16MB)
 
-  # Automatic backup configuration (TODO: Add S3 bucket and credentials)
-  # backup:
-  #   retentionPolicy: "30d"  # 30-day retention per GUIDELINES
-  #   barmanObjectStore:
-  #     destinationPath: "s3://ozone-db-backups"
-  #     s3Credentials:
-  #       accessKeyId:
-  #         name: backup-s3-creds
-  #         key: ACCESS_KEY_ID
-  #       secretAccessKey:
-  #         name: backup-s3-creds
-  #         key: ACCESS_SECRET_KEY
-  #     wal:
-  #       compression: gzip
-  #       maxParallel: 4
+  # Plugin-based backup configuration (CNPG-I architecture)
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      parameters:
+        barmanObjectName: postgres-backup-s3
 
   # Bootstrap configuration
   bootstrap:
     initdb:
-      database: ozone
-      owner: ozone
+      database: app
+      owner: app
 
   # Resource limits
   resources:
@@ -88,6 +101,4 @@ spec:
       memory: "1Gi"
       cpu: "1000m"
 YAML
-
-  depends_on = [kubernetes_namespace.ozone]
 }

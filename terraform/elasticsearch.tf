@@ -1,21 +1,21 @@
 resource "helm_release" "eck" {
-    name      = "elastic-operator"
-    namespace = "elastic-system"
+  name      = "elastic-operator"
+  namespace = "elastic-system"
 
-    create_namespace = true
+  create_namespace = true
 
-    repository = "https://helm.elastic.co"
-    chart      = "eck-operator"
+  repository = "https://helm.elastic.co"
+  chart      = "eck-operator"
 
-    depends_on = [helm_release.nginx_ingress]
+  depends_on = [helm_release.nginx_ingress]
 }
 
 resource "kubernetes_namespace" "elasticsearch" {
-    metadata {
-        name = "elasticsearch"
-    }
+  metadata {
+    name = "elasticsearch"
+  }
 
-    depends_on = [helm_release.eck]
+  depends_on = [helm_release.eck]
 }
 
 resource "kubectl_manifest" "elasticsearch" {
@@ -99,7 +99,7 @@ resource "kubernetes_ingress_v1" "kibana" {
     ingress_class_name = "nginx"
 
     tls {
-      hosts = ["kibana.scw.eurosky.social"]
+      hosts       = ["kibana.scw.eurosky.social"]
       secret_name = "kibana-tls"
     }
 

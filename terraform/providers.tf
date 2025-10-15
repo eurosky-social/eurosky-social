@@ -1,3 +1,3 @@
 provider "scaleway" {
-    region  = "fr-par"
+  region = "fr-par"
 }

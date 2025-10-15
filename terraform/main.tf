@@ -1,57 +1,56 @@
 resource "scaleway_vpc" "vpc_multi_az" {
-    name = "vpc-multi-az"
-    tags = ["multi-az"]
+  name = "vpc-multi-az"
+  tags = ["multi-az"]
 }
 
 resource "scaleway_vpc_private_network" "pn_multi_az" {
-    name   = "pn-multi-az"
-    vpc_id = scaleway_vpc.vpc_multi_az.id
-    tags   = ["multi-az"]
+  name   = "pn-multi-az"
+  vpc_id = scaleway_vpc.vpc_multi_az.id
+  tags   = ["multi-az"]
 }
 
 resource "scaleway_k8s_cluster" "kapsule_multi_az" {
-    name        = "kapsule-multi-az"
-    tags        = ["multi-az"]
+  name = "kapsule-multi-az"
+  tags = ["multi-az"]
 
-    type    = "kapsule"
-    version = "1.30"
-    cni     = "cilium"
+  type    = "kapsule"
+  version = "1.30"
+  cni     = "cilium"
 
-    delete_additional_resources = true
+  delete_additional_resources = true
 
-    autoscaler_config {
-        ignore_daemonsets_utilization = true
-        balance_similar_node_groups   = true
-    }
+  autoscaler_config {
+    ignore_daemonsets_utilization = true
+    balance_similar_node_groups   = true
+  }
 
-    auto_upgrade {
-        enable                        = true
-        maintenance_window_day        = "sunday"
-        maintenance_window_start_hour = 2
-    }
+  auto_upgrade {
+    enable                        = true
+    maintenance_window_day        = "sunday"
+    maintenance_window_start_hour = 2
+  }
 
-    private_network_id = scaleway_vpc_private_network.pn_multi_az.id
+  private_network_id = scaleway_vpc_private_network.pn_multi_az.id
 }
 
 output "kapsule" {
-    description = "Kapsule cluster id"
-    value = scaleway_k8s_cluster.kapsule_multi_az.id
+  description = "Kapsule cluster id"
+  value       = scaleway_k8s_cluster.kapsule_multi_az.id
 }
 
-# PLAY2-MICRO pools (upgraded from PLAY2-NANO for Elasticsearch)
 resource "scaleway_k8s_pool" "pool-multi-az-v2" {
-    for_each = toset(["fr-par-1", "fr-par-2"])
+  for_each = toset(["fr-par-1", "fr-par-2"])
 
-    name                   = "pool-v2-${each.value}"
-    zone                   = each.value
-    tags                   = ["multi-az", "v2"]
-    cluster_id             = scaleway_k8s_cluster.kapsule_multi_az.id
-    node_type              = "PLAY2-MICRO"
-    size                   = 2
-    min_size               = 2
-    max_size               = 3
-    autoscaling            = true
-    autohealing            = true
-    container_runtime      = "containerd"
-    root_volume_size_in_gb = 32
+  name                   = "pool-v2-${each.value}"
+  zone                   = each.value
+  tags                   = ["multi-az", "v2"]
+  cluster_id             = scaleway_k8s_cluster.kapsule_multi_az.id
+  node_type              = "PLAY2-MICRO"
+  size                   = 2
+  min_size               = 2
+  max_size               = 3
+  autoscaling            = true
+  autohealing            = true
+  container_runtime      = "containerd"
+  root_volume_size_in_gb = 32
 }

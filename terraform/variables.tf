@@ -41,3 +41,14 @@ variable "plc_directory_url" {
 variable "handle_resolver_url" {
   type = string
 }
+
+variable "region" {
+  type        = string
+  default     = "fr-par"
+  description = "Scaleway region for resources"
+}
+
+variable "project_id" {
+  type        = string
+  description = "Scaleway project ID"
+}
