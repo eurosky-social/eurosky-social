@@ -52,3 +52,15 @@ variable "project_id" {
   type        = string
   description = "Scaleway project ID"
 }
+
+variable "ozone_image" {
+  type        = string
+  description = "Ozone container image"
+  default     = "ghcr.io/eurosky-social/ozone:latest"
+}
+
+variable "ozone_db_password" {
+  type        = string
+  description = "PostgreSQL password for Ozone database user"
+  sensitive   = true
+}
