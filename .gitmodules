@@ -28,3 +28,6 @@
 [submodule "firehose-processor-aas"]
 	path = firehose-processor-aas
 	url = git@github.com:erikologic/firehose-processor-aas.git
+[submodule "rsky"]
+	path = rsky
+	url = git@github.com:eurosky-social/rsky.git
