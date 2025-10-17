@@ -1,0 +1,64 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  namespace: ${namespace}
+  annotations:
+    eck.k8s.elastic.co/downward-node-labels: "topology.kubernetes.io/zone"
+spec:
+  version: "8.15.0"
+
+  nodeSets:
+    - name: default
+      count: ${node_count}
+
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: ${storage_size}
+            storageClassName: ${storage_class}
+
+      config:
+        node.attr.zone: $${ZONE}
+        cluster.routing.allocation.awareness.attributes: k8s_node_name,zone
+        node.store.allow_mmap: false
+
+      podTemplate:
+        spec:
+          containers:
+            - name: elasticsearch
+              env:
+              - name: ZONE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.annotations['topology.kubernetes.io/zone']
+              resources:
+                requests:
+                  cpu: ${resources_requests_cpu}
+                  memory: ${resources_requests_memory}
+                limits:
+                  cpu: ${resources_limits_cpu}
+                  memory: ${resources_limits_memory}
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: ScheduleAnyway  # TODO DoNotSchedule in prod?
+              labelSelector:
+                matchLabels:
+                  elasticsearch.k8s.elastic.co/cluster-name: elasticsearch
+                  elasticsearch.k8s.elastic.co/statefulset-name: elasticsearch-es-default
+
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 100
+                  podAffinityTerm:
+                    labelSelector:
+                      matchLabels:
+                        elasticsearch.k8s.elastic.co/cluster-name: elasticsearch
+                    topologyKey: kubernetes.io/hostname

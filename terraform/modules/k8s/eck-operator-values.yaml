@@ -1,0 +1,41 @@
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: ${resources_requests_cpu}
+    memory: ${resources_requests_memory}
+  limits:
+    cpu: ${resources_limits_cpu}
+    memory: ${resources_limits_memory}
+
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL
+
+serviceAccount:
+  create: true
+  automountServiceAccountToken: true
+
+webhook:
+  enabled: true
+  port: 9443
+
+managedNamespaces:
+  - elastic-system
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+config:
+  logVerbosity: "0"
+  metricsPort: "8080"
+  enableLeaderElection: true

@@ -1,15 +1,14 @@
 controller:
   replicaCount: ${replica_count}
 
-  # Production-recommended resource limits from official docs
+  # TODO: Increase for production (cpu: 100m, memory: 90Mi request / 256Mi limit)
   resources:
     requests:
-      cpu: 100m
-      memory: 90Mi
+      cpu: 50m
+      memory: 64Mi
     limits:
-      memory: 256Mi
+      memory: 128Mi
 
-  # Security hardening from official docs
   containerSecurityContext:
     runAsNonRoot: true
     runAsUser: 101
@@ -22,43 +21,41 @@ controller:
       add:
         - NET_BIND_SERVICE
 
-  # Multi-zone distribution
+  # TODO: Use DoNotSchedule in production for strict zone distribution
   topologySpreadConstraints:
     - topologyKey: topology.kubernetes.io/zone
       maxSkew: ${topology_max_skew}
-      whenUnsatisfiable: DoNotSchedule
+      whenUnsatisfiable: ScheduleAnyway
       labelSelector:
         matchLabels:
           app.kubernetes.io/name: ingress-nginx
           app.kubernetes.io/instance: ${release_name}
           app.kubernetes.io/component: controller
 
-  # Node-level anti-affinity for HA
+  # TODO: Use requiredDuringScheduling in production with 3+ nodes
   affinity:
     podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: ingress-nginx
-              app.kubernetes.io/instance: ${release_name}
-              app.kubernetes.io/component: controller
-          topologyKey: kubernetes.io/hostname
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: ingress-nginx
+                app.kubernetes.io/instance: ${release_name}
+                app.kubernetes.io/component: controller
+            topologyKey: kubernetes.io/hostname
 
-  # Disable default service (using custom per-zone services)
   service:
     enabled: false
 
-  # Enable metrics for Prometheus monitoring
   metrics:
     enabled: true
     port: 10254
 
-  # Enable admission webhooks for validation
   admissionWebhooks:
     enabled: true
     failurePolicy: Fail
 
-  # PodDisruptionBudget for safe updates
   podDisruptionBudget:
     enabled: true
     minAvailable: 1

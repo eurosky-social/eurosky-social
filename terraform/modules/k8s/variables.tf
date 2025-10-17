@@ -1,4 +1,4 @@
-# External-DNS Configuration
+
 variable "external_dns_access_key" {
   description = "Scaleway access key for external-dns"
   type        = string
@@ -11,7 +11,6 @@ variable "external_dns_secret_key" {
   sensitive   = true
 }
 
-# Ingress-Nginx Configuration
 variable "ingress_nginx_zones" {
   description = "List of zones for load balancer deployment"
   type        = list(string)
@@ -22,8 +21,29 @@ variable "cluster_domain" {
   type        = string
 }
 
-# Cert-Manager Configuration
 variable "cert_manager_acme_email" {
   description = "Email for ACME registration"
   type        = string
+}
+
+variable "elasticsearch_storage_class" {
+  description = "Storage class for Elasticsearch persistent volumes"
+  type        = string
+}
+
+variable "kubeconfig_host" {
+  description = "Kubernetes API server host from kubeconfig"
+  type        = string
+}
+
+variable "kubeconfig_token" {
+  description = "Kubernetes API server token from kubeconfig"
+  type        = string
+  sensitive   = true
+}
+
+variable "kubeconfig_cluster_ca_certificate" {
+  description = "Kubernetes cluster CA certificate from kubeconfig"
+  type        = string
+  sensitive   = true
 }

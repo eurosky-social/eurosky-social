@@ -20,12 +20,6 @@ resource "helm_release" "cert_manager" {
   }
 }
 
-resource "null_resource" "wait_for_cert_manager_webhook" {
-  provisioner "local-exec" {
-    command = "kubectl wait --for=condition=available --timeout=300s deployment/cert-manager-webhook -n ${helm_release.cert_manager.namespace}"
-  }
-}
-
 resource "kubernetes_secret" "cert_manager_scaleway" {
   metadata {
     name      = "cert-manager-scaleway"
@@ -40,8 +34,6 @@ resource "kubernetes_secret" "cert_manager_scaleway" {
 
 # Using DNS-01 challenge for local dev
 resource "helm_release" "cert_manager_webhook_scaleway" {
-  depends_on = [null_resource.wait_for_cert_manager_webhook]
-
   name       = "scaleway-certmanager-webhook"
   namespace  = helm_release.cert_manager.namespace
   repository = "https://helm.scw.cloud/"

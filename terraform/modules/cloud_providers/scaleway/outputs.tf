@@ -30,3 +30,20 @@ output "kubeconfig" {
   value       = scaleway_k8s_cluster.kapsule_multi_az.kubeconfig
   sensitive   = true
 }
+
+output "kubeconfig_host" {
+  description = "Kubernetes API server host (waits for pools to be ready)"
+  value       = null_resource.kubeconfig.triggers.host
+}
+
+output "kubeconfig_token" {
+  description = "Kubernetes API server token (waits for pools to be ready)"
+  value       = null_resource.kubeconfig.triggers.token
+  sensitive   = true
+}
+
+output "kubeconfig_cluster_ca_certificate" {
+  description = "Kubernetes cluster CA certificate (waits for pools to be ready)"
+  value       = null_resource.kubeconfig.triggers.cluster_ca_certificate
+  sensitive   = true
+}

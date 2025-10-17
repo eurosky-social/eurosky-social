@@ -96,3 +96,11 @@
 - Hot-reload for rapid iteration
 - Ephemeral test environments in CI/CD
 - Integration tests against real Kubernetes clusters
+
+## Terraform Code Guidelines
+
+- No unnecessary outputs/variables - only expose what is needed by other modules, for mapping module dependencies and for differentiating environments setup
+- Avoid `depends_on` - use implicit dependencies through attribute references
+- Externalize YAML/JSON configurations to separate template files
+- Use descriptive comments to document design decisions only when strictly necessary
+- Keep clear separation between the k8s resources and where these resources are running (e.g., separate modules for a cloud provider resources and k8s resources deployed on the cluster)
