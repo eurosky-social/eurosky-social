@@ -142,7 +142,7 @@ resource "kubernetes_deployment_v1" "ozone" {
             }
             limits = {
               cpu    = "500m"
-              memory = "500Gi"
+              memory = "500Mi"
             }
           }
 
