@@ -70,6 +70,11 @@ resource "kubernetes_service" "nginx" {
 
     annotations = {
       "service.beta.kubernetes.io/scw-loadbalancer-zone" : each.key
+      # external-dns will create DNS records automatically
+      "external-dns.alpha.kubernetes.io/hostname" : "ingress.scw.eurosky.social"
+      # Enable health checking
+      "external-dns.alpha.kubernetes.io/healthcheck-mode" : "all"
+      "external-dns.alpha.kubernetes.io/healthcheck-url" : "http://ingress.scw.eurosky.social/healthz"
     }
   }
 
