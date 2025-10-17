@@ -48,7 +48,7 @@ async function createGtubeFlashPost(agent: AtpAgent) {
 }
 
 describe("Account Creation", () => {
-  it("create_account_and_return_valid_did_when_given_valid_credentials", async () => {
+  it("create account and return valid did when given valid credentials", async () => {
     // Arrange & Act
     const { agent } = await createTestUser(PDS_URL);
 
@@ -59,7 +59,7 @@ describe("Account Creation", () => {
     expect(did).toMatch(/^did:/);
   });
 
-  it("fail_when_handle_already_exists", async () => {
+  it("fail when handle already exists", async () => {
     // Arrange
     const { handle } = await createTestUser(PDS_URL);
 
@@ -83,7 +83,7 @@ describe("Email Integration", () => {
     maildevClient = new MaildevClient(MAILDEV_URL);
   });
 
-  it("send_verification_email_when_confirmation_requested", async () => {
+  it("send verification email when confirmation requested", async () => {
     // Arrange
     const { agent } = await createTestUser(PDS_URL);
     await maildevClient.clearAllEmails();
@@ -97,7 +97,7 @@ describe("Email Integration", () => {
     expect(emails.length).toBeGreaterThan(0);
   });
 
-  it("confirm_email_when_valid_token_provided", async () => {
+  it("confirm email when valid token provided", async () => {
     // Arrange
     const { agent, email } = await createTestUser(PDS_URL);
     await maildevClient.clearAllEmails();
@@ -119,7 +119,7 @@ describe("Email Integration", () => {
 });
 
 describe("Moderation Report", () => {
-  it("create_spam_report_for_user_post", async () => {
+  it("create spam report for user post", async () => {
     // Arrange
     const spammer = await createTestUser(PDS_URL);
     const reporter = await createTestUser(PDS_URL);
@@ -176,7 +176,7 @@ describe("Moderation Report", () => {
     expect((reportEvent!.event as any).reportType).toBe(ComAtprotoModerationDefs.REASONSPAM);
   });
 
-  it("detect_gtube_spam_in_flash_posts_automatically", async () => {
+  it("detect gtube spam in flash posts automatically", async () => {
     const { agent } = await createTestUser(PDS_URL);
     const flashPost = await createGtubeFlashPost(agent);
 
@@ -223,7 +223,7 @@ describe("Moderation Report", () => {
       subscriber.close();
     });
 
-    it("receive_spam_label_via_websocket_when_gtube_detected_in_flash", async () => {
+    it("receive spam label via websocket when gtube detected in flash", async () => {
       const { agent } = await createTestUser(PDS_URL);
       await subscriber.connect();
 
