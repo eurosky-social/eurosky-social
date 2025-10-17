@@ -46,9 +46,9 @@ resource "scaleway_k8s_pool" "pool-multi-az-v2" {
   tags                   = ["multi-az", "v2"]
   cluster_id             = scaleway_k8s_cluster.kapsule_multi_az.id
   node_type              = "PLAY2-MICRO"
-  size                   = 2
-  min_size               = 2
-  max_size               = 3
+  size                   = 1 # for prod perhaps we want more per AZ
+  min_size               = 1
+  max_size               = 1
   autoscaling            = true
   autohealing            = true
   container_runtime      = "containerd"

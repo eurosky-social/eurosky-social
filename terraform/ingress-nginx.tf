@@ -35,7 +35,7 @@ resource "helm_release" "nginx_ingress" {
   values = [
     <<-EOT
         controller:
-          replicaCount: 6
+          replicaCount: 2 # prod 6?
 
           topologySpreadConstraints:
             - topologyKey: topology.kubernetes.io/zone
