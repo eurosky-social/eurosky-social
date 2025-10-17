@@ -1,66 +1,34 @@
-variable "ozone_hostname" {
-  type = string
+variable "project_id" {
+  description = "Scaleway project ID"
+  type        = string
 }
 
-variable "ozone_server_did" {
-  type      = string
-  sensitive = true
+variable "domain" {
+  description = "Base domain for DNS records"
+  type        = string
+  default     = "eurosky.social"
 }
 
-variable "ozone_admin_dids" {
-  type      = string
-  sensitive = true
-}
-
-variable "ozone_admin_password" {
-  type      = string
-  sensitive = true
-}
-
-variable "ozone_signing_key_hex" {
-  type      = string
-  sensitive = true
-}
-
-variable "ozone_did_plc_url" {
-  type = string
-}
-
-variable "ozone_appview_url" {
-  type = string
-}
-
-variable "ozone_appview_did" {
-  type = string
-}
-
-variable "plc_directory_url" {
-  type = string
-}
-
-variable "handle_resolver_url" {
-  type = string
+variable "subdomain" {
+  description = "Subdomain prefix for this environment"
+  type        = string
+  default     = "scw"
 }
 
 variable "region" {
+  description = "Scaleway region for VPC and cluster resources (must match zone prefix)"
   type        = string
   default     = "fr-par"
-  description = "Scaleway region for resources"
 }
 
-variable "project_id" {
-  type        = string
-  description = "Scaleway project ID"
+variable "zones" {
+  description = "List of availability zones for deployment"
+  type        = list(string)
+  default     = ["fr-par-1", "fr-par-2"]
 }
 
-variable "ozone_image" {
+variable "cert_manager_acme_email" {
+  description = "Email for ACME registration (Let's Encrypt)"
   type        = string
-  description = "Ozone container image"
-  default     = "ghcr.io/eurosky-social/ozone:latest"
-}
-
-variable "ozone_db_password" {
-  type        = string
-  description = "PostgreSQL password for Ozone database user"
-  sensitive   = true
+  default     = "admin@eurosky.social"
 }

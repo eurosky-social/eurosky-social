@@ -1,0 +1,38 @@
+# TODO this is tied to the cloud provider
+provider: scaleway
+
+env:
+  - name: SCW_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: ${secret_name}
+        key: SCW_ACCESS_KEY
+  - name: SCW_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: ${secret_name}
+        key: SCW_SECRET_KEY
+
+sources:
+  - service
+  - ingress
+
+domainFilters:
+  - ${cluster_domain}
+
+policy: ${sync_policy}
+
+registry: txt
+txtOwnerId: "${txt_owner_id}"
+txtPrefix: "${txt_prefix}"
+
+logLevel: ${log_level}
+logFormat: ${log_format}
+
+resources:
+  requests:
+    cpu: ${resources_requests_cpu}
+    memory: ${resources_requests_memory}
+  limits:
+    cpu: ${resources_limits_cpu}
+    memory: ${resources_limits_memory}

@@ -1,0 +1,64 @@
+controller:
+  replicaCount: ${replica_count}
+
+  # Production-recommended resource limits from official docs
+  resources:
+    requests:
+      cpu: 100m
+      memory: 90Mi
+    limits:
+      memory: 256Mi
+
+  # Security hardening from official docs
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - NET_BIND_SERVICE
+
+  # Multi-zone distribution
+  topologySpreadConstraints:
+    - topologyKey: topology.kubernetes.io/zone
+      maxSkew: ${topology_max_skew}
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-nginx
+          app.kubernetes.io/instance: ${release_name}
+          app.kubernetes.io/component: controller
+
+  # Node-level anti-affinity for HA
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+              app.kubernetes.io/instance: ${release_name}
+              app.kubernetes.io/component: controller
+          topologyKey: kubernetes.io/hostname
+
+  # Disable default service (using custom per-zone services)
+  service:
+    enabled: false
+
+  # Enable metrics for Prometheus monitoring
+  metrics:
+    enabled: true
+    port: 10254
+
+  # Enable admission webhooks for validation
+  admissionWebhooks:
+    enabled: true
+    failurePolicy: Fail
+
+  # PodDisruptionBudget for safe updates
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
