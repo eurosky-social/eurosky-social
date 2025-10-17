@@ -14,7 +14,7 @@ resource "scaleway_k8s_cluster" "kapsule_multi_az" {
   tags = ["multi-az"]
 
   type    = "kapsule"
-  version = "1.30"
+  version = "1.34"
   cni     = "cilium"
 
   delete_additional_resources = true
@@ -45,12 +45,13 @@ resource "scaleway_k8s_pool" "pool-multi-az-v2" {
   zone                   = each.value
   tags                   = ["multi-az", "v2"]
   cluster_id             = scaleway_k8s_cluster.kapsule_multi_az.id
-  node_type              = "PLAY2-MICRO"
+  node_type              = "DEV1-M" # POP2-2C-8G min with SLA
   size                   = 1 # for prod perhaps we want more per AZ
   min_size               = 1
   max_size               = 1
   autoscaling            = true
   autohealing            = true
   container_runtime      = "containerd"
-  root_volume_size_in_gb = 32
+  root_volume_size_in_gb = 20 # Minimum allowed by Scaleway
+  root_volume_type       = "l_ssd"
 }
