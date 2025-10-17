@@ -3,3 +3,4 @@ node_modules/
 CLAUDE.md
 .claude/
 temp/
+.venv
