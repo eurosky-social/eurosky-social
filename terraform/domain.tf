@@ -23,10 +23,10 @@ resource "scaleway_domain_record" "multi_az" {
 }
 
 # Ozone service DNS record
-resource "scaleway_domain_record" "ozone" {
-  dns_zone = data.scaleway_domain_zone.multi_az.id
-  name     = "ozone"
-  type     = "CNAME"
-  data     = "ingress.scw.eurosky.social."
-  ttl      = 300
-}
+# resource "scaleway_domain_record" "ozone" {
+#   dns_zone = data.scaleway_domain_zone.multi_az.id
+#   name     = "ozone"
+#   type     = "CNAME"
+#   data     = "ingress.scw.eurosky.social."
+#   ttl      = 300
+# }

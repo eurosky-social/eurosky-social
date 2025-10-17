@@ -28,6 +28,10 @@ resource "helm_release" "nginx_ingress" {
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
 
+  depends_on = [
+    scaleway_k8s_pool.pool-multi-az-v2
+  ]
+
   values = [
     <<-EOT
         controller:
