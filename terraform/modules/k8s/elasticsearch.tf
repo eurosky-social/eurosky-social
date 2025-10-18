@@ -46,42 +46,12 @@ resource "kubectl_manifest" "kibana" {
   })
 }
 
-resource "kubernetes_ingress_v1" "kibana" {
-  metadata {
-    name      = "kibana"
-    namespace = helm_release.eck_operator.namespace
+resource "kubectl_manifest" "kibana_ingress" {
+  yaml_body = templatefile("${path.module}/kibana-ingress.yaml", {
+    namespace      = helm_release.eck_operator.namespace
+    cluster_domain = var.cluster_domain
+  })
 
-    annotations = {
-      "cert-manager.io/cluster-issuer"               = "letsencrypt-prod"
-      "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS"
-      "external-dns.alpha.kubernetes.io/target"      = "ingress.${var.cluster_domain}"
-    }
-  }
-
-  spec {
-    ingress_class_name = "nginx"
-
-    tls {
-      hosts       = ["kibana.${var.cluster_domain}"]
-      secret_name = "kibana-tls"
-    }
-
-    rule {
-      host = "kibana.${var.cluster_domain}"
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = "kibana-kb-http"
-              port {
-                number = 5601
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  server_side_apply = true
+  wait              = true
 }
