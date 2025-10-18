@@ -47,3 +47,25 @@ output "kubeconfig_cluster_ca_certificate" {
   value       = null_resource.kubeconfig.triggers.cluster_ca_certificate
   sensitive   = true
 }
+
+output "postgres_backup_access_key" {
+  description = "PostgreSQL backup S3 access key"
+  value       = scaleway_iam_api_key.postgres_backup.access_key
+  sensitive   = true
+}
+
+output "postgres_backup_secret_key" {
+  description = "PostgreSQL backup S3 secret key"
+  value       = scaleway_iam_api_key.postgres_backup.secret_key
+  sensitive   = true
+}
+
+output "postgres_backup_destination_path" {
+  description = "PostgreSQL backup S3 destination path"
+  value       = "s3://${scaleway_object_bucket.postgres_backups_s3.name}/backups"
+}
+
+output "postgres_backup_endpoint_url" {
+  description = "PostgreSQL backup S3 endpoint URL"
+  value       = scaleway_object_bucket.postgres_backups_s3.api_endpoint
+}

@@ -28,10 +28,10 @@ resource "kubernetes_service" "nginx" {
 
     annotations = {
       # TODO cloud provider specific configuration, should be extracted
-      "service.beta.kubernetes.io/scw-loadbalancer-zone"   = each.key
-      "external-dns.alpha.kubernetes.io/hostname"          = "ingress.${var.cluster_domain}"
-      "external-dns.alpha.kubernetes.io/healthcheck-mode"  = "all"
-      "external-dns.alpha.kubernetes.io/healthcheck-url"   = "http://ingress.${var.cluster_domain}/healthz"
+      "service.beta.kubernetes.io/scw-loadbalancer-zone"  = each.key
+      "external-dns.alpha.kubernetes.io/hostname"         = "ingress.${var.cluster_domain}"
+      "external-dns.alpha.kubernetes.io/healthcheck-mode" = "all"
+      "external-dns.alpha.kubernetes.io/healthcheck-url"  = "http://ingress.${var.cluster_domain}/healthz"
     }
   }
 

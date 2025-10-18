@@ -2,6 +2,7 @@ module "scaleway" {
   source = "./modules/cloud_providers/scaleway"
 
   project_id = var.project_id
+  region     = var.region
   domain     = var.domain
   subdomain  = var.subdomain
   zones      = var.zones
@@ -14,12 +15,18 @@ module "k8s" {
   kubeconfig_token                  = module.scaleway.kubeconfig_token
   kubeconfig_cluster_ca_certificate = module.scaleway.kubeconfig_cluster_ca_certificate
 
-  external_dns_access_key     = module.scaleway.external_dns_access_key
-  external_dns_secret_key     = module.scaleway.external_dns_secret_key
+  external_dns_access_key = module.scaleway.external_dns_access_key
+  external_dns_secret_key = module.scaleway.external_dns_secret_key
 
-  ingress_nginx_zones         = module.scaleway.zones
-  cluster_domain              = join(".", [module.scaleway.subdomain, module.scaleway.domain])
+  ingress_nginx_zones = module.scaleway.zones
+  cluster_domain      = join(".", [module.scaleway.subdomain, module.scaleway.domain])
 
   cert_manager_acme_email     = var.cert_manager_acme_email
   elasticsearch_storage_class = "scw-bssd"
+
+  postgres_storage_class           = "scw-bssd"
+  postgres_backup_access_key       = module.scaleway.postgres_backup_access_key
+  postgres_backup_secret_key       = module.scaleway.postgres_backup_secret_key
+  postgres_backup_destination_path = module.scaleway.postgres_backup_destination_path
+  postgres_backup_endpoint_url     = module.scaleway.postgres_backup_endpoint_url
 }

@@ -1,0 +1,70 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-cluster
+  namespace: ${namespace}
+spec:
+  instances: 2 # 3 in prod
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.6
+
+  storage:
+    storageClass: ${storage_class}
+    size: 1Gi
+
+  primaryUpdateStrategy: unsupervised
+
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          cnpg.io/cluster: postgres-cluster
+
+  affinity:
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+
+  postgresql:
+    parameters:
+      max_connections: "100"
+      shared_buffers: "128MB"
+      effective_cache_size: "512MB"
+      work_mem: "2MB"
+      wal_compression: "on"
+      archive_timeout: "1h"
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: postgres-backup-s3
+
+  # TODO: Enable monitoring when Prometheus is set up
+  # monitoring:
+  #   enablePodMonitor: true
+
+  managed:
+    roles:
+      - name: ozone_user
+        ensure: present
+        login: true
+        passwordSecret:
+          name: ozone-db-secret
+
+  bootstrap:
+    initdb:
+      database: postgres
+      owner: postgres
+      dataChecksums: true
+      postInitApplicationSQL:
+        - CREATE DATABASE ozone OWNER ozone_user;
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"

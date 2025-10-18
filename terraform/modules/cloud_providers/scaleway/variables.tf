@@ -13,6 +13,11 @@ variable "subdomain" {
   type        = string
 }
 
+variable "region" {
+  description = "Scaleway region"
+  type        = string
+}
+
 variable "zones" {
   description = "List of availability zones for node pools"
   type        = list(string)

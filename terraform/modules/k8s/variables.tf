@@ -47,3 +47,30 @@ variable "kubeconfig_cluster_ca_certificate" {
   type        = string
   sensitive   = true
 }
+
+variable "postgres_storage_class" {
+  description = "Storage class for PostgreSQL persistent volumes"
+  type        = string
+}
+
+variable "postgres_backup_access_key" {
+  description = "S3 access key for PostgreSQL backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "postgres_backup_secret_key" {
+  description = "S3 secret key for PostgreSQL backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "postgres_backup_destination_path" {
+  description = "S3 destination path for PostgreSQL backups"
+  type        = string
+}
+
+variable "postgres_backup_endpoint_url" {
+  description = "S3 endpoint URL for PostgreSQL backups"
+  type        = string
+}

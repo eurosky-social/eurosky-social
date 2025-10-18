@@ -1,0 +1,22 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: postgres-backup-s3
+  namespace: ${namespace}
+spec:
+  configuration:
+    destinationPath: "${destination_path}"
+    endpointURL: "${endpoint_url}"
+    s3Credentials:
+      accessKeyId:
+        name: ${secret_name}
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: ${secret_name}
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+      maxParallel: 4
+    data:
+      compression: gzip
+      jobs: 2
