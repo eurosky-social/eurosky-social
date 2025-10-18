@@ -4,3 +4,5 @@ CLAUDE.md
 .claude/
 temp/
 .venv
+playwright-report/
+test-results/

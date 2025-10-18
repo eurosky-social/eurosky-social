@@ -206,7 +206,8 @@ describe("Moderation Report", () => {
     expect((labelEvent as any).event.createLabelVals).toContain("spam");
 
     const tagEvent = events.data.events.find(
-      (e: any) => e.event.$type === "tools.ozone.moderation.defs#modEventTag"
+      (e: any) => e.event.$type === "tools.ozone.moderation.defs#modEventTag" &&
+                  e.event.add?.includes("gtube-flash")
     );
     expect(tagEvent).toBeDefined();
     expect((tagEvent as any).event.add).toContain("gtube-flash");

@@ -14,4 +14,9 @@ echo "Using admin DID: $ADMIN_DID"
 export OZONE_ADMIN_DIDS="$ADMIN_DID"
 export OZONE_SERVER_DID="$ADMIN_DID"
 
+# Export runtime config vars for Next.js to read in app/layout.tsx
+# These override the NEXT_PUBLIC_ prefixed vars
+export PLC_DIRECTORY_URL
+export HANDLE_RESOLVER_URL
+
 exec dumb-init -- node --enable-source-maps service/index.js

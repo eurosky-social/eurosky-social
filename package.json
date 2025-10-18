@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:browser": "playwright test",
+    "test:browser:ui": "playwright test --ui",
+    "test:browser:headed": "playwright test --headed",
     "setup-ozone": "tsx setup-ozone.ts"
   },
   "repository": {
@@ -21,6 +24,7 @@
   "devDependencies": {
     "@atproto/api": "^0.17.1",
     "@atproto/common": "^0.4.12",
+    "@playwright/test": "^1.55.1",
     "@types/jest": "^30.0.0",
     "@types/ws": "^8.18.1",
     "dotenv": "^17.2.3",
