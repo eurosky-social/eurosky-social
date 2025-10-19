@@ -22,6 +22,15 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
     nginx.ingress.kubernetes.io/limit-rps: "25"
+    # WebSocket support with cookie-based sticky sessions for /xrpc/com.atproto.label.subscribeLabels
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/affinity-mode: "persistent"
+    nginx.ingress.kubernetes.io/session-cookie-name: "ozone-affinity"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
+    nginx.ingress.kubernetes.io/session-cookie-secure: "true"
+    nginx.ingress.kubernetes.io/session-cookie-samesite: "Lax"
+    nginx.ingress.kubernetes.io/session-cookie-change-on-failure: "true"
     # Use CNAME to ingress LoadBalancer instead of A record from stale Ingress status
     external-dns.alpha.kubernetes.io/target: "ingress.${ozone_cluster_domain}"
 spec:
