@@ -54,4 +54,8 @@ resource "kubectl_manifest" "kibana_ingress" {
 
   server_side_apply = true
   wait              = true
+
+  depends_on = [
+    null_resource.wait_for_nginx_webhook
+  ]
 }

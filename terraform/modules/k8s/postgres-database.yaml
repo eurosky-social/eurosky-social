@@ -1,0 +1,12 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: ozone
+  namespace: ${namespace}
+spec:
+  name: ozone
+  owner: ozone_user
+  ensure: present
+  databaseReclaimPolicy: retain
+  cluster:
+    name: ${cluster_name}

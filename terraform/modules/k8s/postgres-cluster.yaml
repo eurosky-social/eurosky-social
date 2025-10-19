@@ -1,7 +1,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: postgres-cluster
+  name: ${cluster_name}
   namespace: ${namespace}
 spec:
   instances: 2 # 3 in prod
@@ -20,7 +20,7 @@ spec:
       whenUnsatisfiable: DoNotSchedule
       labelSelector:
         matchLabels:
-          cnpg.io/cluster: postgres-cluster
+          cnpg.io/cluster: ${cluster_name}
 
   affinity:
     podAntiAffinityType: required

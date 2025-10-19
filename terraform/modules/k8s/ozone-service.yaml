@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ozone
+  namespace: ${namespace}
+  labels:
+    app: ozone
+    app.kubernetes.io/name: ozone
+    app.kubernetes.io/component: moderation
+spec:
+  type: ClusterIP
+  selector:
+    app: ozone
+    app.kubernetes.io/name: ozone
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800

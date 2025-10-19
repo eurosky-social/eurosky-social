@@ -1,3 +1,8 @@
+locals {
+  postgres_cluster_name = "postgres-cluster"
+  postgres_ca_secret_name = "${local.postgres_cluster_name}-ca"
+}
+
 resource "helm_release" "cloudnativepg" {
   name      = "cloudnativepg"
   namespace = "cnpg-system"
@@ -30,7 +35,7 @@ resource "kubectl_manifest" "barman_cloud_plugin" {
   wait              = true
 
   depends_on = [
-    helm_release.cert_manager,
+    null_resource.wait_for_cert_manager_webhook,
     helm_release.cloudnativepg
   ]
 }
@@ -80,8 +85,9 @@ resource "kubernetes_secret" "ozone_db" {
 
 resource "kubectl_manifest" "postgres_rbac" {
   yaml_body = templatefile("${path.module}/postgres-rbac.yaml", {
-    namespace   = kubernetes_namespace.databases.metadata[0].name
-    secret_name = kubernetes_secret.postgres_backup_s3.metadata[0].name
+    namespace    = kubernetes_secret.ozone_db.metadata[0].namespace
+    secret_name  = kubernetes_secret.postgres_backup_s3.metadata[0].name
+    cluster_name = local.postgres_cluster_name
   })
 
   server_side_apply = true
@@ -106,7 +112,8 @@ resource "kubectl_manifest" "postgres_backup_objectstore" {
 
 resource "kubectl_manifest" "postgres_cluster" {
   yaml_body = templatefile("${path.module}/postgres-cluster.yaml", {
-    namespace     = kubernetes_namespace.databases.metadata[0].name
+    namespace     = kubernetes_secret.ozone_db.metadata[0].namespace
+    cluster_name  = local.postgres_cluster_name
     storage_class = var.postgres_storage_class
   })
 
@@ -115,20 +122,31 @@ resource "kubectl_manifest" "postgres_cluster" {
 
   depends_on = [
     helm_release.cloudnativepg,
-    kubectl_manifest.postgres_rbac,
     kubectl_manifest.postgres_backup_objectstore
   ]
 }
 
 resource "kubectl_manifest" "postgres_scheduled_backup" {
   yaml_body = templatefile("${path.module}/postgres-scheduled-backup.yaml", {
-    namespace = kubernetes_namespace.databases.metadata[0].name
+    namespace    = kubernetes_secret.ozone_db.metadata[0].namespace
+    cluster_name = kubectl_manifest.postgres_cluster.name
+  })
+
+  server_side_apply = true
+  wait              = true
+}
+
+resource "kubectl_manifest" "postgres_ozone_database" {
+  yaml_body = templatefile("${path.module}/postgres-database.yaml", {
+    namespace    = kubernetes_secret.ozone_db.metadata[0].namespace
+    cluster_name = local.postgres_cluster_name
   })
 
   server_side_apply = true
   wait              = true
 
   depends_on = [
-    kubectl_manifest.postgres_cluster
+    kubectl_manifest.postgres_cluster,
+    kubernetes_secret.ozone_db
   ]
 }

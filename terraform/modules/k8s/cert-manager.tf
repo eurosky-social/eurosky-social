@@ -71,4 +71,8 @@ resource "kubectl_manifest" "cluster_issuer" {
   })
 
   wait = true
+
+  depends_on = [
+    null_resource.wait_for_cert_manager_webhook
+  ]
 }

@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ozone
+  namespace: ${namespace}
+  labels:
+    app: ozone
+    app.kubernetes.io/name: ozone
+    app.kubernetes.io/component: moderation
+spec:
+  # TODO: Increase to 3 replicas for production HA
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ozone
+      app.kubernetes.io/name: ozone
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ozone
+        app.kubernetes.io/name: ozone
+        app.kubernetes.io/component: moderation
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: ozone
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - ozone
+                topologyKey: kubernetes.io/hostname
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: postgres-ca
+          secret:
+            secretName: ${ca_secret_name}
+            defaultMode: 0640
+      containers:
+        - name: ozone
+          image: ${ozone_image}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: ozone-config
+            - secretRef:
+                name: ozone-secrets
+          env:
+            - name: PGSSLROOTCERT
+              value: /var/run/postgresql/ca.crt
+            - name: NODE_EXTRA_CA_CERTS
+              value: /var/run/postgresql/ca.crt
+          volumeMounts:
+            - name: postgres-ca
+              mountPath: /var/run/postgresql
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          # TODO: Increase resources for production (e.g., cpu: 500m-1000m, memory: 512Mi-1Gi)
+          resources:
+            requests:
+              cpu: 250m
+              memory: 250Mi
+            limits:
+              cpu: 250m
+              memory: 250Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1
+          startupProbe:
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+            successThreshold: 1

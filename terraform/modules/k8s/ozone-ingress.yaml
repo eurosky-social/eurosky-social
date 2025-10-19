@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ozone
+  namespace: ${namespace}
+  labels:
+    app: ozone
+    app.kubernetes.io/name: ozone
+    app.kubernetes.io/component: moderation
+  annotations:
+    # TODO: Change to letsencrypt-prod for production
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+    # Security headers
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/hsts: "true"
+    nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
+    nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/limit-rps: "25"
+    # Use CNAME to ingress LoadBalancer instead of A record from stale Ingress status
+    external-dns.alpha.kubernetes.io/target: "ingress.${ozone_cluster_domain}"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - ${ozone_hostname}
+      secretName: ozone-tls
+  rules:
+    - host: ${ozone_hostname}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ozone
+                port:
+                  number: 80

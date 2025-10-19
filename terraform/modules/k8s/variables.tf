@@ -74,3 +74,46 @@ variable "postgres_backup_endpoint_url" {
   description = "S3 endpoint URL for PostgreSQL backups"
   type        = string
 }
+
+variable "ozone_image" {
+  description = "Docker image for Ozone"
+  type        = string
+}
+
+variable "ozone_appview_url" {
+  description = "Appview URL for Ozone"
+  type        = string
+}
+
+variable "ozone_appview_did" {
+  description = "Appview DID for Ozone"
+  type        = string
+}
+
+variable "ozone_server_did" {
+  description = "Server DID for Ozone"
+  type        = string
+}
+
+variable "ozone_admin_dids" {
+  description = "Admin DIDs for Ozone (comma-separated)"
+  type        = string
+}
+
+variable "ozone_db_password" {
+  description = "PostgreSQL password for Ozone user"
+  type        = string
+  sensitive   = true
+}
+
+variable "ozone_admin_password" {
+  description = "Admin password for Ozone"
+  type        = string
+  sensitive   = true
+}
+
+variable "ozone_signing_key_hex" {
+  description = "Signing key (hex) for Ozone"
+  type        = string
+  sensitive   = true
+}
