@@ -12,3 +12,5 @@ spec:
   pluginConfiguration:
     name: barman-cloud.cloudnative-pg.io
   immediate: false
+
+# TODO: Document disaster recovery procedures (runbook, quarterly DR drills)

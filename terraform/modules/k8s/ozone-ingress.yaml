@@ -22,7 +22,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
     nginx.ingress.kubernetes.io/limit-rps: "25"
-    # WebSocket support with cookie-based sticky sessions for /xrpc/com.atproto.label.subscribeLabels
+    # Cookie-based sticky sessions (mainly for WebSocket connections)
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/affinity-mode: "persistent"
     nginx.ingress.kubernetes.io/session-cookie-name: "ozone-affinity"
@@ -33,6 +33,7 @@ metadata:
     nginx.ingress.kubernetes.io/session-cookie-change-on-failure: "true"
     # Use CNAME to ingress LoadBalancer instead of A record from stale Ingress status
     external-dns.alpha.kubernetes.io/target: "ingress.${ozone_cluster_domain}"
+    # TODO: Consider CDN integration (Cloudflare or cloud provider CDN)
 spec:
   ingressClassName: nginx
   tls:

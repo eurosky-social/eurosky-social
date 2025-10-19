@@ -92,3 +92,8 @@ resource "kubectl_manifest" "ozone_ingress" {
     null_resource.wait_for_nginx_webhook
   ]
 }
+
+# TODO: Add HorizontalPodAutoscaler for Ozone (2-5 replicas, 70% CPU target)
+# TODO: Add PodDisruptionBudget for Ozone (minAvailable: 1)
+# TODO: Add ServiceMonitor for Ozone observability
+# TODO: Consider progressive rollout strategy (Argo Rollouts/Flagger)

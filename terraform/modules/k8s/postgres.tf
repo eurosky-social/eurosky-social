@@ -150,3 +150,5 @@ resource "kubectl_manifest" "postgres_ozone_database" {
     kubernetes_secret.ozone_db
   ]
 }
+
+# TODO: Enable CloudNativePG Pooler for connection pooling
