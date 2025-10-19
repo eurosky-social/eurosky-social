@@ -19,8 +19,10 @@ services:
       PDS_BSKY_APP_VIEW_DID: did:web:bsky.${PARTITION}.${DOMAIN}
       PDS_EMAIL_SMTP_URL: smtp://maildev:1025
       PDS_EMAIL_FROM_ADDRESS: noreply@pds.${PARTITION}.${DOMAIN}
-      PDS_MODERATION_SERVICE_URL: https://ozone.${PARTITION}.${DOMAIN}
-      PDS_MODERATION_SERVICE_DID: did:web:ozone.${PARTITION}.${DOMAIN}
+      PDS_MODERATION_EMAIL_SMTP_URL: smtp://maildev:1025
+      PDS_MODERATION_EMAIL_ADDRESS: moderation@pds.${PARTITION}.${DOMAIN}
+      PDS_MOD_SERVICE_URL: https://ozone.${PARTITION}.${DOMAIN}
+      PDS_MOD_SERVICE_DID: ${PDS_MOD_SERVICE_DID:-did:plc:fake-plc-123456789}
       LOG_ENABLED: "true"
       LOG_LEVEL: "debug"
     volumes:

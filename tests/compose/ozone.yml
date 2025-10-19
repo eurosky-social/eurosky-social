@@ -44,6 +44,9 @@ services:
       - OZONE_APPVIEW_URL=https://bsky.${PARTITION}.${DOMAIN}
       - OZONE_APPVIEW_DID=did:web:bsky.${PARTITION}.${DOMAIN}
       - OZONE_ADMIN_PASSWORD=admin123
+      - OZONE_PDS_URL=https://pds.${PARTITION}.${DOMAIN}
+      - OZONE_PDS_DID=did:web:pds.${PARTITION}.${DOMAIN}
+      - OZONE_ADMIN_DIDS=${OZONE_ADMIN_DID}
       - PLC_DIRECTORY_URL=https://plc.${PARTITION}.${DOMAIN}
       - NEXT_PUBLIC_PLC_DIRECTORY_URL=https://plc.${PARTITION}.${DOMAIN}
       - HANDLE_RESOLVER_URL=https://bsky.${PARTITION}.${DOMAIN}
@@ -61,8 +64,6 @@ services:
         condition: service_healthy
       plc-https-check:
         condition: service_healthy
-      setup-ozone:
-        condition: service_completed_successfully
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ozone.rule=Host(`ozone.${PARTITION}.${DOMAIN}`)"
