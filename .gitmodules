@@ -31,3 +31,6 @@
 [submodule "rsky"]
 	path = rsky
 	url = git@github.com:eurosky-social/rsky.git
+[submodule "litestream"]
+	path = litestream
+	url = https://github.com/eurosky-social/litestream
