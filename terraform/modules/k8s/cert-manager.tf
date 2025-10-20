@@ -1,9 +1,3 @@
-# TODO: Add resource limits (requests.cpu=10m, requests.memory=32Mi, limits.memory=128Mi)
-# TODO: Add HA config (replicaCount=2, webhook.replicaCount=2, podDisruptionBudget.enabled=true)
-# TODO: Add security context (runAsNonRoot=true, allowPrivilegeEscalation=false)
-# TODO: Add global.priorityClassName=system-cluster-critical for production
-# TODO: Enable prometheus.enabled=true for monitoring
-# TODO: Consider moving to values file approach instead of multiple set blocks
 resource "helm_release" "cert_manager" {
   name      = "cert-manager"
   namespace = "cert-manager"
@@ -32,12 +26,19 @@ resource "kubernetes_secret" "cert_manager_scaleway" {
   }
 }
 
-# Using DNS-01 challenge for local dev
 resource "helm_release" "cert_manager_webhook_scaleway" {
   name       = "scaleway-certmanager-webhook"
   namespace  = helm_release.cert_manager.namespace
   repository = "https://helm.scw.cloud/"
   chart      = "scaleway-certmanager-webhook"
+
+  timeout = 60 * 10
+  wait    = true
+
+  set {
+    name  = "image.repository"
+    value = "cache.k8s.fr-par.scw.cloud/docker.io/scaleway/cert-manager-webhook-scaleway"
+  }
 
   set {
     name  = "secret.accessKey"
@@ -48,9 +49,13 @@ resource "helm_release" "cert_manager_webhook_scaleway" {
     name  = "secret.secretKey"
     value = kubernetes_secret.cert_manager_scaleway.data["SCW_SECRET_KEY"]
   }
+
+  depends_on = [
+    kubernetes_secret.cert_manager_scaleway,
+    null_resource.wait_for_cert_manager_webhook
+  ]
 }
 
-# TODO: Add rate limit handling for Let's Encrypt production (50 certs/week limit)
 resource "kubectl_manifest" "cluster_issuer" {
   for_each = {
     "letsencrypt-prod" = {
@@ -62,17 +67,27 @@ resource "kubectl_manifest" "cluster_issuer" {
   }
 
   yaml_body = templatefile("${path.module}/cluster-issuer.yaml", {
-    name               = each.key
-    server             = each.value.server
-    email              = var.cert_manager_acme_email
-    secret_name        = kubernetes_secret.cert_manager_scaleway.metadata[0].name
-    secret_namespace   = kubernetes_secret.cert_manager_scaleway.metadata[0].namespace
-    webhook_chart_name = helm_release.cert_manager_webhook_scaleway.name
+    name             = each.key
+    server           = each.value.server
+    email            = var.cert_manager_acme_email
+    secret_name      = kubernetes_secret.cert_manager_scaleway.metadata[0].name
+    secret_namespace = kubernetes_secret.cert_manager_scaleway.metadata[0].namespace
   })
 
   wait = true
 
   depends_on = [
-    null_resource.wait_for_cert_manager_webhook
+    helm_release.cert_manager_webhook_scaleway
   ]
 }
+
+# TODO: Add HA config (replicaCount=2 for controller/webhook/cainjector, pod anti-affinity)
+# TODO: Add resource limits (controller/webhook/cainjector: 10m CPU, 32Mi-128Mi memory)
+# TODO: Add PodDisruptionBudget (minAvailable=1 for controller/webhook/cainjector)
+# TODO: Add global.priorityClassName=system-cluster-critical for production
+# TODO: Enable prometheus.enabled=true and servicemonitor for observability
+# TODO: Add security contexts (runAsNonRoot, allowPrivilegeEscalation=false)
+# TODO: Enable global.featureGates=ServerSideApply=true (prevents API conflicts)
+# TODO: Use secret.existingSecret instead of passing secret values via set blocks
+# TODO: Add Let's Encrypt rate limit monitoring (50 certs/week limit)
+# TODO: Consider moving to values file approach for better maintainability

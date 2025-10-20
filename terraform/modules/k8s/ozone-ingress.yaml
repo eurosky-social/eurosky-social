@@ -7,6 +7,7 @@ metadata:
     app: ozone
     app.kubernetes.io/name: ozone
     app.kubernetes.io/component: moderation
+    # TODO: Add app.kubernetes.io/version and app.kubernetes.io/managed-by labels
   annotations:
     # TODO: Change to letsencrypt-prod for production
     cert-manager.io/cluster-issuer: "letsencrypt-staging"
@@ -18,10 +19,10 @@ metadata:
     nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
     nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "1m"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/limit-rps: "25"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60" # TODO: Consider increasing for WebSocket connections (e.g., 300s)
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60" # TODO: Consider increasing for WebSocket long-lived connections (e.g., 3600s)
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60" # TODO: Consider increasing for WebSocket long-lived connections (e.g., 3600s)
+    nginx.ingress.kubernetes.io/limit-rps: "25" # TODO: Review rate limit for production load (25 RPS may be too low)
     # Cookie-based sticky sessions (mainly for WebSocket connections)
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/affinity-mode: "persistent"
@@ -33,7 +34,9 @@ metadata:
     nginx.ingress.kubernetes.io/session-cookie-change-on-failure: "true"
     # Use CNAME to ingress LoadBalancer instead of A record from stale Ingress status
     external-dns.alpha.kubernetes.io/target: "ingress.${ozone_cluster_domain}"
-    # TODO: Consider CDN integration (Cloudflare or cloud provider CDN)
+    # TODO: Consider CDN integration (Cloudflare or cloud provider CDN) per GUIDELINES.md networking requirement
+    # TODO: Add nginx.ingress.kubernetes.io/configuration-snippet for WebSocket upgrade headers if needed
+    # TODO: Consider adding nginx.ingress.kubernetes.io/enable-cors for CORS support if needed
 spec:
   ingressClassName: nginx
   tls:

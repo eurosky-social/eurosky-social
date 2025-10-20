@@ -7,6 +7,8 @@ metadata:
     app: ozone
     app.kubernetes.io/name: ozone
     app.kubernetes.io/component: moderation
+    # TODO: Add app.kubernetes.io/version label for version tracking
+    # TODO: Add app.kubernetes.io/managed-by: terraform label
 spec:
   # TODO: Increase to 3 replicas for production HA
   replicas: 1
@@ -25,10 +27,12 @@ spec:
         app: ozone
         app.kubernetes.io/name: ozone
         app.kubernetes.io/component: moderation
+        # TODO: Add app.kubernetes.io/version label for version tracking
+      # TODO: Add annotations for config/secret checksums to trigger rolling updates on changes
     spec:
       # TODO: Verify Ozone handles SIGTERM gracefully (closes WebSocket connections before exit)
       terminationGracePeriodSeconds: 300
-      topologySpreadConstraints:
+      topologySpreadConstraints: # TODO: Verify this works with replicas=1, may need whenUnsatisfiable: ScheduleAnyway initially
         - maxSkew: 1
           topologyKey: topology.kubernetes.io/zone
           whenUnsatisfiable: DoNotSchedule
@@ -82,7 +86,7 @@ spec:
               readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: false # TODO: Investigate if Ozone can run with readOnlyRootFilesystem: true + emptyDir for writable paths
             runAsNonRoot: true
             runAsUser: 1000
             capabilities:
@@ -96,7 +100,7 @@ spec:
             limits:
               cpu: 250m
               memory: 250Mi
-          livenessProbe:
+          livenessProbe: # TODO: Use /xrpc/_health endpoint instead of / for more accurate health checks
             httpGet:
               path: /
               port: 3000
@@ -106,7 +110,7 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 3
             successThreshold: 1
-          readinessProbe:
+          readinessProbe: # TODO: Use /xrpc/_health endpoint instead of / for more accurate health checks
             httpGet:
               path: /
               port: 3000
@@ -116,7 +120,7 @@ spec:
             timeoutSeconds: 3
             failureThreshold: 3
             successThreshold: 1
-          startupProbe:
+          startupProbe: # TODO: Use /xrpc/_health endpoint instead of / for more accurate health checks
             httpGet:
               path: /
               port: 3000

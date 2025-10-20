@@ -1,11 +1,13 @@
 locals {
   ozone_hostname   = "ozone.${var.cluster_domain}"
   ozone_public_url = "https://${local.ozone_hostname}"
+  # TODO: Add ozone_version local for tracking deployed version in labels/annotations
 }
 
 resource "kubernetes_namespace" "ozone" {
   metadata {
     name = "ozone"
+    # TODO: Add standard labels (app.kubernetes.io/name, app.kubernetes.io/managed-by, etc.)
   }
 }
 
@@ -38,6 +40,11 @@ resource "kubectl_manifest" "ozone_configmap" {
     ozone_appview_did = var.ozone_appview_did
     ozone_server_did  = var.ozone_server_did
     ozone_admin_dids  = var.ozone_admin_dids
+    # TODO: Add OZONE_PORT (default 3000 if not specified in Ozone source)
+    # TODO: Add HANDLE_RESOLVER_URL (currently hardcoded in configmap)
+    # TODO: Consider adding optional OZONE_PDS_URL, OZONE_PDS_DID for PDS integration
+    # TODO: Consider adding optional OZONE_CHAT_URL, OZONE_CHAT_DID for chat moderation
+    # TODO: Consider adding OZONE_MODERATOR_DIDS, OZONE_TRIAGE_DIDS for role-based access
   })
 
   server_side_apply = true
@@ -46,12 +53,15 @@ resource "kubectl_manifest" "ozone_configmap" {
 
 resource "kubectl_manifest" "ozone_secret" {
   yaml_body = templatefile("${path.module}/ozone-secret.yaml", {
-    namespace                = kubernetes_namespace.ozone.metadata[0].name
-    db_password_urlencoded   = urlencode(var.ozone_db_password)
-    ozone_admin_password     = var.ozone_admin_password
-    ozone_signing_key_hex    = var.ozone_signing_key_hex
-    postgres_cluster_name    = kubectl_manifest.postgres_cluster.name
-    postgres_namespace       = kubernetes_namespace.databases.metadata[0].name
+    namespace              = kubernetes_namespace.ozone.metadata[0].name
+    db_password_urlencoded = urlencode(var.ozone_db_password)
+    ozone_admin_password   = var.ozone_admin_password
+    ozone_signing_key_hex  = var.ozone_signing_key_hex
+    postgres_cluster_name  = kubectl_manifest.postgres_cluster.name
+    postgres_namespace     = kubernetes_namespace.databases.metadata[0].name
+    # TODO: Consider adding OZONE_DB_POSTGRES_SCHEMA if using non-public schema
+    # TODO: Consider adding OZONE_BLOB_DIVERT_URL and OZONE_BLOB_DIVERT_ADMIN_PASSWORD for blob moderation
+    # TODO: Consider adding OZONE_VERIFIER_URL, OZONE_VERIFIER_DID, OZONE_VERIFIER_PASSWORD for verification service integration
   })
 
   server_side_apply = true
@@ -60,13 +70,15 @@ resource "kubectl_manifest" "ozone_secret" {
 
 resource "kubectl_manifest" "ozone_deployment" {
   yaml_body = templatefile("${path.module}/ozone-deployment.yaml", {
-    namespace         = kubernetes_namespace.ozone.metadata[0].name
-    ozone_image       = var.ozone_image
-    ca_secret_name    = kubernetes_secret.postgres_ca_ozone.metadata[0].name
+    namespace      = kubernetes_namespace.ozone.metadata[0].name
+    ozone_image    = var.ozone_image
+    ca_secret_name = kubernetes_secret.postgres_ca_ozone.metadata[0].name
+    # TODO: Pass ozone_version for deployment metadata tracking
   })
 
   server_side_apply = true
   wait              = true
+  # TODO: Add lifecycle block to ignore changes to replicas if using HPA
 }
 
 resource "kubectl_manifest" "ozone_service" {
@@ -80,9 +92,9 @@ resource "kubectl_manifest" "ozone_service" {
 
 resource "kubectl_manifest" "ozone_ingress" {
   yaml_body = templatefile("${path.module}/ozone-ingress.yaml", {
-    namespace             = kubernetes_namespace.ozone.metadata[0].name
-    ozone_hostname        = local.ozone_hostname
-    ozone_cluster_domain  = var.cluster_domain
+    namespace            = kubernetes_namespace.ozone.metadata[0].name
+    ozone_hostname       = local.ozone_hostname
+    ozone_cluster_domain = var.cluster_domain
   })
 
   server_side_apply = true
@@ -93,7 +105,10 @@ resource "kubectl_manifest" "ozone_ingress" {
   ]
 }
 
-# TODO: Add HorizontalPodAutoscaler for Ozone (2-5 replicas, 70% CPU target)
-# TODO: Add PodDisruptionBudget for Ozone (minAvailable: 1)
-# TODO: Add ServiceMonitor for Ozone observability
-# TODO: Consider progressive rollout strategy (Argo Rollouts/Flagger)
+# TODO: Add HorizontalPodAutoscaler for Ozone (2-5 replicas, 70% CPU target) per GUIDELINES.md HA requirement
+# TODO: Add PodDisruptionBudget for Ozone (minAvailable: 1) per GUIDELINES.md HA requirement
+# TODO: Add ServiceMonitor for Ozone observability per GUIDELINES.md observability requirement
+# TODO: Consider progressive rollout strategy (Argo Rollouts/Flagger) per GUIDELINES.md deployment strategy
+# TODO: Add NetworkPolicy to restrict ingress/egress per GUIDELINES.md security requirement
+# TODO: Verify WebSocket support is maintained through all proxy layers (Service -> Ingress -> Load Balancer)
+# TODO: Document disaster recovery procedures per GUIDELINES.md DR requirement
