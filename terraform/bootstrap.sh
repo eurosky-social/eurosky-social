@@ -26,19 +26,19 @@ REQUIRED_SECRETS=(
     "SCW_DEFAULT_REGION"
     "SCW_DEFAULT_ZONE"
     "STATE_BUCKET"
+    "TF_VAR_ozone_db_password"
     "TF_VAR_ozone_admin_password"
     "TF_VAR_ozone_signing_key_hex"
+    "TF_VAR_pds_jwt_secret"
+    "TF_VAR_pds_admin_password"
+    "TF_VAR_pds_plc_rotation_key"
 )
 
 REQUIRED_VARS=(
-    "TF_VAR_ozone_hostname"
     "TF_VAR_ozone_server_did"
     "TF_VAR_ozone_admin_dids"
-    "TF_VAR_ozone_did_plc_url"
     "TF_VAR_ozone_appview_url"
     "TF_VAR_ozone_appview_did"
-    "TF_VAR_plc_directory_url"
-    "TF_VAR_handle_resolver_url"
 )
 
 for var in "${REQUIRED_SECRETS[@]}"; do

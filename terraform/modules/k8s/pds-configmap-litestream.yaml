@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litestream-config
+  namespace: ${namespace}
+  labels:
+    app: pds
+    app.kubernetes.io/name: pds
+    app.kubernetes.io/component: backup
+data:
+  litestream.yml: |
+    dbs:
+      - path: /pds/account.sqlite
+        replicas:
+          - type: s3
+            bucket: ${backup_bucket}
+            path: litestream/pds/system/account.sqlite
+            region: ${backup_region}
+            endpoint: ${backup_endpoint}
+            sync-interval: 15m
+
+      - path: /pds/sequencer.sqlite
+        replicas:
+          - type: s3
+            bucket: ${backup_bucket}
+            path: litestream/pds/system/sequencer.sqlite
+            region: ${backup_region}
+            endpoint: ${backup_endpoint}
+            sync-interval: 15m
+
+      - path: /pds/did_cache.sqlite
+        replicas:
+          - type: s3
+            bucket: ${backup_bucket}
+            path: litestream/pds/system/did_cache.sqlite
+            region: ${backup_region}
+            endpoint: ${backup_endpoint}
+            sync-interval: 15m
+
+# TODO: Switch to custom Litestream image with dynamic discovery for per-user databases
+# TODO: Add Prometheus metrics endpoint (addr: ":9090" in config)
+# TODO: Add logging config (logging: {level: info, type: text})
+# TODO: Set up alerts for replication lag > 30s
+# TODO: Test restore procedure quarterly as part of DR drills
+# TODO: Add retention policies (retention: "720h" for 30-day minimum per DR guidelines)
+# TODO: Add snapshot-interval for daily full backups (snapshot-interval: "24h")
+# TODO: Add validation-interval for corruption detection (validation-interval: "1h")
+# TODO: Consider compression to reduce S3 costs (compression: gzip)

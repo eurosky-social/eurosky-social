@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pds-headless
+  namespace: ${namespace}
+  labels:
+    app: pds
+    app.kubernetes.io/name: pds
+    app.kubernetes.io/component: server
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: pds
+    app.kubernetes.io/name: pds
+  ports:
+    - name: http
+      port: 2583
+      targetPort: 2583
+      protocol: TCP
+      appProtocol: http
+
+# TODO: Add app.kubernetes.io/managed-by: terraform label for consistency

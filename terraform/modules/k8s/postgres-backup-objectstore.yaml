@@ -15,8 +15,10 @@ spec:
         name: ${secret_name}
         key: ACCESS_SECRET_KEY
     wal:
-      compression: gzip
-      maxParallel: 4
+      compression: gzip # TODO: Benchmark compression overhead vs storage savings for your workload
+      maxParallel: 4 # TODO: Tune based on network bandwidth and storage IOPS capacity
     data:
       compression: gzip
-      jobs: 2
+      jobs: 2 # TODO: Increase jobs for faster backups if cluster has multiple cores
+    # TODO: Add encryption configuration for data at rest in S3
+    # TODO: Configure serverName for multi-cluster backup scenarios

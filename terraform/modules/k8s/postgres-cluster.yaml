@@ -4,13 +4,13 @@ metadata:
   name: ${cluster_name}
   namespace: ${namespace}
 spec:
-  instances: 2 # 3 in prod
+  instances: 2 # TODO: Increase to 3 for production HA (requires 3 availability zones)
 
-  imageName: ghcr.io/cloudnative-pg/postgresql:16.6
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.6 # TODO: Pin to specific digest for immutability
 
   storage:
     storageClass: ${storage_class}
-    size: 1Gi
+    size: 1Gi # TODO: Right-size based on expected data volume and growth projections
 
   primaryUpdateStrategy: unsupervised
 
@@ -28,12 +28,12 @@ spec:
 
   postgresql:
     parameters:
-      max_connections: "100"
-      shared_buffers: "128MB"
-      effective_cache_size: "512MB"
-      work_mem: "2MB"
+      max_connections: "100" # TODO: Tune based on expected connection pool size and workload
+      shared_buffers: "128MB" # TODO: Adjust based on available memory (typically 25% of RAM)
+      effective_cache_size: "512MB" # TODO: Set to ~75% of available memory
+      work_mem: "2MB" # TODO: Calculate based on max_connections and query complexity
       wal_compression: "on"
-      archive_timeout: "1h"
+      archive_timeout: "1h" # TODO: Consider reducing to 5min for lower RPO in production
 
   plugins:
     - name: barman-cloud.cloudnative-pg.io
@@ -61,10 +61,10 @@ spec:
       postInitApplicationSQL:
         - CREATE DATABASE ozone OWNER ozone_user;
 
-  resources:
+  resources: # TODO: Right-size based on actual workload metrics and load testing
     requests:
-      memory: "256Mi"
+      memory: "256Mi" # TODO: Ensure requests align with shared_buffers + work_mem calculations
       cpu: "100m"
     limits:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "512Mi" # TODO: Set memory limit 2x shared_buffers to avoid OOM kills
+      cpu: "500m" # TODO: Consider removing CPU limits to avoid throttling in production

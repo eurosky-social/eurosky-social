@@ -60,6 +60,12 @@ variable "ozone_admin_dids" {
   type        = string
 }
 
+variable "ozone_db_password" {
+  description = "PostgreSQL password for Ozone (store in tfvars for DR/portability)"
+  type        = string
+  sensitive   = true
+}
+
 variable "ozone_admin_password" {
   description = "Admin password for Ozone"
   type        = string
@@ -68,6 +74,25 @@ variable "ozone_admin_password" {
 
 variable "ozone_signing_key_hex" {
   description = "Signing key (hex) for Ozone"
+  type        = string
+  sensitive   = true
+}
+
+
+variable "pds_jwt_secret" {
+  description = "JWT secret for PDS authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_admin_password" {
+  description = "Admin password for PDS"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_plc_rotation_key" {
+  description = "PLC rotation key (K256 private key hex)"
   type        = string
   sensitive   = true
 }

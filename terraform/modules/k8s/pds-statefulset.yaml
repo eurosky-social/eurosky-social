@@ -1,0 +1,197 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pds
+  namespace: ${namespace}
+  labels:
+    app: pds
+    app.kubernetes.io/name: pds
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  serviceName: pds-headless
+  selector:
+    matchLabels:
+      app: pds
+      app.kubernetes.io/name: pds
+  template:
+    metadata:
+      labels:
+        app: pds
+        app.kubernetes.io/name: pds
+        app.kubernetes.io/component: server
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: litestream-restore
+          image: litestream/litestream:0.3.13
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              for db in account sequencer did_cache; do
+                echo "Attempting to restore /pds/$${db}.sqlite..."
+                litestream restore \
+                  -if-db-not-exists \
+                  -if-replica-exists \
+                  -config /etc/litestream.yml \
+                  /pds/$${db}.sqlite || echo "No backup found for $${db}.sqlite, skipping"
+              done
+              echo "Restore complete"
+          envFrom:
+            - secretRef:
+                name: litestream-credentials
+          volumeMounts:
+            - name: pds-data
+              mountPath: /pds
+            - name: litestream-config
+              mountPath: /etc/litestream.yml
+              subPath: litestream.yml
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+      containers:
+        - name: pds
+          image: ghcr.io/bluesky-social/pds:${pds_version}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 2583
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: pds-config
+            - secretRef:
+                name: pds-secrets
+          volumeMounts:
+            - name: pds-data
+              mountPath: /pds
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /xrpc/_health
+              port: 2583
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /xrpc/_health
+              port: 2583
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1
+          startupProbe:
+            httpGet:
+              path: /xrpc/_health
+              port: 2583
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+            successThreshold: 1
+        - name: litestream
+          image: litestream/litestream:0.3.13
+          args:
+            - replicate
+          envFrom:
+            - secretRef:
+                name: litestream-credentials
+          volumeMounts:
+            - name: pds-data
+              mountPath: /pds
+            - name: litestream-config
+              mountPath: /etc/litestream.yml
+              subPath: litestream.yml
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+        - name: litestream-config
+          configMap:
+            name: litestream-config
+  volumeClaimTemplates:
+    - metadata:
+        name: pds-data
+        labels:
+          app: pds
+          app.kubernetes.io/name: pds
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: pds-storage
+        resources:
+          requests:
+            storage: ${pds_storage_size}
+
+# TODO: Single replica due to SQLite limitation (blocks HA - requires architectural change)
+# TODO: Development resource limits (Production needs 500m-1000m CPU, 512Mi-1Gi memory for PDS)
+# TODO: ReadOnlyRootFilesystem: false (SQLite requires write access, unavoidable)
+# TODO: Increase Litestream resources if needed based on replication load
+# TODO: Add Prometheus metrics endpoint for observability
+# TODO: Set up Grafana dashboards for PDS health monitoring
+# TODO: Configure alerting on replication lag and service health
+# TODO: Test disaster recovery restore procedure from S3
+# TODO: Document and automate failover procedures
+# TODO: Hot standby pod with read-only Litestream-restored databases
+# TODO: Automated failover on primary pod failure
+# TODO: Multi-region disaster recovery
+# TODO: Add podManagementPolicy: Parallel for faster scaling (currently defaults to OrderedReady)
+# TODO: Add updateStrategy.rollingUpdate.partition for canary deployments
+# TODO: Add persistentVolumeClaimRetentionPolicy to control PVC cleanup behavior
+# TODO: Add annotations for Prometheus scraping if metrics endpoint is added
+# TODO: Add terminationGracePeriodSeconds (default 30s may be insufficient for SQLite flush + Litestream final sync)
+# TODO: Add affinity rules to prevent scheduling on same node as other critical services
+# TODO: Add topologySpreadConstraints for multi-AZ distribution when running multiple replicas in future
+# TODO: Pin litestream-restore image to SHA256 digest for immutability and security
+# TODO: Add resource requests/limits for init container to prevent resource starvation
+# TODO: Pin PDS image to SHA256 digest for immutability and security
+# TODO: Add lifecycle.preStop hook to gracefully shutdown PDS and allow Litestream final sync
+# TODO: Use named port reference in probes instead of hardcoded 2583
+# TODO: Verify 60s total startup time (12 * 5s) is sufficient for cold start + S3 restore
+# TODO: Add liveness probe to detect Litestream replication failures
+# TODO: Add metrics endpoint for Prometheus scraping of replication lag
+# TODO: Add revisionHistoryLimit to control number of old ReplicaSets retained
+# TODO: Add volumeMode: Filesystem explicitly for clarity

@@ -18,24 +18,33 @@ module "k8s" {
   external_dns_access_key = module.scaleway.external_dns_access_key
   external_dns_secret_key = module.scaleway.external_dns_secret_key
 
-  ingress_nginx_zones = module.scaleway.zones
-  cluster_domain      = join(".", [module.scaleway.subdomain, module.scaleway.domain])
+  ingress_nginx_zones = module.scaleway.zones # TODO: Remove unnecessary output passthrough - k8s module shouldn't need zones if implicit dependency exists
+  cluster_domain      = join(".", [module.scaleway.subdomain, module.scaleway.domain]) # TODO: Move domain construction logic to scaleway module output to reduce coupling
 
   cert_manager_acme_email     = var.cert_manager_acme_email
-  elasticsearch_storage_class = "scw-bssd"
+  elasticsearch_storage_class = "scw-bssd" # TODO: Extract hardcoded storage class to variable for cloud-agnostic design (see GUIDELINES.md Core Principles)
 
-  postgres_storage_class           = "scw-bssd"
-  postgres_backup_access_key       = module.scaleway.postgres_backup_access_key
-  postgres_backup_secret_key       = module.scaleway.postgres_backup_secret_key
-  postgres_backup_destination_path = module.scaleway.postgres_backup_destination_path
-  postgres_backup_endpoint_url     = module.scaleway.postgres_backup_endpoint_url
+  backup_storage_class = "scw-bssd" # TODO: Extract hardcoded storage class to variable for cloud-agnostic design (see GUIDELINES.md Core Principles)
+  backup_s3_access_key = module.scaleway.backup_s3_access_key
+  backup_s3_secret_key = module.scaleway.backup_s3_secret_key
+  backup_s3_bucket     = module.scaleway.backup_s3_bucket
+  backup_s3_region     = module.scaleway.backup_s3_region
+  backup_s3_endpoint   = module.scaleway.backup_s3_endpoint
 
-  ozone_image            = var.ozone_image
-  ozone_appview_url      = var.ozone_appview_url
-  ozone_appview_did      = var.ozone_appview_did
-  ozone_server_did       = var.ozone_server_did
-  ozone_admin_dids       = var.ozone_admin_dids
-  ozone_db_password      = module.k8s.ozone_db_password
-  ozone_admin_password   = var.ozone_admin_password
-  ozone_signing_key_hex  = var.ozone_signing_key_hex
+  ozone_image           = var.ozone_image
+  ozone_appview_url     = var.ozone_appview_url
+  ozone_appview_did     = var.ozone_appview_did
+  ozone_server_did      = var.ozone_server_did
+  ozone_admin_dids      = var.ozone_admin_dids
+  ozone_db_password     = var.ozone_db_password
+  ozone_admin_password  = var.ozone_admin_password
+  ozone_signing_key_hex = var.ozone_signing_key_hex
+
+  pds_storage_provisioner  = "csi.scaleway.com" # TODO: Extract hardcoded CSI provisioner to variable for cloud-agnostic design (see GUIDELINES.md Core Principles)
+  pds_jwt_secret           = var.pds_jwt_secret
+  pds_admin_password       = var.pds_admin_password
+  pds_plc_rotation_key     = var.pds_plc_rotation_key
+  pds_blobstore_bucket     = module.scaleway.pds_blobstore_bucket
+  pds_blobstore_access_key = module.scaleway.pds_blobstore_access_key
+  pds_blobstore_secret_key = module.scaleway.pds_blobstore_secret_key
 }

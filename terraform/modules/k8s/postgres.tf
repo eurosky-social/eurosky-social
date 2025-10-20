@@ -1,5 +1,5 @@
 locals {
-  postgres_cluster_name = "postgres-cluster"
+  postgres_cluster_name   = "postgres-cluster"
   postgres_ca_secret_name = "${local.postgres_cluster_name}-ca"
 }
 
@@ -11,16 +11,16 @@ resource "helm_release" "cloudnativepg" {
 
   repository = "https://cloudnative-pg.github.io/charts"
   chart      = "cloudnative-pg"
-  version    = "0.26.0"
+  version    = "0.26.0" # TODO: Verify latest stable version and pin with constraints
 
   set {
     name  = "monitoring.podMonitorEnabled"
-    value = "false"
+    value = "false" # TODO: Enable monitoring.podMonitorEnabled when Prometheus is deployed
   }
 }
 
 data "http" "barman_cloud_plugin_manifest" {
-  url = "https://github.com/cloudnative-pg/plugin-barman-cloud/releases/download/v0.7.0/manifest.yaml"
+  url = "https://github.com/cloudnative-pg/plugin-barman-cloud/releases/download/v0.7.0/manifest.yaml" # TODO: Pin to specific version and verify latest release
 }
 
 data "kubectl_file_documents" "barman_cloud_plugin_docs" {
@@ -46,23 +46,22 @@ resource "kubernetes_namespace" "databases" {
   }
 }
 
-resource "kubernetes_secret" "postgres_backup_s3" {
+resource "kubernetes_secret" "backup_s3_creds" {
   metadata {
-    name      = "postgres-backup-s3-creds"
+    name      = "backup-s3-creds"
     namespace = kubernetes_namespace.databases.metadata[0].name
   }
 
   data = {
-    ACCESS_KEY_ID     = var.postgres_backup_access_key
-    ACCESS_SECRET_KEY = var.postgres_backup_secret_key
+    ACCESS_KEY_ID     = var.backup_s3_access_key
+    ACCESS_SECRET_KEY = var.backup_s3_secret_key
   }
 
   type = "Opaque"
-}
 
-resource "random_password" "ozone_db_password" {
-  length  = 32
-  special = true
+  lifecycle {
+    ignore_changes = [data]
+  }
 }
 
 resource "kubernetes_secret" "ozone_db" {
@@ -77,7 +76,7 @@ resource "kubernetes_secret" "ozone_db" {
 
   data = {
     username = "ozone_user"
-    password = random_password.ozone_db_password.result
+    password = var.ozone_db_password
   }
 
   type = "kubernetes.io/basic-auth"
@@ -85,8 +84,8 @@ resource "kubernetes_secret" "ozone_db" {
 
 resource "kubectl_manifest" "postgres_rbac" {
   yaml_body = templatefile("${path.module}/postgres-rbac.yaml", {
-    namespace    = kubernetes_secret.ozone_db.metadata[0].namespace
-    secret_name  = kubernetes_secret.postgres_backup_s3.metadata[0].name
+    namespace    = kubernetes_namespace.databases.metadata[0].name
+    secret_name  = kubernetes_secret.backup_s3_creds.metadata[0].name
     cluster_name = local.postgres_cluster_name
   })
 
@@ -97,9 +96,9 @@ resource "kubectl_manifest" "postgres_rbac" {
 resource "kubectl_manifest" "postgres_backup_objectstore" {
   yaml_body = templatefile("${path.module}/postgres-backup-objectstore.yaml", {
     namespace        = kubernetes_namespace.databases.metadata[0].name
-    destination_path = var.postgres_backup_destination_path
-    endpoint_url     = var.postgres_backup_endpoint_url
-    secret_name      = kubernetes_secret.postgres_backup_s3.metadata[0].name
+    destination_path = "s3://${var.backup_s3_bucket}/postgres/"
+    endpoint_url     = var.backup_s3_endpoint
+    secret_name      = kubernetes_secret.backup_s3_creds.metadata[0].name
   })
 
   server_side_apply = true
@@ -114,7 +113,7 @@ resource "kubectl_manifest" "postgres_cluster" {
   yaml_body = templatefile("${path.module}/postgres-cluster.yaml", {
     namespace     = kubernetes_secret.ozone_db.metadata[0].namespace
     cluster_name  = local.postgres_cluster_name
-    storage_class = var.postgres_storage_class
+    storage_class = var.backup_storage_class
   })
 
   server_side_apply = true
@@ -126,7 +125,7 @@ resource "kubectl_manifest" "postgres_cluster" {
   ]
 }
 
-resource "kubectl_manifest" "postgres_scheduled_backup" {
+resource "kubectl_manifest" "postgres_scheduled_backup" { # TODO: Add retentionPolicy parameter ('30d' or '60d' recommended for production)
   yaml_body = templatefile("${path.module}/postgres-scheduled-backup.yaml", {
     namespace    = kubernetes_secret.ozone_db.metadata[0].namespace
     cluster_name = kubectl_manifest.postgres_cluster.name
@@ -151,4 +150,10 @@ resource "kubectl_manifest" "postgres_ozone_database" {
   ]
 }
 
-# TODO: Enable CloudNativePG Pooler for connection pooling
+# TODO: Enable CloudNativePG Pooler for connection pooling (PgBouncer with PoolerType 'rw')
+# TODO: Configure Pooler HPA for autoscaling based on CPU/connection metrics
+# TODO: Add PodDisruptionBudget for postgres-cluster to ensure HA during node maintenance
+# TODO: Implement backup verification job to test restore procedures monthly
+# TODO: Add alerts for backup failures, replication lag, and disk usage
+# TODO: Document connection string format for applications (use pooler endpoint)
+# TODO: Configure backup encryption at rest using ObjectStore encryption settings

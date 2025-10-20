@@ -1,27 +1,29 @@
 # Terraform Configuration for Eurosky
 
-This directory contains Terraform configuration for deploying Eurosky infrastructure to Scaleway Serverless Containers.
+Deploys Kubernetes infrastructure to Scaleway with Ozone moderation service and Bluesky PDS.
 
 ## Prerequisites
 
 1. **Scaleway Account** with API credentials
-2. **Terraform** installed (v1.10+ for native S3 locking)
-3. **Scaleway CLI** (scw) - for bucket creation
-4. **GitHub CLI** (gh) - for uploading secrets (optional, used by bootstrap script)
+2. **Terraform** v1.10+
+3. **Scaleway CLI** (scw)
 
 ## Quick Start
 
 ```bash
+# 1. Configure environment
 cp .env.example .env
+# Edit .env with Scaleway credentials and generate secrets (see .env.example comments)
 
-# Edit .env with your Scaleway credentials
-
+# 2. Bootstrap (first time only - creates S3 state bucket)
 source .env
-
-# Bootstrap is only needed the first time to create the S3 bucket and upload GitHub secrets
 ./bootstrap.sh
 
+# 3. Deploy
 terraform init -backend-config="bucket=$STATE_BUCKET"
 terraform plan
 terraform apply
+
+# 4. Get kubeconfig
+scw k8s kubeconfig install $(terraform output -raw cluster_id)
 ```

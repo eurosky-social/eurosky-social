@@ -48,30 +48,35 @@ variable "kubeconfig_cluster_ca_certificate" {
   sensitive   = true
 }
 
-variable "postgres_storage_class" {
-  description = "Storage class for PostgreSQL persistent volumes"
+variable "backup_storage_class" {
+  description = "Storage class for backup-related persistent volumes (PostgreSQL)"
   type        = string
 }
 
-variable "postgres_backup_access_key" {
-  description = "S3 access key for PostgreSQL backups"
-  type        = string
-  sensitive   = true
-}
-
-variable "postgres_backup_secret_key" {
-  description = "S3 secret key for PostgreSQL backups"
+variable "backup_s3_access_key" {
+  description = "S3 access key for all backups (PostgreSQL, Litestream)"
   type        = string
   sensitive   = true
 }
 
-variable "postgres_backup_destination_path" {
-  description = "S3 destination path for PostgreSQL backups"
+variable "backup_s3_secret_key" {
+  description = "S3 secret key for all backups (PostgreSQL, Litestream)"
+  type        = string
+  sensitive   = true
+}
+
+variable "backup_s3_bucket" {
+  description = "S3 bucket for all backups (postgres/, litestream/ prefixes)"
   type        = string
 }
 
-variable "postgres_backup_endpoint_url" {
-  description = "S3 endpoint URL for PostgreSQL backups"
+variable "backup_s3_region" {
+  description = "S3 region for backup bucket"
+  type        = string
+}
+
+variable "backup_s3_endpoint" {
+  description = "S3 endpoint URL for backup bucket"
   type        = string
 }
 
@@ -114,6 +119,46 @@ variable "ozone_admin_password" {
 
 variable "ozone_signing_key_hex" {
   description = "Signing key (hex) for Ozone"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_storage_provisioner" {
+  description = "Storage provisioner for PDS volumes"
+  type        = string
+}
+
+variable "pds_jwt_secret" {
+  description = "JWT secret for PDS authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_admin_password" {
+  description = "Admin password for PDS"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_plc_rotation_key" {
+  description = "PLC rotation key (K256 private key hex)"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_blobstore_bucket" {
+  description = "S3 bucket for PDS blob storage"
+  type        = string
+}
+
+variable "pds_blobstore_access_key" {
+  description = "S3 access key for PDS blobstore"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_blobstore_secret_key" {
+  description = "S3 secret key for PDS blobstore"
   type        = string
   sensitive   = true
 }

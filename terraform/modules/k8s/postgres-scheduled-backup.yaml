@@ -4,13 +4,16 @@ metadata:
   name: postgres-daily-backup
   namespace: ${namespace}
 spec:
-  schedule: "0 2 * * *"
+  schedule: "0 2 * * *" # TODO: Stagger backup times if multiple clusters exist to reduce I/O contention
   backupOwnerReference: self
   cluster:
     name: ${cluster_name}
   method: plugin
   pluginConfiguration:
     name: barman-cloud.cloudnative-pg.io
-  immediate: false
+  immediate: false # TODO: Set to true for first backup after cluster creation, then false
 
+# TODO: Add retentionPolicy: "30d" for production (or 60d for compliance requirements)
 # TODO: Document disaster recovery procedures (runbook, quarterly DR drills)
+# TODO: Implement backup monitoring and alerting for failed backups
+# TODO: Add target backup time SLO (e.g., backups must complete within 1 hour)

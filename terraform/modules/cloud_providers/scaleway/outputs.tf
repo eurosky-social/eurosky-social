@@ -48,24 +48,46 @@ output "kubeconfig_cluster_ca_certificate" {
   sensitive   = true
 }
 
-output "postgres_backup_access_key" {
-  description = "PostgreSQL backup S3 access key"
-  value       = scaleway_iam_api_key.postgres_backup.access_key
+output "backup_s3_access_key" {
+  description = "Unified backup S3 access key"
+  value       = scaleway_iam_api_key.backups.access_key
   sensitive   = true
 }
 
-output "postgres_backup_secret_key" {
-  description = "PostgreSQL backup S3 secret key"
-  value       = scaleway_iam_api_key.postgres_backup.secret_key
+output "backup_s3_secret_key" {
+  description = "Unified backup S3 secret key"
+  value       = scaleway_iam_api_key.backups.secret_key
   sensitive   = true
 }
 
-output "postgres_backup_destination_path" {
-  description = "PostgreSQL backup S3 destination path"
-  value       = "s3://${scaleway_object_bucket.postgres_backups_s3.name}/backups"
+output "backup_s3_bucket" {
+  description = "Unified backup S3 bucket name"
+  value       = scaleway_object_bucket.backups_s3.name
 }
 
-output "postgres_backup_endpoint_url" {
-  description = "PostgreSQL backup S3 endpoint URL"
-  value       = scaleway_object_bucket.postgres_backups_s3.api_endpoint
+output "backup_s3_region" {
+  description = "Unified backup S3 bucket region"
+  value       = var.region
+}
+
+output "backup_s3_endpoint" {
+  description = "Unified backup S3 endpoint URL"
+  value       = scaleway_object_bucket.backups_s3.api_endpoint
+}
+
+output "pds_blobstore_bucket" {
+  description = "PDS blobstore S3 bucket name"
+  value       = scaleway_object_bucket.pds_blobstore.name
+}
+
+output "pds_blobstore_access_key" {
+  description = "PDS blobstore S3 access key"
+  value       = scaleway_iam_api_key.pds_blobstore.access_key
+  sensitive   = true
+}
+
+output "pds_blobstore_secret_key" {
+  description = "PDS blobstore S3 secret key"
+  value       = scaleway_iam_api_key.pds_blobstore.secret_key
+  sensitive   = true
 }
