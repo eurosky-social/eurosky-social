@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-    "name": "Eurosky Social",
+    "name": "${localWorkspaceFolderBasename}",
     // https://containers.dev/guide/dockerfile
     "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
     // With Docker-outside-of-Docker, mount paths are referenced to the host filesytem, so we want to align fs paths...
