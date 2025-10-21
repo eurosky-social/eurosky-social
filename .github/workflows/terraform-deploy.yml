@@ -25,6 +25,8 @@ jobs:
         working-directory: ./terraform
 
     env:
+      TF_IN_AUTOMATION: true
+
       # Scaleway credentials (provider auto-detects these)
       SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
       SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
@@ -43,16 +45,16 @@ jobs:
       STATE_BUCKET: ${{ secrets.STATE_BUCKET }}
 
       # Terraform variables
-      TF_VAR_ozone_hostname: ${{ vars.TF_VAR_ozone_hostname }}
       TF_VAR_ozone_server_did: ${{ vars.TF_VAR_ozone_server_did }}
       TF_VAR_ozone_admin_dids: ${{ vars.TF_VAR_ozone_admin_dids }}
-      TF_VAR_ozone_did_plc_url: ${{ vars.TF_VAR_ozone_did_plc_url }}
       TF_VAR_ozone_appview_url: ${{ vars.TF_VAR_ozone_appview_url }}
       TF_VAR_ozone_appview_did: ${{ vars.TF_VAR_ozone_appview_did }}
-      TF_VAR_plc_directory_url: ${{ vars.TF_VAR_plc_directory_url }}
-      TF_VAR_handle_resolver_url: ${{ vars.TF_VAR_handle_resolver_url }}
       TF_VAR_ozone_admin_password: ${{ secrets.TF_VAR_ozone_admin_password }}
       TF_VAR_ozone_signing_key_hex: ${{ secrets.TF_VAR_ozone_signing_key_hex }}
+      TF_VAR_ozone_db_password: ${{ secrets.TF_VAR_ozone_db_password }}
+      TF_VAR_pds_jwt_secret: ${{ secrets.TF_VAR_pds_jwt_secret }}
+      TF_VAR_pds_admin_password: ${{ secrets.TF_VAR_pds_admin_password }}
+      TF_VAR_pds_plc_rotation_key: ${{ secrets.TF_VAR_pds_plc_rotation_key }}
 
     steps:
       - name: Checkout code
