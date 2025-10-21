@@ -33,6 +33,7 @@ REQUIRED_SECRETS=(
     "SCW_DEFAULT_REGION"
     "SCW_DEFAULT_ZONE"
     "STATE_BUCKET"
+    "TF_VAR_project_id"
     "TF_VAR_ozone_db_password"
     "TF_VAR_ozone_admin_password"
     "TF_VAR_ozone_signing_key_hex"

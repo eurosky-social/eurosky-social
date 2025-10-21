@@ -26,6 +26,7 @@ jobs:
 
     env:
       TF_IN_AUTOMATION: true
+      TF_INPUT: false
 
       # Scaleway credentials (provider auto-detects these)
       SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
@@ -49,6 +50,9 @@ jobs:
       TF_VAR_ozone_admin_dids: ${{ vars.TF_VAR_ozone_admin_dids }}
       TF_VAR_ozone_appview_url: ${{ vars.TF_VAR_ozone_appview_url }}
       TF_VAR_ozone_appview_did: ${{ vars.TF_VAR_ozone_appview_did }}
+
+      # Terraform secrets
+      TF_VAR_project_id: ${{ secrets.TF_VAR_project_id }}
       TF_VAR_ozone_admin_password: ${{ secrets.TF_VAR_ozone_admin_password }}
       TF_VAR_ozone_signing_key_hex: ${{ secrets.TF_VAR_ozone_signing_key_hex }}
       TF_VAR_ozone_db_password: ${{ secrets.TF_VAR_ozone_db_password }}
