@@ -19,7 +19,7 @@ module "k8s" {
   external_dns_secret_key = module.scaleway.external_dns_secret_key
 
   ingress_nginx_zones = module.scaleway.zones # TODO: Remove unnecessary output passthrough - k8s module shouldn't need zones if implicit dependency exists
-  cluster_domain      = join(".", [module.scaleway.subdomain, module.scaleway.domain]) # TODO: Move domain construction logic to scaleway module output to reduce coupling
+  cluster_domain      = module.scaleway.domain
 
   cert_manager_acme_email     = var.cert_manager_acme_email
   elasticsearch_storage_class = "scw-bssd" # TODO: Extract hardcoded storage class to variable for cloud-agnostic design (see GUIDELINES.md Core Principles)

@@ -1,13 +1,3 @@
-output "domain" {
-  description = "Base domain for DNS records"
-  value       = var.domain
-}
-
-output "subdomain" {
-  description = "Subdomain prefix"
-  value       = var.subdomain
-}
-
 output "zones" {
   description = "Availability zones"
   value       = var.zones
@@ -91,3 +81,9 @@ output "pds_blobstore_secret_key" {
   value       = scaleway_iam_api_key.pds_blobstore.secret_key
   sensitive   = true
 }
+
+output "domain" {
+  description = "DNS zone (subdomain.domain)"
+  value       = scaleway_domain_zone.cluster_subdomain.id
+}
+
