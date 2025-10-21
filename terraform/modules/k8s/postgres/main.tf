@@ -11,38 +11,28 @@ resource "helm_release" "cloudnativepg" {
 
   repository = "https://cloudnative-pg.github.io/charts"
   chart      = "cloudnative-pg"
-  version    = "0.26.0" # TODO: Verify latest stable version and pin with constraints
+  version    = var.cnpg_version
 
   set {
     name  = "monitoring.podMonitorEnabled"
-    value = "false" # TODO: Enable monitoring.podMonitorEnabled when Prometheus is deployed
+    value = var.monitoring_enabled
   }
 }
 
-data "http" "barman_cloud_plugin_manifest" {
-  url = "https://github.com/cloudnative-pg/plugin-barman-cloud/releases/download/v0.7.0/manifest.yaml" # TODO: Pin to specific version and verify latest release
-}
+resource "helm_release" "barman_cloud_plugin" {
+  name      = "plugin-barman-cloud"
+  namespace = "cnpg-system"
 
-data "kubectl_file_documents" "barman_cloud_plugin_docs" {
-  content = data.http.barman_cloud_plugin_manifest.response_body
-}
+  repository = "https://cloudnative-pg.github.io/charts"
+  chart      = "plugin-barman-cloud"
+  version    = var.barman_plugin_chart_version
 
-resource "kubectl_manifest" "barman_cloud_plugin" {
-  for_each = data.kubectl_file_documents.barman_cloud_plugin_docs.manifests
-
-  yaml_body         = each.value
-  server_side_apply = true
-  wait              = true
-
-  depends_on = [
-    null_resource.wait_for_cert_manager_webhook,
-    helm_release.cloudnativepg
-  ]
+  depends_on = [helm_release.cloudnativepg]
 }
 
 resource "kubernetes_namespace" "databases" {
   metadata {
-    name = "databases"
+    name = var.namespace
   }
 }
 
@@ -104,16 +94,14 @@ resource "kubectl_manifest" "postgres_backup_objectstore" {
   server_side_apply = true
   wait              = true
 
-  depends_on = [
-    kubectl_manifest.barman_cloud_plugin
-  ]
+  depends_on = [helm_release.barman_cloud_plugin]
 }
 
 resource "kubectl_manifest" "postgres_cluster" {
   yaml_body = templatefile("${path.module}/postgres-cluster.yaml", {
     namespace     = kubernetes_secret.ozone_db.metadata[0].namespace
     cluster_name  = local.postgres_cluster_name
-    storage_class = var.backup_storage_class
+    storage_class = var.storage_class
   })
 
   server_side_apply = true
@@ -125,7 +113,7 @@ resource "kubectl_manifest" "postgres_cluster" {
   ]
 }
 
-resource "kubectl_manifest" "postgres_scheduled_backup" { # TODO: Add retentionPolicy parameter ('30d' or '60d' recommended for production)
+resource "kubectl_manifest" "postgres_scheduled_backup" {
   yaml_body = templatefile("${path.module}/postgres-scheduled-backup.yaml", {
     namespace    = kubernetes_secret.ozone_db.metadata[0].namespace
     cluster_name = kubectl_manifest.postgres_cluster.name

@@ -1,3 +1,19 @@
+variable "kubeconfig_host" {
+  description = "Kubernetes API server host"
+  type        = string
+}
+
+variable "kubeconfig_token" {
+  description = "Kubernetes authentication token"
+  type        = string
+  sensitive   = true
+}
+
+variable "kubeconfig_cluster_ca_certificate" {
+  description = "Kubernetes cluster CA certificate (base64 encoded)"
+  type        = string
+  sensitive   = true
+}
 
 variable "external_dns_access_key" {
   description = "Scaleway access key for external-dns"
@@ -29,23 +45,6 @@ variable "cert_manager_acme_email" {
 variable "elasticsearch_storage_class" {
   description = "Storage class for Elasticsearch persistent volumes"
   type        = string
-}
-
-variable "kubeconfig_host" {
-  description = "Kubernetes API server host from kubeconfig"
-  type        = string
-}
-
-variable "kubeconfig_token" {
-  description = "Kubernetes API server token from kubeconfig"
-  type        = string
-  sensitive   = true
-}
-
-variable "kubeconfig_cluster_ca_certificate" {
-  description = "Kubernetes cluster CA certificate from kubeconfig"
-  type        = string
-  sensitive   = true
 }
 
 variable "backup_storage_class" {

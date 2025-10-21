@@ -38,7 +38,6 @@ spec:
                 name: pds
                 port:
                   number: 80
-
 # TODO: Change cert-manager.io/cluster-issuer to "letsencrypt-prod" for production
 # TODO: Review and adjust rate limiting (currently 100 RPS) based on traffic patterns
 # TODO: Test proxy-body-size limit (100m) is sufficient for user uploads

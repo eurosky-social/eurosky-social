@@ -21,8 +21,8 @@ resource "kubernetes_secret" "cert_manager_scaleway" {
   }
 
   data = {
-    SCW_ACCESS_KEY = var.external_dns_access_key
-    SCW_SECRET_KEY = var.external_dns_secret_key
+    SCW_ACCESS_KEY = var.scw_access_key
+    SCW_SECRET_KEY = var.scw_secret_key
   }
 }
 
@@ -52,7 +52,7 @@ resource "helm_release" "cert_manager_webhook_scaleway" {
 
   depends_on = [
     kubernetes_secret.cert_manager_scaleway,
-    null_resource.wait_for_cert_manager_webhook
+    helm_release.cert_manager
   ]
 }
 
@@ -69,7 +69,7 @@ resource "kubectl_manifest" "cluster_issuer" {
   yaml_body = templatefile("${path.module}/cluster-issuer.yaml", {
     name             = each.key
     server           = each.value.server
-    email            = var.cert_manager_acme_email
+    email            = var.acme_email
     secret_name      = kubernetes_secret.cert_manager_scaleway.metadata[0].name
     secret_namespace = kubernetes_secret.cert_manager_scaleway.metadata[0].namespace
   })

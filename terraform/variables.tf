@@ -12,7 +12,7 @@ variable "domain" {
 variable "subdomain" {
   description = "Subdomain prefix for this environment"
   type        = string
-  default     = "scw"
+  default     = "dev" # TODO prod
 }
 
 variable "region" {

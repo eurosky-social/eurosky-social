@@ -1,5 +1,3 @@
-# TODO: Configure rate limiting (controller.config.limit-req-status-code, limit-conn-status-code)
-# TODO: Consider parameterizing replica_count via variable for different environments
 resource "helm_release" "nginx_ingress" {
   name      = "ingress-nginx"
   namespace = "ingress-nginx"
@@ -12,27 +10,30 @@ resource "helm_release" "nginx_ingress" {
 
   values = [
     templatefile("${path.module}/ingress-nginx-values.yaml", {
-      replica_count     = 2
-      topology_max_skew = 1
+      replica_count     = var.replica_count
+      topology_max_skew = var.topology_max_skew
       release_name      = "ingress-nginx"
     })
   ]
 }
 
 resource "kubernetes_service" "nginx" {
-  for_each = toset(var.ingress_nginx_zones)
+  for_each = toset(var.zones)
 
   metadata {
     name      = "ingress-nginx-controller-${each.key}"
     namespace = helm_release.nginx_ingress.namespace
 
-    annotations = {
-      # TODO cloud provider specific configuration, should be extracted
-      "service.beta.kubernetes.io/scw-loadbalancer-zone"  = each.key
-      "external-dns.alpha.kubernetes.io/hostname"         = "ingress.${var.cluster_domain}"
-      "external-dns.alpha.kubernetes.io/healthcheck-mode" = "all"
-      "external-dns.alpha.kubernetes.io/healthcheck-url"  = "http://ingress.${var.cluster_domain}/healthz"
-    }
+    annotations = merge(
+      {
+        "external-dns.alpha.kubernetes.io/hostname"         = "ingress.${var.cluster_domain}"
+        "external-dns.alpha.kubernetes.io/healthcheck-mode" = "all"
+        "external-dns.alpha.kubernetes.io/healthcheck-url"  = "http://ingress.${var.cluster_domain}/healthz"
+      },
+      var.cloud_provider == "scaleway" ? {
+        "service.beta.kubernetes.io/scw-loadbalancer-zone" = each.key
+      } : {}
+    )
   }
 
   spec {
@@ -63,7 +64,6 @@ resource "kubernetes_service" "nginx" {
 
   lifecycle {
     ignore_changes = [
-      # TODO cloud provider specific configuration, should be extracted
       metadata[0].annotations["service.beta.kubernetes.io/scw-loadbalancer-id"],
       metadata[0].labels["k8s.scaleway.com/cluster"],
       metadata[0].labels["k8s.scaleway.com/kapsule"],
@@ -71,3 +71,6 @@ resource "kubernetes_service" "nginx" {
     ]
   }
 }
+
+# TODO: Configure rate limiting (controller.config.limit-req-status-code, limit-conn-status-code)
+# TODO: Consider parameterizing replica_count via variable for different environments
