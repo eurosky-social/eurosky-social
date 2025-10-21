@@ -1,4 +1,9 @@
 #!/bin/bash
+
+## Bootstrap
+##      Create initial resources (Terraform state bucket in Scaleway, GitHub Actions secrets/variables) 
+##      to get the CI/CD pipeline up and running.
+
 set -e
 
 if ! command -v scw &> /dev/null; then
@@ -12,7 +17,9 @@ if ! command -v gh &> /dev/null; then
 fi
 
 if [ ! -f .env ]; then
-    echo "Error: .env file not found. Run: cp .env.example .env"
+    echo "Error: .env file not found."
+    echo "   Run: cp .env.example .env"
+    echo "   Then populate the .env file with required values."
     exit 1
 fi
 
