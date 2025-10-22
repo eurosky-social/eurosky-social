@@ -36,15 +36,15 @@ module "external_dns" {
   depends_on = [module.ingress_nginx]
 }
 
-module "elastic" {
-  source = "./elastic"
+# module "elastic" {
+#   source = "./elastic"
 
-  storage_class       = var.elasticsearch_storage_class
-  cluster_domain      = var.cluster_domain
-  cert_manager_issuer = var.kibana_cert_manager_issuer
+#   storage_class       = var.elasticsearch_storage_class
+#   cluster_domain      = var.cluster_domain
+#   cert_manager_issuer = var.kibana_cert_manager_issuer
 
-  depends_on = [module.cert_manager, module.ingress_nginx]
-}
+#   depends_on = [module.cert_manager, module.ingress_nginx]
+# }
 
 module "postgres" {
   source = "./postgres"
