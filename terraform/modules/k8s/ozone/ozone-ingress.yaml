@@ -18,9 +18,9 @@ metadata:
     nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
     nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "1m"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60" # TODO: Consider increasing for WebSocket connections (e.g., 300s)
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "60" # TODO: Consider increasing for WebSocket long-lived connections (e.g., 3600s)
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60" # TODO: Consider increasing for WebSocket long-lived connections (e.g., 3600s)
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
     nginx.ingress.kubernetes.io/limit-rps: "25" # TODO: Review rate limit for production load (25 RPS may be too low)
     # Cookie-based sticky sessions (mainly for WebSocket connections)
     nginx.ingress.kubernetes.io/affinity: "cookie"
