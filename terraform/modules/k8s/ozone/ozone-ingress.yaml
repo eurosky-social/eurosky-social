@@ -9,8 +9,7 @@ metadata:
     app.kubernetes.io/component: moderation
     # TODO: Add app.kubernetes.io/version and app.kubernetes.io/managed-by labels
   annotations:
-    # TODO: Change to letsencrypt-prod for production
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    cert-manager.io/cluster-issuer: "${cert_manager_issuer}"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     acme.cert-manager.io/http01-edit-in-place: "true"
     # Security headers

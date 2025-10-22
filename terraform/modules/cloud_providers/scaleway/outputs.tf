@@ -52,7 +52,7 @@ output "backup_s3_secret_key" {
 
 output "backup_s3_bucket" {
   description = "Unified backup S3 bucket name"
-  value       = scaleway_object_bucket.backups_s3.name
+  value       = data.scaleway_object_bucket.backups_s3.name
 }
 
 output "backup_s3_region" {
@@ -62,12 +62,12 @@ output "backup_s3_region" {
 
 output "backup_s3_endpoint" {
   description = "Unified backup S3 endpoint URL"
-  value       = scaleway_object_bucket.backups_s3.api_endpoint
+  value       = data.scaleway_object_bucket.backups_s3.endpoint
 }
 
 output "pds_blobstore_bucket" {
   description = "PDS blobstore S3 bucket name"
-  value       = scaleway_object_bucket.pds_blobstore.name
+  value       = data.scaleway_object_bucket.pds_blobstore.name
 }
 
 output "pds_blobstore_access_key" {
@@ -85,5 +85,15 @@ output "pds_blobstore_secret_key" {
 output "domain" {
   description = "DNS zone (subdomain.domain)"
   value       = scaleway_domain_zone.cluster_subdomain.id
+}
+
+output "cluster_id" {
+  description = "Kubernetes cluster ID"
+  value       = scaleway_k8s_cluster.kapsule_multi_az.id
+}
+
+output "storage_provisioner" {
+  description = "Kubernetes CSI storage provisioner"
+  value       = local.storage_provisioner
 }
 

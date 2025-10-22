@@ -45,6 +45,7 @@ spec:
           envFrom:
             - secretRef:
                 name: litestream-credentials
+                # TODO: Mount secrets as files instead of env vars for better security (prevents process listing exposure)
           volumeMounts:
             - name: pds-data
               mountPath: /pds
@@ -72,6 +73,7 @@ spec:
                 name: pds-config
             - secretRef:
                 name: pds-secrets
+                # TODO: Mount secrets as files instead of env vars for better security (prevents process listing exposure)
           volumeMounts:
             - name: pds-data
               mountPath: /pds
@@ -127,6 +129,7 @@ spec:
           envFrom:
             - secretRef:
                 name: litestream-credentials
+                # TODO: Mount secrets as files instead of env vars for better security (prevents process listing exposure)
           volumeMounts:
             - name: pds-data
               mountPath: /pds

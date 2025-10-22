@@ -39,6 +39,14 @@ resource "kubectl_manifest" "pds_configmap" {
     pds_blobstore_bucket   = var.pds_blobstore_bucket
     pds_blobstore_region   = var.backup_region
     pds_blobstore_endpoint = var.backup_endpoint
+    pds_did_plc_url        = var.pds_did_plc_url
+    pds_bsky_app_view_url  = var.pds_bsky_app_view_url
+    pds_bsky_app_view_did  = var.pds_bsky_app_view_did
+    pds_report_service_url = var.pds_report_service_url
+    pds_report_service_did = var.pds_report_service_did
+    pds_blob_upload_limit  = var.pds_blob_upload_limit
+    pds_log_enabled        = var.pds_log_enabled
+    pds_email_from_address = var.pds_email_from_address
   })
 
   server_side_apply = true
@@ -46,6 +54,7 @@ resource "kubectl_manifest" "pds_configmap" {
 }
 
 resource "kubectl_manifest" "pds_secret" {
+  # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
   yaml_body = templatefile("${path.module}/pds-secret.yaml", {
     namespace                = kubernetes_namespace.pds.metadata[0].name
     pds_jwt_secret           = var.pds_jwt_secret
@@ -53,6 +62,7 @@ resource "kubectl_manifest" "pds_secret" {
     pds_plc_rotation_key     = var.pds_plc_rotation_key
     pds_blobstore_access_key = var.pds_blobstore_access_key
     pds_blobstore_secret_key = var.pds_blobstore_secret_key
+    pds_email_smtp_url       = var.pds_email_smtp_url
   })
 
   server_side_apply = true
@@ -60,6 +70,7 @@ resource "kubectl_manifest" "pds_secret" {
 }
 
 resource "kubectl_manifest" "pds_secret_litestream" {
+  # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
   yaml_body = templatefile("${path.module}/pds-secret-litestream.yaml", {
     namespace                = kubernetes_namespace.pds.metadata[0].name
     backup_access_key_id     = var.backup_access_key
@@ -90,9 +101,10 @@ resource "kubectl_manifest" "pds_service" {
 
 resource "kubectl_manifest" "pds_ingress" {
   yaml_body = templatefile("${path.module}/pds-ingress.yaml", {
-    namespace      = kubernetes_namespace.pds.metadata[0].name
-    pds_hostname   = local.pds_hostname
-    cluster_domain = var.cluster_domain
+    namespace           = kubernetes_namespace.pds.metadata[0].name
+    pds_hostname        = local.pds_hostname
+    cluster_domain      = var.cluster_domain
+    cert_manager_issuer = var.cert_manager_issuer
   })
 
   server_side_apply = true

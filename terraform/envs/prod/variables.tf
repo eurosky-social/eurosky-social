@@ -1,106 +1,91 @@
-variable "kubeconfig_host" {
-  description = "Kubernetes API server host"
+variable "project_id" {
+  description = "Scaleway project ID"
   type        = string
 }
 
-variable "kubeconfig_token" {
-  description = "Kubernetes authentication token"
+variable "domain" {
+  description = "Base domain for DNS records"
   type        = string
-  sensitive   = true
+  default     = "eurosky.social"
 }
 
-variable "kubeconfig_cluster_ca_certificate" {
-  description = "Kubernetes cluster CA certificate (base64 encoded)"
-  type        = string
-  sensitive   = true
-}
-
-variable "external_dns_access_key" {
-  description = "Scaleway access key for external-dns"
-  type        = string
-  sensitive   = true
-}
-
-variable "external_dns_secret_key" {
-  description = "Scaleway secret key for external-dns"
-  type        = string
-  sensitive   = true
-}
-
-variable "ingress_nginx_zones" {
-  description = "List of zones for load balancer deployment"
-  type        = list(string)
-}
-
-variable "cluster_domain" {
-  description = "Full cluster domain (subdomain.domain)"
-  type        = string
-}
-
-variable "cert_manager_acme_email" {
-  description = "Email for ACME registration"
+variable "subdomain" {
+  description = "Subdomain prefix for this environment (dev, prod, staging, etc.)"
   type        = string
 }
 
 variable "ozone_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for Ozone ingress"
+  description = "cert-manager ClusterIssuer for Ozone (letsencrypt-staging or letsencrypt-prod)"
   type        = string
 }
 
 variable "pds_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for PDS ingress"
+  description = "cert-manager ClusterIssuer for PDS (letsencrypt-staging or letsencrypt-prod)"
   type        = string
 }
 
 variable "kibana_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for Kibana ingress"
+  description = "cert-manager ClusterIssuer for Kibana (letsencrypt-staging or letsencrypt-prod)"
   type        = string
 }
 
-variable "elasticsearch_storage_class" {
-  description = "Storage class for Elasticsearch persistent volumes"
+variable "k8s_node_type" {
+  description = "Kubernetes node instance type (DEV1-M for dev, PRO2-M for production)"
+  type        = string
+}
+
+variable "k8s_node_min_size" {
+  description = "Minimum number of nodes per pool"
+  type        = number
+}
+
+variable "k8s_node_max_size" {
+  description = "Maximum number of nodes per pool (for autoscaling)"
+  type        = number
+}
+
+variable "pds_storage_size" {
+  description = "PDS storage size (e.g., 10Gi for dev, 100Gi for production)"
   type        = string
 }
 
 variable "postgres_storage_class" {
-  description = "Storage class for PostgreSQL persistent volumes"
+  description = "Kubernetes storage class for PostgreSQL persistent volumes"
   type        = string
 }
 
-variable "backup_s3_access_key" {
-  description = "S3 access key for all backups (PostgreSQL, Litestream)"
-  type        = string
-  sensitive   = true
-}
-
-variable "backup_s3_secret_key" {
-  description = "S3 secret key for all backups (PostgreSQL, Litestream)"
-  type        = string
-  sensitive   = true
-}
-
-variable "backup_s3_bucket" {
-  description = "S3 bucket for all backups (postgres/, litestream/ prefixes)"
+variable "elasticsearch_storage_class" {
+  description = "Kubernetes storage class for Elasticsearch persistent volumes"
   type        = string
 }
 
-variable "backup_s3_region" {
-  description = "S3 region for backup bucket"
+variable "region" {
+  description = "Scaleway region for VPC and cluster resources (must match zone prefix)"
   type        = string
+  default     = "fr-par"
 }
 
-variable "backup_s3_endpoint" {
-  description = "S3 endpoint URL for backup bucket"
+variable "zones" {
+  description = "List of availability zones for deployment"
+  type        = list(string)
+  default     = ["fr-par-1", "fr-par-2"]
+}
+
+variable "cert_manager_acme_email" {
+  description = "Email for ACME registration (Let's Encrypt)"
   type        = string
+  default     = "admin@eurosky.social"
 }
 
 variable "ozone_image" {
   description = "Docker image for Ozone"
   type        = string
+  # TODO: Pin to specific SHA or version tag instead of :latest for production (e.g., ghcr.io/bluesky-social/ozone:v1.0.0 or @sha256:abc123...)
+  default     = "ghcr.io/bluesky-social/ozone:latest"
 }
 
 variable "ozone_public_url" {
-  description = "Public URL for Ozone (optional, defaults to https://ozone.<cluster_domain>)"
+  description = "Public URL for Ozone (optional, defaults to https://ozone.<subdomain>.<domain>)"
   type        = string
   default     = null
 }
@@ -126,7 +111,7 @@ variable "ozone_admin_dids" {
 }
 
 variable "ozone_db_password" {
-  description = "PostgreSQL password for Ozone user"
+  description = "PostgreSQL password for Ozone (store in tfvars for DR/portability)"
   type        = string
   sensitive   = true
 }
@@ -143,15 +128,6 @@ variable "ozone_signing_key_hex" {
   sensitive   = true
 }
 
-variable "pds_storage_provisioner" {
-  description = "Storage provisioner for PDS volumes"
-  type        = string
-}
-
-variable "pds_storage_size" {
-  description = "PDS storage size"
-  type        = string
-}
 
 variable "pds_jwt_secret" {
   description = "JWT secret for PDS authentication"
@@ -167,23 +143,6 @@ variable "pds_admin_password" {
 
 variable "pds_plc_rotation_key" {
   description = "PLC rotation key (K256 private key hex)"
-  type        = string
-  sensitive   = true
-}
-
-variable "pds_blobstore_bucket" {
-  description = "S3 bucket for PDS blob storage"
-  type        = string
-}
-
-variable "pds_blobstore_access_key" {
-  description = "S3 access key for PDS blobstore"
-  type        = string
-  sensitive   = true
-}
-
-variable "pds_blobstore_secret_key" {
-  description = "S3 secret key for PDS blobstore"
   type        = string
   sensitive   = true
 }
@@ -241,4 +200,14 @@ variable "pds_email_smtp_url" {
   type        = string
   sensitive   = true
   default     = ""
+}
+
+variable "backup_bucket_name" {
+  description = "Backup bucket name (must be pre-created)"
+  type        = string
+}
+
+variable "pds_blobstore_bucket_name" {
+  description = "PDS blobstore bucket name (must be pre-created)"
+  type        = string
 }

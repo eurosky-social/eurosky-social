@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: pds
     app.kubernetes.io/component: server
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    cert-manager.io/cluster-issuer: "${cert_manager_issuer}"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     acme.cert-manager.io/http01-edit-in-place: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"

@@ -75,6 +75,7 @@ spec:
                 name: ozone-config
             - secretRef:
                 name: ozone-secrets
+                # TODO: Mount secrets as files instead of env vars for better security (prevents process listing exposure)
           env:
             - name: PGSSLROOTCERT
               value: /var/run/postgresql/ca.crt

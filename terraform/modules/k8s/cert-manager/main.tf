@@ -74,7 +74,8 @@ resource "kubectl_manifest" "cluster_issuer" {
     secret_namespace = kubernetes_secret.cert_manager_scaleway.metadata[0].namespace
   })
 
-  wait = true
+  server_side_apply = true
+  wait              = true
 
   depends_on = [
     helm_release.cert_manager_webhook_scaleway

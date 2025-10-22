@@ -4,7 +4,7 @@ metadata:
   name: kibana
   namespace: ${namespace}
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    cert-manager.io/cluster-issuer: "${cert_manager_issuer}"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     external-dns.alpha.kubernetes.io/target: "ingress.${cluster_domain}"
 spec:

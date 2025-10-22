@@ -8,32 +8,26 @@ metadata:
     app.kubernetes.io/name: pds
     app.kubernetes.io/component: server
 data:
-  # Core Service Configuration
   PDS_PORT: "2583"  # Official PDS port (uses PDS_PORT, not PORT)
   PDS_HOSTNAME: "${pds_hostname}"
   PDS_DATA_DIRECTORY: "/pds"
-
-  # Blobstore Configuration (S3-compatible)
   PDS_BLOBSTORE_S3_BUCKET: "${pds_blobstore_bucket}"
   PDS_BLOBSTORE_S3_REGION: "${pds_blobstore_region}"
   PDS_BLOBSTORE_S3_ENDPOINT: "${pds_blobstore_endpoint}"
+  PDS_DID_PLC_URL: "${pds_did_plc_url}"
+  PDS_BSKY_APP_VIEW_URL: "${pds_bsky_app_view_url}"
+  PDS_BSKY_APP_VIEW_DID: "${pds_bsky_app_view_did}"
+  PDS_REPORT_SERVICE_URL: "${pds_report_service_url}"
+  PDS_REPORT_SERVICE_DID: "${pds_report_service_did}"
+  PDS_CRAWLERS: "https://bsky.network"
+  PDS_INVITE_REQUIRED: "true"
+  PDS_BLOB_UPLOAD_LIMIT: "${pds_blob_upload_limit}"
+  LOG_ENABLED: "${pds_log_enabled}"
+  PDS_EMAIL_FROM_ADDRESS: "${pds_email_from_address}"
 
-  # Network Configuration
-  PDS_CRAWLERS: "https://bsky.network"  # Bluesky network crawler endpoint
-
-  # Registration Control
-  PDS_INVITE_REQUIRED: "true"  # Invite-only mode enabled
-
-  # TODO: Add PDS_DID_PLC_URL: "https://plc.directory" - Required for DID resolution (explicit config better than default)
-  # TODO: Add PDS_BSKY_APP_VIEW_URL: "https://api.bsky.app" - Required for Bluesky App View integration
-  # TODO: Add PDS_BSKY_APP_VIEW_DID: "did:web:api.bsky.app" - Required for App View DID verification
-  # TODO: Add PDS_SERVICE_NAME: "Eurosky PDS" - User-facing service display name
-
+  PDS_SERVICE_NAME: "Eurosky PDS"
   # TODO: Add PDS_DEV_MODE: "false" - Disable development mode for production
   # TODO: Add PDS_RATE_LIMITS_ENABLED: "true" - Enable rate limiting for DDoS protection
-
-  # TODO: Add PDS_BLOB_UPLOAD_LIMIT: "52428800" - Max blob upload size in bytes (50MB default, consider increasing)
-
   # TODO: Add PDS_CONTACT_EMAIL_ADDRESS: "support@eurosky.example" - User support contact
   # TODO: Add PDS_PRIVACY_POLICY_URL: "https://eurosky.example/privacy" - Legal requirement
   # TODO: Add PDS_TERMS_OF_SERVICE_URL: "https://eurosky.example/terms" - Legal requirement

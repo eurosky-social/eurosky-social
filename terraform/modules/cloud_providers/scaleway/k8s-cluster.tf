@@ -1,5 +1,9 @@
+locals {
+  storage_provisioner = "csi.scaleway.com"
+}
+
 resource "scaleway_k8s_cluster" "kapsule_multi_az" {
-  name = "kapsule-multi-az"
+  name = "kapsule-multi-az-${var.subdomain}"
   tags = ["multi-az"]
 
   type    = "kapsule"
@@ -39,10 +43,10 @@ resource "scaleway_k8s_pool" "pool" {
   tags       = ["multi-az", "v2"]
   cluster_id = scaleway_k8s_cluster.kapsule_multi_az.id
 
-  node_type              = "DEV1-M"
-  size                   = 1
-  min_size               = 1
-  max_size               = 1
+  node_type              = var.k8s_node_type
+  size                   = var.k8s_node_min_size
+  min_size               = var.k8s_node_min_size
+  max_size               = var.k8s_node_max_size
   autoscaling            = true
   autohealing            = true
   container_runtime      = "containerd"

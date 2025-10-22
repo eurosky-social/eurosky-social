@@ -29,6 +29,10 @@ resource "kubectl_manifest" "elasticsearch" {
     resources_limits_memory   = var.es_resources_limits_memory
   })
 
+  server_side_apply = true
+  force_conflicts   = true
+  wait              = true
+
   depends_on = [helm_release.eck_operator]
 }
 
@@ -41,13 +45,18 @@ resource "kubectl_manifest" "kibana" {
     resources_limits_memory   = var.kibana_resources_limits_memory
   })
 
+  server_side_apply = true
+  force_conflicts   = true
+  wait              = true
+
   depends_on = [kubectl_manifest.elasticsearch]
 }
 
 resource "kubectl_manifest" "kibana_ingress" {
   yaml_body = templatefile("${path.module}/kibana-ingress.yaml", {
-    namespace      = helm_release.eck_operator.namespace
-    cluster_domain = var.cluster_domain
+    namespace           = helm_release.eck_operator.namespace
+    cluster_domain      = var.cluster_domain
+    cert_manager_issuer = var.cert_manager_issuer
   })
 
   server_side_apply = true

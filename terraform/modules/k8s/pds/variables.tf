@@ -9,6 +9,11 @@ variable "cluster_domain" {
   type        = string
 }
 
+variable "cert_manager_issuer" {
+  description = "cert-manager ClusterIssuer to use for TLS certificates"
+  type        = string
+}
+
 variable "storage_provisioner" {
   description = "Storage provisioner for PDS volumes"
   type        = string
@@ -86,4 +91,52 @@ variable "pds_storage_size" {
   description = "PDS storage size"
   type        = string
   default     = "10Gi"
+}
+
+variable "pds_did_plc_url" {
+  description = "PLC directory URL for DID resolution"
+  type        = string
+}
+
+variable "pds_bsky_app_view_url" {
+  description = "Bluesky App View URL"
+  type        = string
+}
+
+variable "pds_bsky_app_view_did" {
+  description = "Bluesky App View DID"
+  type        = string
+}
+
+variable "pds_report_service_url" {
+  description = "Moderation/reporting service URL (Ozone)"
+  type        = string
+}
+
+variable "pds_report_service_did" {
+  description = "Moderation/reporting service DID (Ozone)"
+  type        = string
+}
+
+variable "pds_blob_upload_limit" {
+  description = "Maximum blob upload size in bytes"
+  type        = string
+}
+
+variable "pds_log_enabled" {
+  description = "Enable logging"
+  type        = string
+}
+
+variable "pds_email_from_address" {
+  description = "Email from address for PDS notifications"
+  type        = string
+  default     = ""
+}
+
+variable "pds_email_smtp_url" {
+  description = "SMTP URL for email sending (format: smtps://user:pass@host:port/)"
+  type        = string
+  sensitive   = true
+  default     = ""
 }

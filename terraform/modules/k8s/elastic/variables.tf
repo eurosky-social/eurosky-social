@@ -8,6 +8,11 @@ variable "cluster_domain" {
   type        = string
 }
 
+variable "cert_manager_issuer" {
+  description = "cert-manager ClusterIssuer to use for TLS certificates"
+  type        = string
+}
+
 variable "operator_resources_requests_cpu" {
   description = "ECK operator CPU requests"
   type        = string

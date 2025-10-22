@@ -9,6 +9,17 @@ variable "cluster_domain" {
   type        = string
 }
 
+variable "cert_manager_issuer" {
+  description = "cert-manager ClusterIssuer to use for TLS certificates"
+  type        = string
+}
+
+variable "ozone_public_url" {
+  description = "Public URL for Ozone (optional, defaults to https://ozone.<cluster_domain>)"
+  type        = string
+  default     = null
+}
+
 variable "ozone_image" {
   description = "Docker image for Ozone"
   type        = string

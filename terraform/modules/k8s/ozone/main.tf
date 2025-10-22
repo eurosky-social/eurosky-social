@@ -29,7 +29,7 @@ resource "kubernetes_secret" "postgres_ca_ozone" {
 resource "kubectl_manifest" "ozone_configmap" {
   yaml_body = templatefile("${path.module}/ozone-configmap.yaml", {
     namespace         = kubernetes_namespace.ozone.metadata[0].name
-    ozone_public_url  = local.ozone_public_url
+    ozone_public_url  = coalesce(var.ozone_public_url, local.ozone_public_url)
     ozone_appview_url = var.ozone_appview_url
     ozone_appview_did = var.ozone_appview_did
     ozone_server_did  = var.ozone_server_did
@@ -41,6 +41,7 @@ resource "kubectl_manifest" "ozone_configmap" {
 }
 
 resource "kubectl_manifest" "ozone_secret" {
+  # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
   yaml_body = templatefile("${path.module}/ozone-secret.yaml", {
     namespace              = kubernetes_namespace.ozone.metadata[0].name
     db_password_urlencoded = urlencode(var.ozone_db_password)
@@ -79,6 +80,7 @@ resource "kubectl_manifest" "ozone_ingress" {
     namespace            = kubernetes_namespace.ozone.metadata[0].name
     ozone_hostname       = local.ozone_hostname
     ozone_cluster_domain = var.cluster_domain
+    cert_manager_issuer  = var.cert_manager_issuer
   })
 
   server_side_apply = true

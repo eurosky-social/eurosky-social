@@ -1,3 +1,12 @@
+# TODO: Improve observability (o11y) - consider integrating:
+#   - SigNoz for distributed tracing and APM
+#   - Prometheus for metrics collection
+#   - Grafana for visualization and dashboards
+#   - Alerting infrastructure for proactive monitoring
+#
+# TODO: Switch to GitOps workflow (e.g., ArgoCD or Flux) for declarative,
+#   automated deployment and configuration management
+
 module "cert_manager" {
   source = "./cert-manager"
 
@@ -30,8 +39,9 @@ module "external_dns" {
 module "elastic" {
   source = "./elastic"
 
-  storage_class  = var.elasticsearch_storage_class
-  cluster_domain = var.cluster_domain
+  storage_class       = var.elasticsearch_storage_class
+  cluster_domain      = var.cluster_domain
+  cert_manager_issuer = var.kibana_cert_manager_issuer
 
   depends_on = [module.cert_manager, module.ingress_nginx]
 }
@@ -39,7 +49,7 @@ module "elastic" {
 module "postgres" {
   source = "./postgres"
 
-  storage_class         = var.backup_storage_class
+  storage_class         = var.postgres_storage_class
   backup_s3_access_key  = var.backup_s3_access_key
   backup_s3_secret_key  = var.backup_s3_secret_key
   backup_s3_bucket      = var.backup_s3_bucket
@@ -54,6 +64,8 @@ module "ozone" {
   source = "./ozone"
 
   cluster_domain          = var.cluster_domain
+  cert_manager_issuer     = var.ozone_cert_manager_issuer
+  ozone_public_url        = var.ozone_public_url
   ozone_image             = var.ozone_image
   ozone_appview_url       = var.ozone_appview_url
   ozone_appview_did       = var.ozone_appview_did
@@ -73,7 +85,9 @@ module "pds" {
   source = "./pds"
 
   cluster_domain           = var.cluster_domain
+  cert_manager_issuer      = var.pds_cert_manager_issuer
   storage_provisioner      = var.pds_storage_provisioner
+  pds_storage_size         = var.pds_storage_size
   backup_bucket            = var.backup_s3_bucket
   backup_region            = var.backup_s3_region
   backup_endpoint          = var.backup_s3_endpoint
@@ -85,6 +99,15 @@ module "pds" {
   pds_blobstore_bucket     = var.pds_blobstore_bucket
   pds_blobstore_access_key = var.pds_blobstore_access_key
   pds_blobstore_secret_key = var.pds_blobstore_secret_key
+  pds_did_plc_url          = var.pds_did_plc_url
+  pds_bsky_app_view_url    = var.pds_bsky_app_view_url
+  pds_bsky_app_view_did    = var.pds_bsky_app_view_did
+  pds_report_service_url   = var.pds_report_service_url
+  pds_report_service_did   = var.pds_report_service_did
+  pds_blob_upload_limit    = var.pds_blob_upload_limit
+  pds_log_enabled          = var.pds_log_enabled
+  pds_email_from_address   = var.pds_email_from_address
+  pds_email_smtp_url       = var.pds_email_smtp_url
 
   depends_on = [module.ingress_nginx]
 }
