@@ -27,7 +27,7 @@ Use CloudNativePG operator to self-manage PostgreSQL on Kubernetes.
 
 **Cloud-agnostic approach:**
 
-- Aligns with infrastructure portability goals ([ADR-002](../adr/002-infrastructure-portability.md))
+- Aligns with infrastructure portability goals ([ADR-002](./002-deploy-on-kubernetes.md))
 - Works identically across any Kubernetes cluster
 - No vendor lock-in to specific managed database service
 

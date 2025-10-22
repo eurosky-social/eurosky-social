@@ -18,7 +18,7 @@ This ADR documents the current deployment architecture and identifies where it a
 Deploy PDS as a Kubernetes StatefulSet with:
 - Dedicated namespace (`pds`)
 - Single replica with PVC due to SQLite usage
-- Litestream sidecar for continuous S3 replication providing WAL based backup with max RPO 15 mins RTO 5 mins
+- Litestream sidecar for continuous S3 replication providing WAL based backup with max RPO 15 mins RTO 1 hour
 - Future Enhancement: Hot standby pod with read-only replicated databases
 - Dedicated S3 buckets (backups + blobstore)
 - nginx-ingress with TLS termination

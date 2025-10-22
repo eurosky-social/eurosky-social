@@ -23,7 +23,7 @@ Deploy all Eurosky services on Kubernetes (Scaleway Kapsule).
 
 **Kubernetes advantages:**
 
-- **Cloud portability**: Easy deployment across different clouds (Scaleway, AWS, GCP) or locally
+- **Cloud portability**: Easy deployment across different clouds (Scaleway, Upcloud, AWS) or locally
 - **Testing flexibility**: Run full stack locally
 - **Better control**: Fine-grained control over networking, scaling, and resource allocation
 - **Standards compliance**: Industry-standard orchestration
@@ -60,7 +60,7 @@ Deploy all Eurosky services on Kubernetes (Scaleway Kapsule).
 
 ## Core Principles
 
-- Cloud-agnostic design (Scaleway?)
+- Cloud-agnostic design (avoid cloud/vendor lock-in)
 - Infrastructure as Code (Terraform?)
 - Environments: local (dev/CI), staging, production
 - Automation-first (CI/CD for everything)

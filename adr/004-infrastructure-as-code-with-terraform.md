@@ -18,7 +18,8 @@ We need a standardized approach to managing infrastructure that supports:
 
 ## Decision
 
-Use Terraform as our Infrastructure as Code tool for all infrastructure management.
+Use Terraform IaC for a push based approach to infrastructure management for now.  
+Consider switching to GitOps for the future.
 
 ## Rationale
 
