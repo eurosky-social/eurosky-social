@@ -28,7 +28,9 @@ spec:
         app.kubernetes.io/name: ozone
         app.kubernetes.io/component: moderation
         # TODO: Add app.kubernetes.io/version label for version tracking
-      # TODO: Add annotations for config/secret checksums to trigger rolling updates on changes
+      annotations:
+        checksum/config: "${config_checksum}"
+        checksum/secret: "${secret_checksum}"
     spec:
       # TODO: Verify Ozone handles SIGTERM gracefully (closes WebSocket connections before exit)
       terminationGracePeriodSeconds: 300

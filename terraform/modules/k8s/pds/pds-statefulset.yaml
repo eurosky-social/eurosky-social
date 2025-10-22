@@ -20,6 +20,11 @@ spec:
         app: pds
         app.kubernetes.io/name: pds
         app.kubernetes.io/component: server
+      annotations:
+        checksum/pds-config: "${pds_config_checksum}"
+        checksum/pds-secret: "${pds_secret_checksum}"
+        checksum/litestream-config: "${litestream_config_checksum}"
+        checksum/litestream-secret: "${litestream_secret_checksum}"
     spec:
       securityContext:
         runAsNonRoot: true

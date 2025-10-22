@@ -4,6 +4,21 @@ locals {
   ozone_hostname   = coalesce(local.public_hostname, local.default_hostname)
   ozone_public_url = "https://${local.ozone_hostname}"
   ozone_hostnames  = compact([local.default_hostname, local.public_hostname])
+
+  # ConfigMap/Secret checksums for triggering rolling updates
+  config_checksum = sha256(jsonencode({
+    ozone_public_url  = local.ozone_public_url
+    ozone_appview_url = var.ozone_appview_url
+    ozone_appview_did = var.ozone_appview_did
+    ozone_server_did  = var.ozone_server_did
+    ozone_admin_dids  = var.ozone_admin_dids
+  }))
+
+  secret_checksum = sha256(jsonencode({
+    ozone_db_password     = var.ozone_db_password
+    ozone_admin_password  = var.ozone_admin_password
+    ozone_signing_key_hex = var.ozone_signing_key_hex
+  }))
 }
 
 resource "kubernetes_namespace" "ozone" {
@@ -60,9 +75,11 @@ resource "kubectl_manifest" "ozone_secret" {
 
 resource "kubectl_manifest" "ozone_deployment" {
   yaml_body = templatefile("${path.module}/ozone-deployment.yaml", {
-    namespace      = kubernetes_namespace.ozone.metadata[0].name
-    ozone_image    = var.ozone_image
-    ca_secret_name = kubernetes_secret.postgres_ca_ozone.metadata[0].name
+    namespace       = kubernetes_namespace.ozone.metadata[0].name
+    ozone_image     = var.ozone_image
+    ca_secret_name  = kubernetes_secret.postgres_ca_ozone.metadata[0].name
+    config_checksum = local.config_checksum
+    secret_checksum = local.secret_checksum
   })
 
   server_side_apply = true
