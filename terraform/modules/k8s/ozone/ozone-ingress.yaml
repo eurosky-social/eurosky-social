@@ -40,10 +40,13 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - ${ozone_hostname}
+%{ for hostname in ozone_hostnames ~}
+        - ${hostname}
+%{ endfor ~}
       secretName: ozone-tls
   rules:
-    - host: ${ozone_hostname}
+%{ for hostname in ozone_hostnames ~}
+    - host: ${hostname}
       http:
         paths:
           - path: /
@@ -53,3 +56,4 @@ spec:
                 name: ozone
                 port:
                   number: 80
+%{ endfor ~}

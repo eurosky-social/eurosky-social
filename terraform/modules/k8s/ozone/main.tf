@@ -1,6 +1,9 @@
 locals {
-  ozone_hostname   = "ozone.${var.cluster_domain}"
+  default_hostname = "ozone.${var.cluster_domain}"
+  public_hostname  = var.ozone_public_hostname
+  ozone_hostname   = coalesce(local.public_hostname, local.default_hostname)
   ozone_public_url = "https://${local.ozone_hostname}"
+  ozone_hostnames  = compact([local.default_hostname, local.public_hostname])
 }
 
 resource "kubernetes_namespace" "ozone" {
@@ -29,7 +32,7 @@ resource "kubernetes_secret" "postgres_ca_ozone" {
 resource "kubectl_manifest" "ozone_configmap" {
   yaml_body = templatefile("${path.module}/ozone-configmap.yaml", {
     namespace         = kubernetes_namespace.ozone.metadata[0].name
-    ozone_public_url  = coalesce(var.ozone_public_url, local.ozone_public_url)
+    ozone_public_url  = local.ozone_public_url
     ozone_appview_url = var.ozone_appview_url
     ozone_appview_did = var.ozone_appview_did
     ozone_server_did  = var.ozone_server_did
@@ -78,7 +81,7 @@ resource "kubectl_manifest" "ozone_service" {
 resource "kubectl_manifest" "ozone_ingress" {
   yaml_body = templatefile("${path.module}/ozone-ingress.yaml", {
     namespace            = kubernetes_namespace.ozone.metadata[0].name
-    ozone_hostname       = local.ozone_hostname
+    ozone_hostnames      = local.ozone_hostnames
     ozone_cluster_domain = var.cluster_domain
     cert_manager_issuer  = var.cert_manager_issuer
   })

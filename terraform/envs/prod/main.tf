@@ -31,7 +31,7 @@ module "k8s" {
   pds_cert_manager_issuer    = var.pds_cert_manager_issuer
   kibana_cert_manager_issuer = var.kibana_cert_manager_issuer
 
-  ozone_public_url = var.ozone_public_url
+  ozone_public_hostname = var.ozone_public_hostname
   elasticsearch_storage_class = var.elasticsearch_storage_class
 
   postgres_storage_class = var.postgres_storage_class
@@ -67,4 +67,5 @@ module "k8s" {
   pds_log_enabled          = var.pds_log_enabled
   pds_email_from_address   = var.pds_email_from_address
   pds_email_smtp_url       = var.pds_email_smtp_url
+  pds_public_hostname      = var.pds_public_hostname
 }

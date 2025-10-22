@@ -65,7 +65,7 @@ module "ozone" {
 
   cluster_domain          = var.cluster_domain
   cert_manager_issuer     = var.ozone_cert_manager_issuer
-  ozone_public_url        = var.ozone_public_url
+  ozone_public_hostname   = var.ozone_public_hostname
   ozone_image             = var.ozone_image
   ozone_appview_url       = var.ozone_appview_url
   ozone_appview_did       = var.ozone_appview_did
@@ -108,6 +108,7 @@ module "pds" {
   pds_log_enabled          = var.pds_log_enabled
   pds_email_from_address   = var.pds_email_from_address
   pds_email_smtp_url       = var.pds_email_smtp_url
+  pds_public_hostname      = var.pds_public_hostname
 
   depends_on = [module.ingress_nginx]
 }

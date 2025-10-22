@@ -140,3 +140,9 @@ variable "pds_email_smtp_url" {
   sensitive   = true
   default     = ""
 }
+
+variable "pds_public_hostname" {
+  description = "Public hostname for PDS (e.g., pds.eurosky.social)"
+  type        = string
+  default     = null
+}

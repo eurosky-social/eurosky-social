@@ -1,6 +1,8 @@
 locals {
-  pds_hostname     = "pds.${var.cluster_domain}"
-  pds_public_url   = "https://${local.pds_hostname}"
+  default_hostname = "pds.${var.cluster_domain}"
+  public_hostname  = var.pds_public_hostname
+  pds_hostname     = coalesce(local.public_hostname, local.default_hostname)
+  pds_hostnames    = compact([local.default_hostname, local.public_hostname])
   pds_version      = var.pds_version
   pds_storage_size = var.pds_storage_size
 }
@@ -102,7 +104,7 @@ resource "kubectl_manifest" "pds_service" {
 resource "kubectl_manifest" "pds_ingress" {
   yaml_body = templatefile("${path.module}/pds-ingress.yaml", {
     namespace           = kubernetes_namespace.pds.metadata[0].name
-    pds_hostname        = local.pds_hostname
+    pds_hostnames       = local.pds_hostnames
     cluster_domain      = var.cluster_domain
     cert_manager_issuer = var.cert_manager_issuer
   })

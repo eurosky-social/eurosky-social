@@ -84,8 +84,8 @@ variable "ozone_image" {
   default     = "ghcr.io/bluesky-social/ozone:latest"
 }
 
-variable "ozone_public_url" {
-  description = "Public URL for Ozone (optional, defaults to https://ozone.<subdomain>.<domain>)"
+variable "ozone_public_hostname" {
+  description = "Public hostname for Ozone (optional, defaults to ozone.<subdomain>.<domain>)"
   type        = string
   default     = null
 }
@@ -101,7 +101,7 @@ variable "ozone_appview_did" {
 }
 
 variable "ozone_server_did" {
-  description = "Server DID for Ozone"
+  description = "Server DID for Ozone (e.g., did:plc:... or did:web:...)"
   type        = string
 }
 
@@ -200,6 +200,12 @@ variable "pds_email_smtp_url" {
   type        = string
   sensitive   = true
   default     = ""
+}
+
+variable "pds_public_hostname" {
+  description = "Public hostname for PDS (optional, e.g., pds.eurosky.social for prod)"
+  type        = string
+  default     = null
 }
 
 variable "backup_bucket_name" {

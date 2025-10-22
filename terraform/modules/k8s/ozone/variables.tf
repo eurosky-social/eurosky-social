@@ -14,8 +14,8 @@ variable "cert_manager_issuer" {
   type        = string
 }
 
-variable "ozone_public_url" {
-  description = "Public URL for Ozone (optional, defaults to https://ozone.<cluster_domain>)"
+variable "ozone_public_hostname" {
+  description = "Public hostname for Ozone (e.g., ozone.eurosky.social). If set, derives URL and DID."
   type        = string
   default     = null
 }
@@ -36,7 +36,7 @@ variable "ozone_appview_did" {
 }
 
 variable "ozone_server_did" {
-  description = "Server DID for Ozone"
+  description = "Server DID for Ozone (e.g., did:plc:... or did:web:...)"
   type        = string
 }
 
