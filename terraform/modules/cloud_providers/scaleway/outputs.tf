@@ -61,8 +61,8 @@ output "backup_s3_region" {
 }
 
 output "backup_s3_endpoint" {
-  description = "Unified backup S3 endpoint URL"
-  value       = data.scaleway_object_bucket.backups_s3.endpoint
+  description = "Scaleway S3 endpoint URL"
+  value       = "https://s3.${var.region}.scw.cloud"
 }
 
 output "pds_blobstore_bucket" {

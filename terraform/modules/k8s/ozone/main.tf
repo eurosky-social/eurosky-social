@@ -67,6 +67,7 @@ resource "kubectl_manifest" "ozone_secret" {
     ozone_signing_key_hex  = var.ozone_signing_key_hex
     postgres_cluster_name  = var.postgres_cluster_name
     postgres_namespace     = var.postgres_namespace
+    postgres_pooler_name   = var.postgres_pooler_name
   })
 
   server_side_apply = true

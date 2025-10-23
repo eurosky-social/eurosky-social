@@ -77,3 +77,8 @@ variable "postgres_ca_secret_name" {
   description = "PostgreSQL CA secret name"
   type        = string
 }
+
+variable "postgres_pooler_name" {
+  description = "PostgreSQL pooler service name"
+  type        = string
+}

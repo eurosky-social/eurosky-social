@@ -19,10 +19,10 @@ scw object bucket create name=eurosky-backups-${SUBDOMAIN} region="${SCW_DEFAULT
 scw object bucket create name=eurosky-pds-blobs-${SUBDOMAIN} region="${SCW_DEFAULT_REGION}"
 
 # Deploy
-terraform init -backend-config="bucket=$STATE_BUCKET"
+terraform init -backend-config="bucket=$STATE_BUCKET"  -backend-config="endpoint=$AWS_ENDPOINT_URL_S3" 
 terraform plan -out=tfplan
 terraform apply tfplan
 
 # Get kubeconfig
-scw k8s kubeconfig install $(terraform output -raw cluster_id)
+scw k8s kubeconfig install $(terraform output -raw cluster_id | sed -E "s/fr-par\/(.*)%/\1/")
 ```

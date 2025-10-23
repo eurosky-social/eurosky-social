@@ -1,0 +1,45 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: ${pooler_name}
+  namespace: ${namespace}
+spec:
+  cluster:
+    name: ${cluster_name}
+
+  instances: 2
+  type: rw
+
+  pgbouncer:
+    poolMode: transaction
+    parameters:
+      max_client_conn: "1000"
+      default_pool_size: "25"
+      min_pool_size: "5"
+      reserve_pool_size: "5"
+      reserve_pool_timeout: "5"
+      max_db_connections: "0"
+      max_user_connections: "0"
+      server_idle_timeout: "600"
+      server_lifetime: "3600"
+      server_connect_timeout: "15"
+      query_timeout: "0"
+      query_wait_timeout: "120"
+      client_idle_timeout: "0"
+      idle_transaction_timeout: "0"
+      autodb_idle_timeout: "3600"
+
+  template:
+    metadata:
+      labels:
+        app: pgbouncer
+    spec:
+      containers:
+      - name: pgbouncer
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi

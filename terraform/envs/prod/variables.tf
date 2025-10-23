@@ -217,3 +217,21 @@ variable "pds_blobstore_bucket_name" {
   description = "PDS blobstore bucket name (must be pre-created)"
   type        = string
 }
+
+variable "postgres_cluster_name" {
+  description = "PostgreSQL cluster name (increment version for recovery: postgres-cluster-v2, v3, etc.)"
+  type        = string
+  default     = "postgres-cluster"
+}
+
+variable "postgres_recovery_source_cluster_name" {
+  description = "Source cluster name to recover FROM (usually the original: postgres-cluster)"
+  type        = string
+  default     = "postgres-cluster-old"
+}
+
+variable "postgres_enable_recovery" {
+  description = "Enable recovery from S3 backup instead of fresh initdb (false for first deployment, true for disaster recovery)"
+  type        = bool
+  default     = false
+}

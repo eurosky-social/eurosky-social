@@ -1,7 +1,7 @@
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
-  name: postgres-backup-s3
+  name: ${objectstore_name}
   namespace: ${namespace}
 spec:
   configuration:
@@ -21,4 +21,3 @@ spec:
       compression: gzip
       jobs: 2 # TODO: Increase jobs for faster backups if cluster has multiple cores
     # TODO: Add encryption configuration for data at rest in S3
-    # TODO: Configure serverName for multi-cluster backup scenarios

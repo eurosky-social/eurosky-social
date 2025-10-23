@@ -59,3 +59,27 @@ variable "monitoring_enabled" {
   type        = bool
   default     = false
 }
+
+variable "postgres_cluster_name" {
+  description = "PostgreSQL cluster name (increment version for recovery: postgres-cluster-v2, v3, etc.)"
+  type        = string
+  default     = "postgres-cluster"
+}
+
+variable "recovery_source_cluster_name" {
+  description = "Source cluster name to recover FROM (usually the original: postgres-cluster)"
+  type        = string
+  default     = "postgres-cluster-old"
+}
+
+variable "enable_recovery" {
+  description = "Enable recovery from S3 backup instead of fresh initdb (false for first deployment, true for disaster recovery)"
+  type        = bool
+  default     = false
+}
+
+variable "archive_timeout" {
+  description = "PostgreSQL WAL archive timeout - controls RPO (Recovery Point Objective)"
+  type        = string
+  default     = "1h" # TODO: Consider reducing to 5min for lower RPO in production
+}

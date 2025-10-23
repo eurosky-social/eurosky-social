@@ -1,6 +1,9 @@
 locals {
-  postgres_cluster_name   = "postgres-cluster"
-  postgres_ca_secret_name = "${local.postgres_cluster_name}-ca"
+  postgres_ca_secret_name = "${var.postgres_cluster_name}-ca"
+  pooler_name             = "postgres-pooler-rw"
+
+  # Backup configuration (single ObjectStore for both backup and recovery)
+  backup_objectstore_name = "postgres-backup-s3"
 }
 
 resource "helm_release" "cloudnativepg" {
@@ -40,6 +43,10 @@ resource "kubernetes_secret" "backup_s3_creds" {
   metadata {
     name      = "backup-s3-creds"
     namespace = kubernetes_namespace.databases.metadata[0].name
+
+    labels = {
+      "cnpg.io/reload" = "true"
+    }
   }
 
   data = {
@@ -48,10 +55,6 @@ resource "kubernetes_secret" "backup_s3_creds" {
   }
 
   type = "Opaque"
-
-  lifecycle {
-    ignore_changes = [data]
-  }
 }
 
 resource "kubernetes_secret" "ozone_db" {
@@ -76,7 +79,7 @@ resource "kubectl_manifest" "postgres_rbac" {
   yaml_body = templatefile("${path.module}/postgres-rbac.yaml", {
     namespace    = kubernetes_namespace.databases.metadata[0].name
     secret_name  = kubernetes_secret.backup_s3_creds.metadata[0].name
-    cluster_name = local.postgres_cluster_name
+    cluster_name = var.postgres_cluster_name
   })
 
   server_side_apply = true
@@ -85,6 +88,7 @@ resource "kubectl_manifest" "postgres_rbac" {
 
 resource "kubectl_manifest" "postgres_backup_objectstore" {
   yaml_body = templatefile("${path.module}/postgres-backup-objectstore.yaml", {
+    objectstore_name = local.backup_objectstore_name
     namespace        = kubernetes_namespace.databases.metadata[0].name
     destination_path = "s3://${var.backup_s3_bucket}/postgres/"
     endpoint_url     = var.backup_s3_endpoint
@@ -99,9 +103,13 @@ resource "kubectl_manifest" "postgres_backup_objectstore" {
 
 resource "kubectl_manifest" "postgres_cluster" {
   yaml_body = templatefile("${path.module}/postgres-cluster.yaml", {
-    namespace     = kubernetes_secret.ozone_db.metadata[0].namespace
-    cluster_name  = local.postgres_cluster_name
-    storage_class = var.storage_class
+    namespace                    = kubernetes_secret.ozone_db.metadata[0].namespace
+    cluster_name                 = var.postgres_cluster_name
+    storage_class                = var.storage_class
+    backup_objectstore_name      = local.backup_objectstore_name
+    recovery_source_cluster_name = var.recovery_source_cluster_name
+    enable_recovery              = var.enable_recovery
+    archive_timeout              = var.archive_timeout
   })
 
   server_side_apply = true
@@ -126,7 +134,7 @@ resource "kubectl_manifest" "postgres_scheduled_backup" {
 resource "kubectl_manifest" "postgres_ozone_database" {
   yaml_body = templatefile("${path.module}/postgres-database.yaml", {
     namespace    = kubernetes_secret.ozone_db.metadata[0].namespace
-    cluster_name = local.postgres_cluster_name
+    cluster_name = var.postgres_cluster_name
   })
 
   server_side_apply = true
@@ -138,7 +146,18 @@ resource "kubectl_manifest" "postgres_ozone_database" {
   ]
 }
 
-# TODO: Enable CloudNativePG Pooler for connection pooling (PgBouncer with PoolerType 'rw')
+resource "kubectl_manifest" "postgres_pooler" {
+  yaml_body = templatefile("${path.module}/postgres-pooler.yaml", {
+    pooler_name  = local.pooler_name
+    namespace    = kubernetes_namespace.databases.metadata[0].name
+    cluster_name = var.postgres_cluster_name
+  })
+
+  server_side_apply = true
+  wait              = true
+
+  depends_on = [kubectl_manifest.postgres_cluster]
+}
 # TODO: Configure Pooler HPA for autoscaling based on CPU/connection metrics
 # TODO: Add PodDisruptionBudget for postgres-cluster to ensure HA during node maintenance
 # TODO: Implement backup verification job to test restore procedures monthly

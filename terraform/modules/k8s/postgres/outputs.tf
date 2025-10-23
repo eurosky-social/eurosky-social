@@ -5,10 +5,15 @@ output "namespace" {
 
 output "cluster_name" {
   description = "PostgreSQL cluster name"
-  value       = local.postgres_cluster_name
+  value       = var.postgres_cluster_name
 }
 
 output "ca_secret_name" {
   description = "PostgreSQL CA secret name"
   value       = local.postgres_ca_secret_name
+}
+
+output "pooler_name" {
+  description = "PostgreSQL pooler service name"
+  value       = local.pooler_name
 }

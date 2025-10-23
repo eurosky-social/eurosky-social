@@ -16,7 +16,7 @@ We need a PostgreSQL database solution for Eurosky services (Ozone, future PDS).
 
 ## Decision
 
-Use CloudNativePG operator to self-manage PostgreSQL on Kubernetes.
+Use CloudNativePG operator to self-manage PostgreSQL on Kubernetes - in a single-shared multi-app cluster deployement (initially).
 
 ## Rationale
 
@@ -50,6 +50,7 @@ Use CloudNativePG operator to self-manage PostgreSQL on Kubernetes.
 - We own backup/restore procedures
 - More components to monitor and troubleshoot
 - Initial setup complexity (mitigated by operator automation)
+- **Blast radius risk**: Single PostgreSQL cluster means all databases share resources and failure domains - one application's issues can impact all others with no isolation for troubleshooting or independent recovery
 
 ## Implementation Details
 

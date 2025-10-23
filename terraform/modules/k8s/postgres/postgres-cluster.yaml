@@ -26,6 +26,10 @@ spec:
     podAntiAffinityType: required
     topologyKey: kubernetes.io/hostname
 
+  backup:
+    target: primary
+    retentionPolicy: "30d" # TODO: Adjust retention based on compliance requirements
+
   postgresql:
     parameters:
       max_connections: "100" # TODO: Tune based on expected connection pool size and workload
@@ -33,13 +37,14 @@ spec:
       effective_cache_size: "512MB" # TODO: Set to ~75% of available memory
       work_mem: "2MB" # TODO: Calculate based on max_connections and query complexity
       wal_compression: "on"
-      archive_timeout: "1h" # TODO: Consider reducing to 5min for lower RPO in production
+      archive_timeout: "${archive_timeout}"
 
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        barmanObjectName: postgres-backup-s3
+        barmanObjectName: ${backup_objectstore_name}
+        serverName: ${cluster_name} 
 
   # TODO: Enable monitoring when Prometheus is set up
   # monitoring:
@@ -54,12 +59,27 @@ spec:
           name: ozone-db-secret
 
   bootstrap:
+%{ if !enable_recovery ~}
     initdb:
       database: postgres
       owner: postgres
       dataChecksums: true
       postInitApplicationSQL:
         - CREATE DATABASE ozone OWNER ozone_user;
+        - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ozone_user;
+        - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ozone_user;
+%{ else ~}
+    recovery:
+      source: postgres-backup-recovery
+
+  externalClusters:
+    - name: postgres-backup-recovery
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: ${backup_objectstore_name}
+          serverName: ${recovery_source_cluster_name}
+%{ endif ~}
 
   resources: # TODO: Right-size based on actual workload metrics and load testing
     requests:

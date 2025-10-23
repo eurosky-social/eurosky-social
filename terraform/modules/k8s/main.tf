@@ -49,13 +49,16 @@ module "external_dns" {
 module "postgres" {
   source = "./postgres"
 
-  storage_class         = var.postgres_storage_class
-  backup_s3_access_key  = var.backup_s3_access_key
-  backup_s3_secret_key  = var.backup_s3_secret_key
-  backup_s3_bucket      = var.backup_s3_bucket
-  backup_s3_region      = var.backup_s3_region
-  backup_s3_endpoint    = var.backup_s3_endpoint
-  ozone_db_password     = var.ozone_db_password
+  storage_class                = var.postgres_storage_class
+  backup_s3_access_key         = var.backup_s3_access_key
+  backup_s3_secret_key         = var.backup_s3_secret_key
+  backup_s3_bucket             = var.backup_s3_bucket
+  backup_s3_region             = var.backup_s3_region
+  backup_s3_endpoint           = var.backup_s3_endpoint
+  ozone_db_password            = var.ozone_db_password
+  postgres_cluster_name        = var.postgres_cluster_name
+  recovery_source_cluster_name = var.postgres_recovery_source_cluster_name
+  enable_recovery              = var.postgres_enable_recovery
 
   depends_on = [module.cert_manager]
 }
@@ -77,6 +80,7 @@ module "ozone" {
   postgres_namespace      = module.postgres.namespace
   postgres_cluster_name   = module.postgres.cluster_name
   postgres_ca_secret_name = module.postgres.ca_secret_name
+  postgres_pooler_name    = module.postgres.pooler_name
 
   depends_on = [module.postgres, module.ingress_nginx]
 }

@@ -68,4 +68,8 @@ module "k8s" {
   pds_email_from_address   = var.pds_email_from_address
   pds_email_smtp_url       = var.pds_email_smtp_url
   pds_public_hostname      = var.pds_public_hostname
+
+  postgres_cluster_name                  = var.postgres_cluster_name
+  postgres_recovery_source_cluster_name  = var.postgres_recovery_source_cluster_name
+  postgres_enable_recovery               = var.postgres_enable_recovery
 }
