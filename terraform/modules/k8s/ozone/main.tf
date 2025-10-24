@@ -113,5 +113,4 @@ resource "kubectl_manifest" "ozone_ingress" {
 # TODO: Add ServiceMonitor for Ozone observability
 # TODO: Consider progressive rollout strategy (Argo Rollouts/Flagger)
 # TODO: Add NetworkPolicy to restrict ingress/egress
-# TODO: Verify WebSocket support through all proxy layers
 # TODO: Document disaster recovery procedures
