@@ -1,12 +1,9 @@
 alertmanager:
   enabled: true
-  podDisruptionBudget:
-    enabled: true
-    minAvailable: 1
   ingress:
-    enabled: false # TODO: Enable with tailscale IP whitelisteing
+    enabled: false # TODO: Enable with TLS, IP whitelisting, external auth (NEVER expose without protection)
   alertmanagerSpec:
-    priorityClassName: system-cluster-critical
+    replicas: 1 # TODO: Increase to 2+ for HA (auto-creates gossip cluster for alert deduplication)
     storage:
       volumeClaimTemplate:
         spec:
@@ -14,231 +11,53 @@ alertmanager:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 2Gi
-    resources:
+              storage: 2Gi # TODO: Increase to 10Gi for production notification/silence history
+    resources: # TODO: Scale up based on actual usage metrics
       requests:
         cpu: 10m
         memory: 32Mi
       limits:
         memory: 128Mi
-    replicas: 2
     podAntiAffinity: hard
     topologySpreadConstraints:
       - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway # TODO: Change to DoNotSchedule for strict multi-AZ in production
         labelSelector:
           matchLabels:
             app.kubernetes.io/name: alertmanager
-  config:
-    global:
-      resolve_timeout: 5m
-    route:
-      receiver: email
-      group_by: ['alertname', 'cluster', 'service']
-      group_wait: 10s
-      group_interval: 1m
-      repeat_interval: 4h
-      routes:
-        - match:
-            alertname: Watchdog
-          receiver: "null"
-      %{~ if deadmansswitch_url != "" ~}
-        - match:
-            alertname: DeadMansSwitch
-          receiver: deadmansswitch
-          repeat_interval: 1m
-          group_wait: 0s
-          group_interval: 1m
-      %{~ endif ~}
-    receivers:
-      - name: "null"
-      %{~ if deadmansswitch_url != "" ~}
-      - name: deadmansswitch
-        webhook_configs:
-          - url: '${deadmansswitch_url}'
-            send_resolved: false
-      %{~ endif ~}
-      - name: email
-        email_configs:
-          - to: ${alert_email}
-            from: ${smtp_username}
-            smarthost: ${smtp_server}:${smtp_port}
-            auth_username: ${smtp_username}
-            auth_password: ${smtp_password}
-            require_tls: ${smtp_require_tls}
-            headers:
-              Subject: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.alertname }} ({{ .GroupLabels.severity }})'
-            html: |
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <style>
-                  body { font-family: Arial, sans-serif; }
-                  .alert { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
-                  .firing { background-color: #fff3cd; border-left: 4px solid #ffc107; }
-                  .resolved { background-color: #d4edda; border-left: 4px solid #28a745; }
-                  .critical { border-left-color: #dc3545 !important; }
-                  .warning { border-left-color: #ffc107 !important; }
-                  .info { border-left-color: #17a2b8 !important; }
-                  h2 { margin-top: 0; color: #333; }
-                  .label { font-weight: bold; display: inline-block; min-width: 120px; }
-                  .value { color: #555; }
-                  .timestamp { color: #888; font-size: 0.9em; }
-                  .description { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; }
-                </style>
-              </head>
-              <body>
-                <h1>Alert Summary</h1>
-                <p><strong>Group:</strong> {{ .GroupLabels.alertname }}</p>
-                <p><strong>Status:</strong> {{ .Status | toUpper }}</p>
-                {{ if .Alerts.Firing }}
-                <p><strong>Firing:</strong> {{ .Alerts.Firing | len }} alert(s)</p>
-                {{ end }}
-                {{ if .Alerts.Resolved }}
-                <p><strong>Resolved:</strong> {{ .Alerts.Resolved | len }} alert(s)</p>
-                {{ end }}
-
-                <hr>
-
-                {{ range .Alerts }}
-                <div class="alert {{ if eq .Status "firing" }}firing{{ else }}resolved{{ end }} {{ .Labels.severity }}">
-                  <h2>{{ .Labels.alertname }}</h2>
-
-                  <div>
-                    <span class="label">Status:</span>
-                    <span class="value">{{ .Status | toUpper }}</span>
-                  </div>
-
-                  <div>
-                    <span class="label">Severity:</span>
-                    <span class="value">{{ .Labels.severity | toUpper }}</span>
-                  </div>
-
-                  {{ if .Annotations.summary }}
-                  <div>
-                    <span class="label">Summary:</span>
-                    <span class="value">{{ .Annotations.summary }}</span>
-                  </div>
-                  {{ end }}
-
-                  {{ if .Annotations.description }}
-                  <div class="description">
-                    <strong>Description:</strong><br>
-                    {{ .Annotations.description }}
-                  </div>
-                  {{ end }}
-
-                  {{ if .Annotations.message }}
-                  <div class="description">
-                    <strong>Message:</strong><br>
-                    {{ .Annotations.message }}
-                  </div>
-                  {{ end }}
-
-                  {{ if .Labels.namespace }}
-                  <div>
-                    <span class="label">Namespace:</span>
-                    <span class="value">{{ .Labels.namespace }}</span>
-                  </div>
-                  {{ end }}
-
-                  {{ if .Labels.pod }}
-                  <div>
-                    <span class="label">Pod:</span>
-                    <span class="value">{{ .Labels.pod }}</span>
-                  </div>
-                  {{ end }}
-
-                  {{ if .Labels.node }}
-                  <div>
-                    <span class="label">Node:</span>
-                    <span class="value">{{ .Labels.node }}</span>
-                  </div>
-                  {{ end }}
-
-                  {{ if .Labels.instance }}
-                  <div>
-                    <span class="label">Instance:</span>
-                    <span class="value">{{ .Labels.instance }}</span>
-                  </div>
-                  {{ end }}
-
-                  {{ if .Labels.job }}
-                  <div>
-                    <span class="label">Job:</span>
-                    <span class="value">{{ .Labels.job }}</span>
-                  </div>
-                  {{ end }}
-
-                  <div class="timestamp">
-                    <span class="label">Started:</span>
-                    <span class="value">{{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}</span>
-                  </div>
-
-                  {{ if ne .Status "firing" }}
-                  <div class="timestamp">
-                    <span class="label">Ended:</span>
-                    <span class="value">{{ .EndsAt.Format "2006-01-02 15:04:05 MST" }}</span>
-                  </div>
-                  {{ end }}
-
-                  <div style="margin-top: 10px;">
-                    <a href="https://grafana.${cluster_domain}" style="color: #007bff;">View in Grafana</a>
-                  </div>
-                </div>
-                {{ end }}
-
-                <hr>
-                <p style="color: #888; font-size: 0.85em;">
-                  This alert was generated by Alertmanager for cluster ${cluster_domain}
-                </p>
-              </body>
-              </html>
-
-kubelet:
-  serviceMonitor:
-    resource: true
-    resourcePath: /metrics/resource
-
-# Disable Kubernetes control plane component alerts for managed k8s
-defaultRules:
-  create: true
-  rules:
-    kubeProxy: false
-    kubeControllerManager: false
-    kubeScheduler: false
+    # TODO: Configure alert routing, notification channels (PagerDuty/Slack), escalation policies
 
 grafana:
   enabled: true
   adminPassword: ${grafana_admin_password} # TODO: Configure SSO/OAuth integration for production
-  priorityClassName: system-cluster-critical
+  replicas: 1 # TODO: Increase to 2+ for HA
   ingress:
-    enabled: true
-    ingressClassName: nginx
-    annotations:
-      external-dns.alpha.kubernetes.io/target: ingress.${cluster_domain}
-      # TODO: Add Tailscale access with IP whitelisting (ingress.kubernetes.io/whitelist-source-range: <tailscale-network-cidr>)
-    hosts:
-      - grafana.${cluster_domain}
-    path: /
+    enabled: false # TODO: Enable with TLS, IP whitelisting, external auth
   persistence:
-    enabled: false
-  resources:
+    enabled: true
+    storageClassName: ${storage_class}
+    size: 2Gi # TODO: Increase to 10Gi for production dashboard persistence
+  resources: # TODO: Scale up based on actual usage
     requests:
-      cpu: 50m
-      memory: 384Mi
+      cpu: 10m
+      memory: 64Mi
     limits:
-      memory: 512Mi
-  # Note: Single replica sufficient 
-  replicas: 1
-  additionalDataSources:
-    - name: Loki
-      type: loki
-      access: proxy
-      url: http://loki.loki.svc.cluster.local:3100
-      jsonData:
-        maxLines: 1000
+      memory: 256Mi
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: grafana
+          topologyKey: kubernetes.io/hostname
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway # TODO: Change to DoNotSchedule for strict multi-AZ in production
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: grafana
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
@@ -253,25 +72,10 @@ grafana:
             path: /var/lib/grafana/dashboards/default
   dashboards:
     default:
-      # Kubernetes Overview Dashboards
       kubernetes-cluster:
         gnetId: 7249
         revision: 1
         datasource: Prometheus
-      kubernetes-global:
-        gnetId: 15760
-        revision: 1
-        datasource: Prometheus
-      kubernetes-namespaces:
-        gnetId: 15757
-        revision: 1
-        datasource: Prometheus
-      kubernetes-pods:
-        gnetId: 15758
-        revision: 1
-        datasource: Prometheus
-
-      # Node and Host Metrics
       node-exporter:
         gnetId: 1860
         revision: 31
@@ -281,106 +85,40 @@ grafana:
         revision: 1
         datasource: Prometheus
 
-      # Ingress-Nginx
-      nginx-ingress:
-        gnetId: 9614
-        revision: 1
-        datasource: Prometheus
-      # TODO: the geo view and few more panels are broken - trying to refactor gnetId #13865
-      nginx-geoip-analytics:
-        file: dashboards/nginx-geoip-analytics.json
-
-      # PostgreSQL (CloudNativePG)
-      cnpg-cluster:
-        gnetId: 20417
-        revision: 1
-        datasource: Prometheus
-
-      # cert-manager
-      cert-manager:
-        gnetId: 11001
-        revision: 1
-        datasource: Prometheus
-
-      # Prometheus & Alertmanager
-      prometheus-stats:
-        gnetId: 3662
-        revision: 2
-        datasource: Prometheus
-      alertmanager:
-        gnetId: 19268
-        revision: 1
-        datasource: Prometheus
-
-      # Loki (Log Aggregation)
-      loki-logs:
-        gnetId: 13639
-        revision: 2
-        datasource: Loki
-
-      # PDS (Personal Data Server) - Custom Dashboard
-      pds-health:
-        json: >-
-          ${pds_dashboard_json}
-
-      # Relay (ATProto Firehose) - Custom Dashboard
-      relay-monitoring:
-        json: >-
-          ${relay_dashboard_json}
-
 prometheus:
   enabled: true
-  podDisruptionBudget:
-    enabled: true
-    minAvailable: 1
   ingress:
     enabled: false # TODO: Enable with TLS, IP whitelisting, external auth + set externalUrl in prometheusSpec
   prometheusSpec:
-    priorityClassName: system-cluster-critical
+    replicas: 1 # TODO: Increase to 2+ for HA (consider functional sharding for large deployments)
     retention: 7d # TODO: Increase to 30d for production
     retentionSize: "8GB" # TODO: Adjust based on actual TSDB usage
-    # Enable remote_write receiver for Loki recording rules
-    enableRemoteWriteReceiver: true
-    thanos:
-      baseImage: quay.io/thanos/thanos
-      version: v0.39.2
-      objectStorageConfig:
-        key: thanos.yaml
-        name: thanos-objstore-config
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
-    # Empty selectors: discover PodMonitors/ServiceMonitors/Rules from ALL namespaces with ANY labels
-    podMonitorSelector: {}
-    podMonitorNamespaceSelector: {}
-    serviceMonitorSelector: {}
-    serviceMonitorNamespaceSelector: {}
-    ruleSelector: {}
-    ruleNamespaceSelector: {}
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: ${storage_class}
+          storageClassName: ${storage_class} # TODO: Use high I/O SSD volumes for production
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 10Gi
-    resources:
+              storage: 10Gi # TODO: Increase to 50Gi+ for production (with backup/snapshot policies)
+    resources: # TODO: Scale up based on TSDB metrics and memory pressure
       requests:
         cpu: 50m
         memory: 256Mi
       limits:
         memory: 1Gi
-    replicas: 2
     podAntiAffinity: hard
     topologySpreadConstraints:
       - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway # TODO: Change to DoNotSchedule for strict multi-AZ in production
         labelSelector:
           matchLabels:
             app.kubernetes.io/name: prometheus
-    # TODO: Deploy Thanos Querier for consistent query results across replicas
+    # TODO: Add sessionAffinity on Service or deploy Thanos Querier for consistent query results across replicas
 
 prometheus-node-exporter:
   enabled: true
@@ -393,35 +131,22 @@ prometheus-node-exporter:
 
 kube-state-metrics:
   enabled: true
-  priorityClassName: system-cluster-critical
-  podDisruptionBudget:
-    minAvailable: 1
+  replicas: 1 # TODO: Run multiple replicas with load balancing for HA
   resources:
     requests:
       cpu: 10m
       memory: 16Mi
     limits:
       memory: 64Mi
-  replicas: 2
-  podAntiAffinity: hard
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
-      labelSelector:
-        matchLabels:
-          app.kubernetes.io/name: kube-state-metrics
 
 prometheusOperator:
   enabled: true
-  replicas: 1 # Can only operate active/passive multi-replicas
-  priorityClassName: system-cluster-critical
-  podDisruptionBudget:
-    enabled: true
-    minAvailable: 1
+  replicas: 1 # Single pod only - potential SPOF for rule deployment
   resources:
     requests:
       cpu: 10m
       memory: 32Mi
     limits:
       memory: 128Mi
+  # TODO: For private GKE clusters, add firewall rules for control plane -> webhook pods access
+  # TODO: Or disable admission webhooks via admissionWebhooks.enabled=false

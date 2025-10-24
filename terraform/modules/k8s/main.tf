@@ -1,58 +1,50 @@
-# TODO: Add SigNoz for distributed tracing and APM
-# TODO: Hubble (Cilium observability) for network flow visibility and egress monitoring
-# TODO: Implement lateral movement protection
-# TODO: Switch to GitOps workflow (e.g., ArgoCD or Flux) for declarative, automated deployment and configuration management
+# TODO: Improve observability (o11y) - consider integrating:
+#   - SigNoz for distributed tracing and APM
+#   - Alerting infrastructure for proactive monitoring
+#
+# TODO: Switch to GitOps workflow (e.g., ArgoCD or Flux) for declarative,
+#   automated deployment and configuration management
+
 # TODO: separate topology per workloads (dedicated nodes per core, apps, o11y, noisy apps, etc)
-# TODO: refactor module by workloads (e.g. monitoring for prometheus, loki)
-
-module "prometheus_stack" {
-  source = "./prometheus-stack"
-
-  grafana_admin_password = var.prometheus_grafana_admin_password
-  storage_class          = var.prometheus_storage_class
-  cluster_domain         = var.cluster_domain
-  alert_email            = var.alert_email
-  smtp_server            = var.smtp_server
-  smtp_port              = var.smtp_port
-  smtp_require_tls       = var.smtp_require_tls
-  smtp_username          = var.smtp_username
-  smtp_password          = var.smtp_password
-  deadmansswitch_url     = var.deadmansswitch_url
-  thanos_s3_bucket       = var.backup_s3_bucket
-  thanos_s3_region       = var.backup_s3_region
-  thanos_s3_endpoint     = var.backup_s3_endpoint
-  thanos_s3_access_key   = var.backup_s3_access_key
-  thanos_s3_secret_key   = var.backup_s3_secret_key
-}
 
 module "cert_manager" {
   source = "./cert-manager"
 
-  cloudflare_dns_api_token = var.cloudflare_dns_api_token
-  acme_email               = var.cert_manager_acme_email
-
-  depends_on = [ module.prometheus_stack ]
+  scw_access_key = var.external_dns_access_key
+  scw_secret_key = var.external_dns_secret_key
+  acme_email     = var.cert_manager_acme_email
 }
 
 module "ingress_nginx" {
   source = "./ingress-nginx"
 
-  zones               = var.ingress_nginx_zones
-  cluster_domain      = var.cluster_domain
-  extra_annotations   = var.ingress_nginx_extra_annotations
-  maxmind_license_key = var.maxmind_license_key
+  zones          = var.ingress_nginx_zones
+  cluster_domain = var.cluster_domain
+  cloud_provider = "scaleway"
 
-  depends_on = [module.prometheus_stack]
+  depends_on = [module.cert_manager]
 }
 
 module "external_dns" {
   source = "./external-dns"
 
-  api_token      = var.cloudflare_dns_api_token
+  access_key     = var.external_dns_access_key
+  secret_key     = var.external_dns_secret_key
   cluster_domain = var.cluster_domain
+  cloud_provider = "scaleway"
 
   depends_on = [module.ingress_nginx]
 }
+
+# module "elastic" {
+#   source = "./elastic"
+
+#   storage_class       = var.elasticsearch_storage_class
+#   cluster_domain      = var.cluster_domain
+#   cert_manager_issuer = var.kibana_cert_manager_issuer
+
+#   depends_on = [module.cert_manager, module.ingress_nginx]
+# }
 
 module "postgres" {
   source = "./postgres"
@@ -75,6 +67,8 @@ module "ozone" {
   source = "./ozone"
 
   cluster_domain          = var.cluster_domain
+  cert_manager_issuer     = var.ozone_cert_manager_issuer
+  ozone_public_hostname   = var.ozone_public_hostname
   ozone_image             = var.ozone_image
   ozone_appview_url       = var.ozone_appview_url
   ozone_appview_did       = var.ozone_appview_did
@@ -94,63 +88,40 @@ module "ozone" {
 module "pds" {
   source = "./pds"
 
-  cluster_domain                = var.cluster_domain
-  storage_provisioner           = var.pds_storage_provisioner
-  pds_storage_size              = var.pds_storage_size
-  backup_bucket                 = var.backup_s3_bucket
-  backup_region                 = var.backup_s3_region
-  backup_endpoint               = var.backup_s3_endpoint
-  backup_access_key             = var.backup_s3_access_key
-  backup_secret_key             = var.backup_s3_secret_key
-  pds_jwt_secret                = var.pds_jwt_secret
-  pds_admin_password            = var.pds_admin_password
-  pds_plc_rotation_key          = var.pds_plc_rotation_key
-  pds_dpop_secret               = var.pds_dpop_secret
-  pds_recovery_did_key          = var.pds_recovery_did_key
-  pds_blobstore_bucket          = var.pds_blobstore_bucket
-  pds_blobstore_access_key      = var.pds_blobstore_access_key
-  pds_blobstore_secret_key      = var.pds_blobstore_secret_key
-  pds_did_plc_url               = var.pds_did_plc_url
-  pds_bsky_app_view_url         = var.pds_bsky_app_view_url
-  pds_bsky_app_view_did         = var.pds_bsky_app_view_did
-  pds_mod_service_url           = module.ozone.public_url
-  pds_mod_service_did           = var.pds_mod_service_did
-  pds_blob_upload_limit         = var.pds_blob_upload_limit
-  pds_log_enabled               = var.pds_log_enabled
-  pds_email_from_address        = var.pds_email_from_address
-  pds_email_smtp_url            = var.pds_email_smtp_url
-  pds_moderation_email_address  = var.pds_moderation_email_address
-  pds_moderation_email_smtp_url = var.pds_moderation_email_smtp_url
+  cluster_domain           = var.cluster_domain
+  cert_manager_issuer      = var.pds_cert_manager_issuer
+  storage_provisioner      = var.pds_storage_provisioner
+  pds_storage_size         = var.pds_storage_size
+  backup_bucket            = var.backup_s3_bucket
+  backup_region            = var.backup_s3_region
+  backup_endpoint          = var.backup_s3_endpoint
+  backup_access_key        = var.backup_s3_access_key
+  backup_secret_key        = var.backup_s3_secret_key
+  pds_jwt_secret           = var.pds_jwt_secret
+  pds_admin_password       = var.pds_admin_password
+  pds_plc_rotation_key     = var.pds_plc_rotation_key
+  pds_blobstore_bucket     = var.pds_blobstore_bucket
+  pds_blobstore_access_key = var.pds_blobstore_access_key
+  pds_blobstore_secret_key = var.pds_blobstore_secret_key
+  pds_did_plc_url          = var.pds_did_plc_url
+  pds_bsky_app_view_url    = var.pds_bsky_app_view_url
+  pds_bsky_app_view_did    = var.pds_bsky_app_view_did
+  pds_report_service_url   = var.pds_report_service_url
+  pds_report_service_did   = var.pds_report_service_did
+  pds_blob_upload_limit    = var.pds_blob_upload_limit
+  pds_log_enabled          = var.pds_log_enabled
+  pds_email_from_address   = var.pds_email_from_address
+  pds_email_smtp_url       = var.pds_email_smtp_url
+  pds_public_hostname      = var.pds_public_hostname
 
   depends_on = [module.ingress_nginx]
 }
 
-module "loki" {
-  source = "./loki"
+module "prometheus_stack" {
+  source = "./prometheus-stack"
 
-  storage_class        = var.loki_storage_class
-  s3_bucket            = var.backup_s3_bucket
-  s3_region            = var.backup_s3_region
-  s3_endpoint          = var.backup_s3_endpoint
-  s3_access_key        = var.backup_s3_access_key
-  s3_secret_key        = var.backup_s3_secret_key
-  monitoring_namespace = module.prometheus_stack.monitoring_namespace
+  grafana_admin_password = var.prometheus_grafana_admin_password
+  storage_class          = var.prometheus_storage_class
 
-  depends_on = [module.prometheus_stack]
-}
-
-module "relay" {
-  source = "./relay"
-
-  relay_admin_password = var.relay_admin_password
-  relay_storage_class  = var.relay_storage_class
-  relay_storage_size   = var.relay_storage_size
-  cluster_domain       = var.cluster_domain
-  backup_bucket        = var.backup_s3_bucket
-  backup_region        = var.backup_s3_region
-  backup_endpoint      = var.backup_s3_endpoint
-  backup_access_key    = var.backup_s3_access_key
-  backup_secret_key    = var.backup_s3_secret_key
-
-  depends_on = [module.ingress_nginx]
+  depends_on = [module.cert_manager, module.ingress_nginx]
 }

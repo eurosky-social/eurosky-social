@@ -7,32 +7,22 @@ variable "kubeconfig_token" {
   description = "Kubernetes authentication token"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
 variable "kubeconfig_cluster_ca_certificate" {
   description = "Kubernetes cluster CA certificate (base64 encoded)"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
-variable "kubeconfig_client_certificate" {
-  description = "Kubernetes client certificate (base64 encoded)"
+variable "external_dns_access_key" {
+  description = "Scaleway access key for external-dns"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
-variable "kubeconfig_client_key" {
-  description = "Kubernetes client key (base64 encoded)"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "cloudflare_dns_api_token" {
-  description = "Cloudflare API token for external-dns"
+variable "external_dns_secret_key" {
+  description = "Scaleway secret key for external-dns"
   type        = string
   sensitive   = true
 }
@@ -42,18 +32,6 @@ variable "ingress_nginx_zones" {
   type        = list(string)
 }
 
-variable "ingress_nginx_extra_annotations" {
-  description = "Extra annotations to add to the ingress-nginx service"
-  type        = map(string)
-  default     = {}
-}
-
-variable "maxmind_license_key" {
-  description = "MaxMind license key for GeoIP2 database (get free key at https://www.maxmind.com/en/geolite2/signup)"
-  type        = string
-  sensitive   = true
-}
-
 variable "cluster_domain" {
   description = "Full cluster domain (subdomain.domain)"
   type        = string
@@ -61,6 +39,26 @@ variable "cluster_domain" {
 
 variable "cert_manager_acme_email" {
   description = "Email for ACME registration"
+  type        = string
+}
+
+variable "ozone_cert_manager_issuer" {
+  description = "cert-manager ClusterIssuer for Ozone ingress"
+  type        = string
+}
+
+variable "pds_cert_manager_issuer" {
+  description = "cert-manager ClusterIssuer for PDS ingress"
+  type        = string
+}
+
+variable "kibana_cert_manager_issuer" {
+  description = "cert-manager ClusterIssuer for Kibana ingress"
+  type        = string
+}
+
+variable "elasticsearch_storage_class" {
+  description = "Storage class for Elasticsearch persistent volumes"
   type        = string
 }
 
@@ -99,6 +97,12 @@ variable "backup_s3_endpoint" {
 variable "ozone_image" {
   description = "Docker image for Ozone"
   type        = string
+}
+
+variable "ozone_public_hostname" {
+  description = "Public hostname for Ozone (optional, defaults to ozone.<cluster_domain>)"
+  type        = string
+  default     = null
 }
 
 variable "ozone_appview_url" {
@@ -167,19 +171,6 @@ variable "pds_plc_rotation_key" {
   sensitive   = true
 }
 
-variable "pds_dpop_secret" {
-  description = "DPoP secret for OAuth token binding (32-byte hex)"
-  type        = string
-  sensitive   = true
-}
-
-variable "pds_recovery_did_key" {
-  description = "Recovery DID key (did:key format) - additional PDS-controlled recovery mechanism"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
 variable "pds_blobstore_bucket" {
   description = "S3 bucket for PDS blob storage"
   type        = string
@@ -200,31 +191,43 @@ variable "pds_blobstore_secret_key" {
 variable "pds_did_plc_url" {
   description = "PLC directory URL for DID resolution"
   type        = string
+  default     = "https://plc.directory"
 }
 
 variable "pds_bsky_app_view_url" {
   description = "Bluesky App View URL"
   type        = string
+  default     = "https://api.bsky.app"
 }
 
 variable "pds_bsky_app_view_did" {
   description = "Bluesky App View DID"
   type        = string
+  default     = "did:web:api.bsky.app"
 }
 
-variable "pds_mod_service_did" {
-  description = "Moderation service DID (Ozone) for takedowns and moderation actions"
+variable "pds_report_service_url" {
+  description = "Moderation/reporting service URL (Ozone)"
   type        = string
+  default     = "https://mod.bsky.app"
+}
+
+variable "pds_report_service_did" {
+  description = "Moderation/reporting service DID (Ozone)"
+  type        = string
+  default     = "did:plc:ar7c4by46qjdydhdevvrndac"
 }
 
 variable "pds_blob_upload_limit" {
   description = "Maximum blob upload size in bytes"
   type        = string
+  default     = "52428800"
 }
 
 variable "pds_log_enabled" {
   description = "Enable logging"
   type        = string
+  default     = "true"
 }
 
 variable "pds_email_from_address" {
@@ -240,17 +243,10 @@ variable "pds_email_smtp_url" {
   default     = ""
 }
 
-variable "pds_moderation_email_address" {
-  description = "Email from address for admin moderation communications"
+variable "pds_public_hostname" {
+  description = "Public hostname for PDS (optional, defaults to pds.<cluster_domain>)"
   type        = string
-  default     = ""
-}
-
-variable "pds_moderation_email_smtp_url" {
-  description = "SMTP URL for moderation emails (format: smtps://user:pass@host:port/)"
-  type        = string
-  sensitive   = true
-  default     = ""
+  default     = null
 }
 
 variable "postgres_cluster_name" {
@@ -279,72 +275,5 @@ variable "prometheus_grafana_admin_password" {
 
 variable "prometheus_storage_class" {
   description = "Storage class for Prometheus stack persistent volumes"
-  type        = string
-}
-
-variable "loki_storage_class" {
-  description = "Storage class for Loki persistent volumes"
-  type        = string
-}
-
-# TODO this should be optional - perhaps having a monitoring object?
-variable "alert_email" {
-  description = "Email address to receive alerts from Alertmanager"
-  type        = string
-  default     = "alerts@example.com"
-}
-
-variable "smtp_server" {
-  description = "SMTP server hostname for alert email notifications"
-  type        = string
-  default     = "smtp.example.com"
-}
-
-variable "smtp_port" {
-  description = "SMTP server port"
-  type        = number
-  default     = 587
-}
-
-variable "smtp_require_tls" {
-  description = "Require TLS for SMTP connection"
-  type        = bool
-  default     = true
-}
-
-variable "smtp_username" {
-  description = "SMTP authentication username"
-  type        = string
-  sensitive   = true
-  default     = "alerts@example.com"
-}
-
-variable "smtp_password" {
-  description = "SMTP authentication password"
-  type        = string
-  sensitive   = true
-  default     = "changeme"
-}
-
-variable "deadmansswitch_url" {
-  description = "Webhook URL for dead man's switch heartbeat monitoring (e.g., Healthchecks.io). Leave empty to disable."
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "relay_admin_password" {
-  description = "Admin password for relay admin API"
-  type        = string
-  sensitive   = true
-}
-
-variable "relay_storage_class" {
-  description = "Storage class for relay PVC"
-  type        = string
-}
-
-variable "relay_storage_size" {
-  description = "Storage size for relay data"
   type        = string
 }
