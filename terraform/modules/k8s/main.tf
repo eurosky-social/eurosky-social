@@ -7,6 +7,8 @@
 # TODO: Switch to GitOps workflow (e.g., ArgoCD or Flux) for declarative,
 #   automated deployment and configuration management
 
+# TODO: separate topology per workloads (dedicated nodes per core, apps, o11y, noisy apps, etc)
+
 module "cert_manager" {
   source = "./cert-manager"
 
