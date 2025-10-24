@@ -8,11 +8,11 @@ locals {
 
   # ConfigMap/Secret checksums for triggering rolling updates
   pds_config_checksum = sha256(jsonencode({
-    pds_hostname          = local.pds_hostname
-    pds_blobstore_bucket  = var.pds_blobstore_bucket
-    pds_did_plc_url       = var.pds_did_plc_url
-    pds_bsky_app_view_url = var.pds_bsky_app_view_url
-    pds_bsky_app_view_did = var.pds_bsky_app_view_did
+    pds_hostname           = local.pds_hostname
+    pds_blobstore_bucket   = var.pds_blobstore_bucket
+    pds_did_plc_url        = var.pds_did_plc_url
+    pds_bsky_app_view_url  = var.pds_bsky_app_view_url
+    pds_bsky_app_view_did  = var.pds_bsky_app_view_did
     pds_report_service_url = var.pds_report_service_url
     pds_report_service_did = var.pds_report_service_did
     pds_blob_upload_limit  = var.pds_blob_upload_limit

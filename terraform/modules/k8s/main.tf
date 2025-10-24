@@ -1,7 +1,5 @@
 # TODO: Improve observability (o11y) - consider integrating:
 #   - SigNoz for distributed tracing and APM
-#   - Prometheus for metrics collection
-#   - Grafana for visualization and dashboards
 #   - Alerting infrastructure for proactive monitoring
 #
 # TODO: Switch to GitOps workflow (e.g., ArgoCD or Flux) for declarative,
@@ -117,4 +115,13 @@ module "pds" {
   pds_public_hostname      = var.pds_public_hostname
 
   depends_on = [module.ingress_nginx]
+}
+
+module "prometheus_stack" {
+  source = "./prometheus-stack"
+
+  grafana_admin_password = var.prometheus_grafana_admin_password
+  storage_class          = var.prometheus_storage_class
+
+  depends_on = [module.cert_manager, module.ingress_nginx]
 }

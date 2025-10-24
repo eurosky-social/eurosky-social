@@ -235,3 +235,14 @@ variable "postgres_enable_recovery" {
   type        = bool
   default     = false
 }
+
+variable "prometheus_grafana_admin_password" {
+  description = "Grafana admin password for Prometheus stack"
+  type        = string
+  sensitive   = true
+}
+
+variable "prometheus_storage_class" {
+  description = "Storage class for Prometheus stack persistent volumes"
+  type        = string
+}
