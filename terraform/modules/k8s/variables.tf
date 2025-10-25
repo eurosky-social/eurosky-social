@@ -267,3 +267,8 @@ variable "prometheus_storage_class" {
   description = "Storage class for Prometheus stack persistent volumes"
   type        = string
 }
+
+variable "loki_storage_class" {
+  description = "Storage class for Loki persistent volumes"
+  type        = string
+}

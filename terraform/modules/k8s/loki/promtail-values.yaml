@@ -1,0 +1,23 @@
+config:
+  clients:
+    - url: ${loki_url}/loki/api/v1/push
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+serviceMonitor:
+  enabled: true
+
+# TODO: Add pipeline stages for structured log parsing (JSON, logfmt) for app logs
+# TODO: Configure multiline log handling for stack traces and multi-line errors
+# TODO: Add drop stages for noisy logs (health checks, metrics scrapes, readiness probes)
+# TODO: Set up log sampling for high-volume applications (e.g., 1% sample for debug logs)
+# TODO: Add security context (runAsNonRoot, readOnlyRootFilesystem, drop ALL capabilities)
+# TODO: Configure resource requests/limits based on actual cluster log volume
+# TODO: Add tolerations for node taints if needed (e.g., monitoring=true:NoSchedule)
+# TODO: Verify Promtail positions file persistence (default: emptyDir - lost on pod restart)

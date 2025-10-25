@@ -9,6 +9,8 @@
 
 # TODO: Consider explicitly managing metrics-server via Helm instead of relying on platform defaults
 
+# TODO: refactor module by workloads (e.g. monitoring for prometheus, loki)
+
 module "cert_manager" {
   source = "./cert-manager"
 
@@ -117,4 +119,17 @@ module "prometheus_stack" {
   cluster_domain         = var.cluster_domain
 
   depends_on = [module.cert_manager, module.ingress_nginx]
+}
+
+module "loki" {
+  source = "./loki"
+
+  storage_class = var.loki_storage_class
+  s3_bucket     = var.backup_s3_bucket
+  s3_region     = var.backup_s3_region
+  s3_endpoint   = var.backup_s3_endpoint
+  s3_access_key = var.backup_s3_access_key
+  s3_secret_key = var.backup_s3_secret_key
+
+  depends_on = [module.prometheus_stack]
 }

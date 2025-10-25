@@ -73,4 +73,5 @@ module "k8s" {
 
   prometheus_grafana_admin_password = var.prometheus_grafana_admin_password
   prometheus_storage_class          = var.prometheus_storage_class
+  loki_storage_class                = var.loki_storage_class
 }
