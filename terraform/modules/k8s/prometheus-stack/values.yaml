@@ -145,6 +145,12 @@ grafana:
         revision: 1
         datasource: Prometheus
 
+      # Loki (Log Aggregation)
+      loki-logs:
+        gnetId: 13639
+        revision: 2
+        datasource: Loki
+
 prometheus:
   enabled: true
   ingress:

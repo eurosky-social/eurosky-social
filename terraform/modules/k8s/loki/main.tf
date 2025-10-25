@@ -41,8 +41,6 @@ resource "helm_release" "promtail" {
   depends_on = [helm_release.loki]
 }
 
-# TODO: Add Loki datasource to Grafana (via grafana.additionalDataSources in prometheus-stack values)
-# TODO: Create Grafana dashboards for log exploration (gnetId: 13639 for Loki logs)
 # TODO: Set up LogQL query examples for common troubleshooting scenarios
 # TODO: Configure PrometheusRules with LogQL alert rules for critical log patterns (errors, panics, OOM, crash loops)
 # TODO: Add retention policies cleanup job for old S3 data (S3 lifecycle policy at bucket level)
