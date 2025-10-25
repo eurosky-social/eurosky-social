@@ -44,8 +44,15 @@ loki:
     retention_delete_delay: 2h
     retention_delete_worker_count: 150
 
+  ingester:
+    # WAL survives pod/node crashes, fails only with PVC corruption/loss
+    wal:
+      enabled: true
+      dir: /var/loki/wal
+      flush_on_shutdown: true
+
   # TODO: Reduce RPO from current 30-60min to 5-10min
-  # Current RPO: Logs in memory/PVC are at risk until uploaded to S3 (~30-60min)
+  # Current RPO: Logs in the PVC are at risk until uploaded to S3 (~30-60min)
   # To reduce data loss window, uncomment below (trade-off: higher S3 API costs)
   # ingester:
   #   chunk_idle_period: 5m       # Flush chunks idle for 5min (default: 30m)
