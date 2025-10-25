@@ -60,6 +60,18 @@ variable "monitoring_enabled" {
   default     = false
 }
 
+variable "postgres_instances" {
+  description = "Number of PostgreSQL instances"
+  type        = number
+  default     = 1
+}
+
+variable "postgres_storage_size" {
+  description = "PostgreSQL storage size"
+  type        = string
+  default     = "1Gi"
+}
+
 variable "postgres_cluster_name" {
   description = "PostgreSQL cluster name (increment version for recovery: postgres-cluster-v2, v3, etc.)"
   type        = string

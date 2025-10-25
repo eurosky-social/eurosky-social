@@ -106,6 +106,8 @@ resource "kubectl_manifest" "postgres_cluster" {
     namespace                    = kubernetes_secret.ozone_db.metadata[0].namespace
     cluster_name                 = var.postgres_cluster_name
     storage_class                = var.storage_class
+    instances                    = var.postgres_instances
+    storage_size                 = var.postgres_storage_size
     backup_objectstore_name      = local.backup_objectstore_name
     recovery_source_cluster_name = var.recovery_source_cluster_name
     enable_recovery              = var.enable_recovery

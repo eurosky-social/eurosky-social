@@ -1,13 +1,10 @@
 resource "kubernetes_secret" "external_dns" {
   metadata {
-    name      = "external-dns-${var.cloud_provider}"
+    name      = "external-dns-${var.dns_provider}"
     namespace = "kube-system"
   }
 
-  data = var.cloud_provider == "scaleway" ? {
-    SCW_ACCESS_KEY = var.access_key
-    SCW_SECRET_KEY = var.secret_key
-  } : {}
+  data = var.keys
 }
 
 resource "helm_release" "external_dns" {
@@ -19,19 +16,13 @@ resource "helm_release" "external_dns" {
 
   values = [
     templatefile("${path.module}/external-dns-values.yaml", {
-      secret_name               = kubernetes_secret.external_dns.metadata[0].name
-      cluster_domain            = var.cluster_domain
-      sync_policy               = var.sync_policy
-      txt_owner_id              = var.txt_owner_id
-      txt_prefix                = var.txt_prefix
-      log_level                 = var.log_level
-      log_format                = var.log_format
-      resources_requests_cpu    = var.resources_requests_cpu
-      resources_requests_memory = var.resources_requests_memory
-      resources_limits_cpu      = var.resources_limits_cpu
-      resources_limits_memory   = var.resources_limits_memory
+      dns_provider   = var.dns_provider
+      keys           = var.keys
+      cluster_domain = var.cluster_domain
     })
   ]
+
+  depends_on = [kubernetes_secret.external_dns]
 }
 
 # TODO: Add high availability (replica: 2)

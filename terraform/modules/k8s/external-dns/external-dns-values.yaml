@@ -1,17 +1,14 @@
 # TODO this is tied to the cloud provider
-provider: scaleway
+provider: ${dns_provider}
 
 env:
-  - name: SCW_ACCESS_KEY
+%{ for key in keys(keys) ~}
+  - name: ${key}
     valueFrom:
       secretKeyRef:
-        name: ${secret_name}
-        key: SCW_ACCESS_KEY
-  - name: SCW_SECRET_KEY
-    valueFrom:
-      secretKeyRef:
-        name: ${secret_name}
-        key: SCW_SECRET_KEY
+        name: external-dns-${dns_provider}
+        key: ${key}
+%{ endfor ~}
 
 sources:
   - service
@@ -20,19 +17,19 @@ sources:
 domainFilters:
   - ${cluster_domain}
 
-policy: ${sync_policy}
+policy: sync
 
 registry: txt
-txtOwnerId: "${txt_owner_id}"
-txtPrefix: "${txt_prefix}"
+txtOwnerId: external-dns
+txtPrefix: external-dns-
 
-logLevel: ${log_level}
-logFormat: ${log_format}
+logLevel: info
+logFormat: json
 
 resources:
   requests:
-    cpu: ${resources_requests_cpu}
-    memory: ${resources_requests_memory}
+    cpu: 50m
+    memory: 64Mi
   limits:
-    cpu: ${resources_limits_cpu}
-    memory: ${resources_limits_memory}
+    cpu: 200m
+    memory: 128Mi

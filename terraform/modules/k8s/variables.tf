@@ -1,30 +1,35 @@
-variable "kubeconfig_host" {
-  description = "Kubernetes API server host"
-  type        = string
-}
 
-variable "kubeconfig_token" {
-  description = "Kubernetes authentication token"
-  type        = string
+variable "external_dns_secrets" {
+  description = "Cloud provider secrets for external-dns (map of env var names to secret values)"
+  type        = map(string)
   sensitive   = true
 }
 
-variable "kubeconfig_cluster_ca_certificate" {
-  description = "Kubernetes cluster CA certificate (base64 encoded)"
+variable "external_dns_provider" {
+  description = "Cloud provider name for external-dns (scaleway, cloudflare, etc.)"
   type        = string
+}
+
+variable "extra_nginx_annotations" {
+  description = "Extra annotations for ingress-nginx LoadBalancer (cloud provider specific or DNS overrides)"
+  type        = map(string)
+  default     = {}
+}
+
+variable "cert_manager_secrets" {
+  description = "DNS provider secrets for cert-manager (map of key names to secret values)"
+  type        = map(string)
   sensitive   = true
 }
 
-variable "external_dns_access_key" {
-  description = "Scaleway access key for external-dns"
+variable "cert_manager_secret_name" {
+  description = "Name for the cert-manager DNS credentials secret"
   type        = string
-  sensitive   = true
 }
 
-variable "external_dns_secret_key" {
-  description = "Scaleway secret key for external-dns"
+variable "cert_manager_solver_config" {
+  description = "DNS01 solver configuration (YAML string) - provider-specific, defined by caller"
   type        = string
-  sensitive   = true
 }
 
 variable "ingress_nginx_zones" {
@@ -247,6 +252,18 @@ variable "pds_public_hostname" {
   description = "Public hostname for PDS (optional, defaults to pds.<cluster_domain>)"
   type        = string
   default     = null
+}
+
+variable "postgres_instances" {
+  description = "Number of PostgreSQL instances (1 for local/dev, 3+ for production HA)"
+  type        = number
+  default     = 1
+}
+
+variable "postgres_storage_size" {
+  description = "PostgreSQL storage size"
+  type        = string
+  default     = "1Gi"
 }
 
 variable "postgres_cluster_name" {

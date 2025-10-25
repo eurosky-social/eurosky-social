@@ -10,17 +10,18 @@
 module "cert_manager" {
   source = "./cert-manager"
 
-  scw_access_key = var.external_dns_access_key
-  scw_secret_key = var.external_dns_secret_key
-  acme_email     = var.cert_manager_acme_email
+  dns_secrets   = var.cert_manager_secrets
+  secret_name   = var.cert_manager_secret_name
+  solver_config = var.cert_manager_solver_config
+  acme_email    = var.cert_manager_acme_email
 }
 
 module "ingress_nginx" {
   source = "./ingress-nginx"
 
-  zones          = var.ingress_nginx_zones
-  cluster_domain = var.cluster_domain
-  cloud_provider = "scaleway"
+  zones                   = var.ingress_nginx_zones
+  cluster_domain          = var.cluster_domain
+  extra_nginx_annotations = var.extra_nginx_annotations
 
   depends_on = [module.cert_manager]
 }
@@ -28,10 +29,9 @@ module "ingress_nginx" {
 module "external_dns" {
   source = "./external-dns"
 
-  access_key     = var.external_dns_access_key
-  secret_key     = var.external_dns_secret_key
+  keys           = var.external_dns_secrets
   cluster_domain = var.cluster_domain
-  cloud_provider = "scaleway"
+  dns_provider   = var.external_dns_provider
 
   depends_on = [module.ingress_nginx]
 }
@@ -56,6 +56,8 @@ module "postgres" {
   backup_s3_region             = var.backup_s3_region
   backup_s3_endpoint           = var.backup_s3_endpoint
   ozone_db_password            = var.ozone_db_password
+  postgres_instances           = var.postgres_instances
+  postgres_storage_size        = var.postgres_storage_size
   postgres_cluster_name        = var.postgres_cluster_name
   recovery_source_cluster_name = var.postgres_recovery_source_cluster_name
   enable_recovery              = var.postgres_enable_recovery
