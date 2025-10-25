@@ -120,9 +120,29 @@ monitoring:
   lokiCanary:
     enabled: false # Disabled to save resources on small cluster
 
+# NetworkPolicy - restrict access to authorized pods only
+networkPolicy:
+  enabled: true
+  flavor: kubernetes
+  metrics:
+    # Allow Prometheus to scrape metrics
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: prometheus
+    namespaceSelector: {}
+  ingress:
+    # Allow Promtail and Grafana to access Loki
+    podSelector:
+      matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+            - promtail
+            - grafana
+    namespaceSelector: {}
+
 # TODO: Enable ingress with TLS for external Loki queries (optional - for federated log querying)
 # TODO: Configure PrometheusRules for Loki self-monitoring (errors, high cardinality, ingestion failures, disk space)
-# TODO: Add NetworkPolicy to restrict access to Loki (allow only Promtail, Grafana, Prometheus)
 # TODO: Configure limits_config.max_streams_per_user to prevent cardinality explosion
 # TODO: Add security context (runAsNonRoot, readOnlyRootFilesystem where possible)
 # TODO: Rotate S3 credentials via external secret management (Scaleway Secret Manager or Sealed Secrets)
