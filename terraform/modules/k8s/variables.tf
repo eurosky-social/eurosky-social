@@ -52,16 +52,6 @@ variable "pds_cert_manager_issuer" {
   type        = string
 }
 
-variable "kibana_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for Kibana ingress"
-  type        = string
-}
-
-variable "elasticsearch_storage_class" {
-  description = "Storage class for Elasticsearch persistent volumes"
-  type        = string
-}
-
 variable "postgres_storage_class" {
   description = "Storage class for PostgreSQL persistent volumes"
   type        = string

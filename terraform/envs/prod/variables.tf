@@ -24,11 +24,6 @@ variable "pds_cert_manager_issuer" {
   type        = string
 }
 
-variable "kibana_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for Kibana (letsencrypt-staging or letsencrypt-prod)"
-  type        = string
-}
-
 variable "k8s_node_type" {
   description = "Kubernetes node instance type (DEV1-M for dev, PRO2-M for production)"
   type        = string
@@ -51,11 +46,6 @@ variable "pds_storage_size" {
 
 variable "postgres_storage_class" {
   description = "Kubernetes storage class for PostgreSQL persistent volumes"
-  type        = string
-}
-
-variable "elasticsearch_storage_class" {
-  description = "Kubernetes storage class for Elasticsearch persistent volumes"
   type        = string
 }
 

@@ -29,10 +29,8 @@ module "k8s" {
 
   ozone_cert_manager_issuer  = var.ozone_cert_manager_issuer
   pds_cert_manager_issuer    = var.pds_cert_manager_issuer
-  kibana_cert_manager_issuer = var.kibana_cert_manager_issuer
 
   ozone_public_hostname = var.ozone_public_hostname
-  elasticsearch_storage_class = var.elasticsearch_storage_class
 
   postgres_storage_class = var.postgres_storage_class
   backup_s3_access_key = module.scaleway.backup_s3_access_key
