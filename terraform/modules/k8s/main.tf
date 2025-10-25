@@ -7,6 +7,8 @@
 
 # TODO: separate topology per workloads (dedicated nodes per core, apps, o11y, noisy apps, etc)
 
+# TODO: Consider explicitly managing metrics-server via Helm instead of relying on platform defaults
+
 module "cert_manager" {
   source = "./cert-manager"
 
@@ -122,6 +124,7 @@ module "prometheus_stack" {
 
   grafana_admin_password = var.prometheus_grafana_admin_password
   storage_class          = var.prometheus_storage_class
+  cluster_domain         = var.cluster_domain
 
   depends_on = [module.cert_manager, module.ingress_nginx]
 }

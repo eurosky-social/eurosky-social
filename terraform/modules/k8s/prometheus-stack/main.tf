@@ -12,8 +12,11 @@ resource "helm_release" "kube_prometheus_stack" {
     templatefile("${path.module}/values.yaml", {
       grafana_admin_password = var.grafana_admin_password
       storage_class          = var.storage_class
+      cluster_domain         = var.cluster_domain
     })
   ]
+
+  timeout       = 60 * 15
 }
 
 # TODO: Manually update CRDs before upgrading chart (NOT auto-updated by helm)

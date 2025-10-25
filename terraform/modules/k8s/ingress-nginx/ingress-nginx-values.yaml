@@ -51,6 +51,8 @@ controller:
   metrics:
     enabled: true
     port: 10254
+    serviceMonitor:
+      enabled: true
 
   admissionWebhooks:
     enabled: true
