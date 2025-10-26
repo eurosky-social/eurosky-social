@@ -4,6 +4,7 @@ alertmanager:
     enabled: false # TODO: Enable with TLS, IP whitelisting, external auth (NEVER expose without protection)
   alertmanagerSpec:
     replicas: 1 # TODO: Increase to 2+ for HA (auto-creates gossip cluster for alert deduplication)
+    priorityClassName: system-cluster-critical
     storage:
       volumeClaimTemplate:
         spec:
@@ -42,6 +43,7 @@ grafana:
   enabled: true
   adminPassword: ${grafana_admin_password} # TODO: Configure SSO/OAuth integration for production
   replicas: 1 # TODO: Increase to 2+ for HA
+  priorityClassName: system-cluster-critical
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -162,6 +164,7 @@ prometheus:
   ingress:
     enabled: false # TODO: Enable with TLS, IP whitelisting, external auth + set externalUrl in prometheusSpec
   prometheusSpec:
+    priorityClassName: system-cluster-critical
     replicas: 1 # TODO: Increase to 2+ for HA (consider functional sharding for large deployments)
     retention: 7d # TODO: Increase to 30d for production
     retentionSize: "8GB" # TODO: Adjust based on actual TSDB usage
@@ -211,6 +214,7 @@ prometheus-node-exporter:
 kube-state-metrics:
   enabled: true
   replicas: 1 # TODO: Run multiple replicas with load balancing for HA
+  priorityClassName: system-cluster-critical
   resources:
     requests:
       cpu: 10m
@@ -221,6 +225,7 @@ kube-state-metrics:
 prometheusOperator:
   enabled: true
   replicas: 1 # Single pod only - potential SPOF for rule deployment
+  priorityClassName: system-cluster-critical
   resources:
     requests:
       cpu: 10m

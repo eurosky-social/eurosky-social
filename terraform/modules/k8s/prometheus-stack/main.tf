@@ -1,3 +1,5 @@
+
+# Note: Manually update CRDs before upgrading chart (NOT auto-updated by helm)
 resource "helm_release" "kube_prometheus_stack" {
   name             = "kube-prometheus-stack"
   namespace        = "monitoring"
@@ -17,11 +19,20 @@ resource "helm_release" "kube_prometheus_stack" {
   ]
 
   timeout = 60 * 15
+
+  depends_on = [kubernetes_priority_class.system_cluster_critical]
 }
 
-# TODO: Manually update CRDs before upgrading chart (NOT auto-updated by helm)
+resource "kubernetes_priority_class" "system_cluster_critical" {
+  metadata {
+    name = "system-cluster-critical"
+  }
+
+  value       = 2000000000
+  description = "Critical cluster components - monitoring, DNS, etc. Prevents eviction during node pressure."
+}
+
 # TODO: Add PodDisruptionBudget for HA components (minAvailable=1)
-# TODO: Add priorityClassName for critical monitoring workloads
 # TODO: Configure remote_write for long-term storage (Thanos/Mimir/object storage)
 # TODO: Create ServiceMonitors for app workloads (use CRDs, NOT prometheus.io/scrape annotations)
 # TODO: Add PrometheusRules for infrastructure alerts (node/pod health, resource exhaustion)
