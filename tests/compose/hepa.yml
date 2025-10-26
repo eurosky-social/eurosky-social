@@ -28,6 +28,12 @@ services:
         condition: service_started
       setup-ozone:
         condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "pidof hepa || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
 
   mock-csam:
     image: ghcr.io/eurosky-social/indigo:mock-csam-eurosky-latest
