@@ -29,3 +29,9 @@ variable "s3_secret_key" {
   type        = string
   sensitive   = true
 }
+
+variable "monitoring_namespace" {
+  description = "Kubernetes namespace where Prometheus stack is deployed"
+  type        = string
+  default     = "monitoring"
+}

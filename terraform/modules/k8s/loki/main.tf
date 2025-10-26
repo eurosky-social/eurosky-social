@@ -10,12 +10,13 @@ resource "helm_release" "loki" {
 
   values = [
     templatefile("${path.module}/values.yaml", {
-      storage_class      = var.storage_class
-      s3_bucket          = var.s3_bucket
-      s3_region          = var.s3_region
-      s3_endpoint        = var.s3_endpoint
-      s3_access_key      = var.s3_access_key
-      s3_secret_key      = var.s3_secret_key
+      storage_class        = var.storage_class
+      s3_bucket            = var.s3_bucket
+      s3_region            = var.s3_region
+      s3_endpoint          = var.s3_endpoint
+      s3_access_key        = var.s3_access_key
+      s3_secret_key        = var.s3_secret_key
+      monitoring_namespace = var.monitoring_namespace
     })
   ]
 
@@ -41,8 +42,6 @@ resource "helm_release" "promtail" {
   depends_on = [helm_release.loki]
 }
 
-# TODO: Set up LogQL query examples for common troubleshooting scenarios
-# TODO: Configure PrometheusRules with LogQL alert rules for critical log patterns (errors, panics, OOM, crash loops)
 # TODO: Add retention policies cleanup job for old S3 data (S3 lifecycle policy at bucket level)
 # TODO: Consider switching to microservices mode for production HA (official recommendation per Grafana docs)
 # TODO: Add zone-aware ingester replication across AZs (zone_awareness_enabled + replication_factor: 3)

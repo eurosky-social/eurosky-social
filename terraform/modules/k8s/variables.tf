@@ -272,3 +272,10 @@ variable "loki_storage_class" {
   description = "Storage class for Loki persistent volumes"
   type        = string
 }
+
+# TODO this should be optional - perhaps having a monitoring object?
+variable "alert_email" {
+  description = "Email address to receive alerts from Alertmanager"
+  type        = string
+  default     = "alerts@example.com"
+}

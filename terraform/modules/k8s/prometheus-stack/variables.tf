@@ -13,3 +13,8 @@ variable "cluster_domain" {
   description = "Cluster domain for ingress hostnames"
   type        = string
 }
+
+variable "alert_email" {
+  description = "Email address to receive alerts from Alertmanager"
+  type        = string
+}

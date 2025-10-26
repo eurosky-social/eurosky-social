@@ -28,6 +28,16 @@ alertmanager:
             app.kubernetes.io/name: alertmanager
     # TODO: Configure alert routing, notification channels (PagerDuty/Slack), escalation policies
 
+# Disable Kubernetes control plane component alerts for Scaleway managed K8s
+# Control plane (kube-proxy, kube-scheduler, kube-controller-manager) is managed by Scaleway
+# and not exposed to cluster metrics - these alerts are false positives in managed K8s
+defaultRules:
+  create: true
+  rules:
+    kubeProxy: false
+    kubeControllerManager: false
+    kubeScheduler: false
+
 grafana:
   enabled: true
   adminPassword: ${grafana_admin_password} # TODO: Configure SSO/OAuth integration for production
@@ -120,13 +130,9 @@ grafana:
         datasource: Prometheus
 
       # PostgreSQL (CloudNativePG)
-      cloudnativepg:
-        gnetId: 15915
+      cnpg-cluster:
+        gnetId: 20417
         revision: 1
-        datasource: Prometheus
-      postgresql-database:
-        gnetId: 9628
-        revision: 7
         datasource: Prometheus
 
       # cert-manager
@@ -162,6 +168,13 @@ prometheus:
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
+    # Empty selectors: discover PodMonitors/ServiceMonitors/Rules from ALL namespaces with ANY labels
+    podMonitorSelector: {}
+    podMonitorNamespaceSelector: {}
+    serviceMonitorSelector: {}
+    serviceMonitorNamespaceSelector: {}
+    ruleSelector: {}
+    ruleNamespaceSelector: {}
     storageSpec:
       volumeClaimTemplate:
         spec:

@@ -8,7 +8,6 @@ loki:
     type: s3
     bucketNames:
       chunks: ${s3_bucket}
-      ruler: ${s3_bucket}
     s3:
       endpoint: ${s3_endpoint}
       region: ${s3_region}
@@ -50,6 +49,38 @@ loki:
       enabled: true
       dir: /var/loki/wal
       flush_on_shutdown: true
+
+  # Ruler enabled - evaluates LogQL alert rules from /rules directory
+  # (rules are synced there by the sidecar from Kubernetes ConfigMaps)
+  ruler:
+    enabled: true
+
+  rulerConfig:
+    storage:
+      type: local
+      local:
+        directory: /rules
+    enable_api: true
+    rule_path: /rules
+    ring:
+      kvstore:
+        store: inmemory
+    # Alert manager integration - sends LogQL alert evaluations to Alertmanager
+    alertmanager_url: http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093
+    poll_interval: 1m
+    evaluation_interval: 1m
+    
+# Sidecar for Kubernetes API rule discovery (k8s-sidecar)
+# Automatically discovers ConfigMaps with loki_rule: "1" label and syncs to /rules directory
+sidecar:
+  rules:
+    enabled: true
+    label: loki_rule
+    labelValue: ""         # Any value as long as label match
+    folder: /rules         # Where to sync rules (must match ruler.rule_path)
+    searchNamespace: ${monitoring_namespace}  # Namespace to search
+    watchMethod: WATCH     # Watch for ConfigMap changes in real-time
+    resource: both         # Watch ConfigMaps and Secrets
 
   # TODO: Reduce RPO from current 30-60min to 5-10min
   # Current RPO: Logs in the PVC are at risk until uploaded to S3 (~30-60min)

@@ -18,7 +18,7 @@ resource "helm_release" "cloudnativepg" {
 
   set {
     name  = "monitoring.podMonitorEnabled"
-    value = var.monitoring_enabled
+    value = true
   }
 }
 

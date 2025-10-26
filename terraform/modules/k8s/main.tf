@@ -1,6 +1,9 @@
 # TODO: Improve observability (o11y) - consider integrating:
 #   - SigNoz for distributed tracing and APM
 #   - Alerting infrastructure for proactive monitoring
+#   - Hubble (Cilium observability) for network flow visibility and egress monitoring
+#
+# TODO: Implement lateral movement protection
 #
 # TODO: Switch to GitOps workflow (e.g., ArgoCD or Flux) for declarative,
 #   automated deployment and configuration management
@@ -11,22 +14,31 @@
 
 # TODO: refactor module by workloads (e.g. monitoring for prometheus, loki)
 
+module "prometheus_stack" {
+  source = "./prometheus-stack"
+
+  grafana_admin_password = var.prometheus_grafana_admin_password
+  storage_class          = var.prometheus_storage_class
+  cluster_domain         = var.cluster_domain
+  alert_email            = var.alert_email
+}
+
 module "cert_manager" {
   source = "./cert-manager"
 
-  scw_access_key = var.external_dns_access_key
-  scw_secret_key = var.external_dns_secret_key
-  acme_email     = var.cert_manager_acme_email
+  scw_access_key        = var.external_dns_access_key
+  scw_secret_key        = var.external_dns_secret_key
+  acme_email            = var.cert_manager_acme_email
 }
 
 module "ingress_nginx" {
   source = "./ingress-nginx"
 
-  zones          = var.ingress_nginx_zones
-  cluster_domain = var.cluster_domain
-  cloud_provider = "scaleway"
+  zones                = var.ingress_nginx_zones
+  cluster_domain       = var.cluster_domain
+  cloud_provider       = "scaleway"
 
-  depends_on = [module.cert_manager]
+  depends_on = [module.cert_manager, module.prometheus_stack]
 }
 
 module "external_dns" {
@@ -111,25 +123,16 @@ module "pds" {
   depends_on = [module.ingress_nginx]
 }
 
-module "prometheus_stack" {
-  source = "./prometheus-stack"
-
-  grafana_admin_password = var.prometheus_grafana_admin_password
-  storage_class          = var.prometheus_storage_class
-  cluster_domain         = var.cluster_domain
-
-  depends_on = [module.cert_manager, module.ingress_nginx]
-}
-
 module "loki" {
   source = "./loki"
 
-  storage_class = var.loki_storage_class
-  s3_bucket     = var.backup_s3_bucket
-  s3_region     = var.backup_s3_region
-  s3_endpoint   = var.backup_s3_endpoint
-  s3_access_key = var.backup_s3_access_key
-  s3_secret_key = var.backup_s3_secret_key
+  storage_class        = var.loki_storage_class
+  s3_bucket            = var.backup_s3_bucket
+  s3_region            = var.backup_s3_region
+  s3_endpoint          = var.backup_s3_endpoint
+  s3_access_key        = var.backup_s3_access_key
+  s3_secret_key        = var.backup_s3_secret_key
+  monitoring_namespace = module.prometheus_stack.monitoring_namespace
 
   depends_on = [module.prometheus_stack]
 }
