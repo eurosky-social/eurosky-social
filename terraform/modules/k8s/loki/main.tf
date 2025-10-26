@@ -1,8 +1,8 @@
 resource "helm_release" "loki" {
   name      = "loki"
-  namespace = "monitoring"
+  namespace = "loki"
 
-  create_namespace = false # monitoring namespace already exists from prometheus-stack
+  create_namespace = true 
 
   repository = "https://grafana.github.io/helm-charts"
   chart      = "loki"
@@ -35,7 +35,7 @@ resource "helm_release" "promtail" {
 
   values = [
     templatefile("${path.module}/promtail-values.yaml", {
-      loki_url = "http://loki.monitoring.svc.cluster.local:3100"
+      loki_url = "http://loki.loki.svc.cluster.local:3100"
     })
   ]
 

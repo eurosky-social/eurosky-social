@@ -49,6 +49,11 @@ loki:
       enabled: true
       dir: /var/loki/wal
       flush_on_shutdown: true
+    # Ring configuration - use inmemory kvstore for single-binary mode (no memberlist dependency)
+    lifecycler:
+      ring:
+        kvstore:
+          store: inmemory
 
   # Ruler enabled - evaluates LogQL alert rules from /rules directory
   # (rules are synced there by the sidecar from Kubernetes ConfigMaps)
@@ -78,7 +83,7 @@ sidecar:
     label: loki_rule
     labelValue: ""         # Any value as long as label match
     folder: /rules         # Where to sync rules (must match ruler.rule_path)
-    searchNamespace: ${monitoring_namespace}  # Namespace to search
+    searchNamespace: loki  # Search for rule ConfigMaps in loki namespace
     watchMethod: WATCH     # Watch for ConfigMap changes in real-time
     resource: both         # Watch ConfigMaps and Secrets
 
@@ -160,7 +165,9 @@ networkPolicy:
     podSelector:
       matchLabels:
         app.kubernetes.io/name: prometheus
-    namespaceSelector: {}
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
   ingress:
     # Allow Promtail and Grafana to access Loki
     podSelector:
@@ -170,7 +177,28 @@ networkPolicy:
           values:
             - promtail
             - grafana
-    namespaceSelector: {}
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+
+  # Discovery: Allow DNS queries to kube-dns for service discovery
+  discovery:
+    podSelector:
+      matchLabels:
+        k8s-app: kube-dns
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: kube-system
+    port: 53  # DNS port
+
+  # Egress: Allow Loki to reach S3 and external services
+  egressWorld:
+    enabled: true  # Allow egress to S3 for object storage
+
+  externalStorage:
+    ports:
+      - 443  # HTTPS (S3)
+      - 80   # HTTP (S3)
 
 # TODO: Enable ingress with TLS for external Loki queries (optional - for federated log querying)
 # TODO: Configure PrometheusRules for Loki self-monitoring (errors, high cardinality, ingestion failures, disk space)
