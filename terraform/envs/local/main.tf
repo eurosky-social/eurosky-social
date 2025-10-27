@@ -44,7 +44,8 @@ YAML
   ozone_appview_did     = var.ozone_appview_did
   ozone_server_did      = var.ozone_server_did
   ozone_admin_dids      = var.ozone_admin_dids
-  ozone_db_password     = var.ozone_db_password
+    ozone_db_password            = var.ozone_db_password
+    plc_db_password              = var.plc_db_password
   ozone_admin_password  = var.ozone_admin_password
   ozone_signing_key_hex = var.ozone_signing_key_hex
 
@@ -86,10 +87,58 @@ YAML
   # Prometheus configuration
   prometheus_grafana_admin_password = var.prometheus_grafana_admin_password
   prometheus_storage_class          = var.prometheus_storage_class
+  pds_enabled = var.enable_pds
+}
+
+module "pds" {
+  source = "../../modules/pds"
+
+  enabled = var.enable_pds
+  partition = var.environment_partition
+  domain = var.cluster_domain
+  image_name = var.pds_image_name
+  image_tag = var.pds_image_tag
+  replicas = var.pds_replicas
+
+  pds_admin_password = var.pds_admin_password
+  pds_blobstore_disk_location = var.pds_blobstore_disk_location
+  pds_data_directory = var.pds_data_directory
+  pds_did_plc_url = var.pds_did_plc_url
+  pds_hostname = var.pds_hostname
+  pds_jwt_secret = var.pds_jwt_secret
+  pds_port = var.pds_port
+  pds_plc_rotation_key_k256_private_key_hex = var.pds_plc_rotation_key_k256_private_key_hex
+  pds_recovery_did_key = var.pds_recovery_did_key
+  pds_disable_ssrf_protection = var.pds_disable_ssrf_protection
+  pds_dev_mode = var.pds_dev_mode
+  pds_invite_required = var.pds_invite_required
+  pds_bsky_app_view_url = var.pds_bsky_app_view_url
+  pds_bsky_app_view_did = var.pds_bsky_app_view_did
+  pds_email_smtp_url = var.pds_email_smtp_url
+  pds_email_from_address = var.pds_email_from_address
+  pds_moderation_email_smtp_url = var.pds_moderation_email_smtp_url
+  pds_moderation_email_address = var.pds_moderation_email_address
+  pds_mod_service_url = var.pds_mod_service_url
+  pds_mod_service_did = var.pds_mod_service_did
+  log_enabled = var.pds_log_enabled
+  log_level = var.pds_log_level
+
+  depends_on = [module.ingress_nginx]
+}
+
+module "plc" {
+  count = var.enable_plc ? 1 : 0
+  source = "../../modules/plc"
+
+  enabled   = var.enable_plc
+  partition = var.environment_partition
+  domain    = var.cluster_domain
+  postgres_cluster_name = var.postgres_cluster_name
+  postgres_namespace    = "databases"
+  plc_db_password       = var.plc_db_password
 }
 
 # Get machine IP for k8s cluster access
 data "external" "machine_ip" {
   program = ["sh", "-c", "echo '{\"ip\": \"'$(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}')'\"}'"]
 }
-

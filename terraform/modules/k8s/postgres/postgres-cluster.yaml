@@ -57,6 +57,11 @@ spec:
         login: true
         passwordSecret:
           name: ozone-db-secret
+      - name: plc_user
+        ensure: present
+        login: true
+        passwordSecret:
+          name: plc-db-secret
 
   bootstrap:
 %{ if !enable_recovery ~}
@@ -68,6 +73,9 @@ spec:
         - CREATE DATABASE ozone OWNER ozone_user;
         - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ozone_user;
         - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ozone_user;
+        - CREATE DATABASE plc_dev OWNER plc_user;
+        - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO plc_user;
+        - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO plc_user;
 %{ else ~}
     recovery:
       source: postgres-backup-recovery

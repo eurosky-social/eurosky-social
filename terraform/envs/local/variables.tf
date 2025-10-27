@@ -10,6 +10,12 @@ variable "zones" {
   default     = ["local"]
 }
 
+variable "environment_partition" {
+  description = "The partition for the current environment (e.g., 'local', 'dev', 'prod')."
+  type        = string
+  default     = "local"
+}
+
 # Cloudflare Configuration
 variable "cloudflare_api_token" {
   description = "Cloudflare API token for external-dns"
@@ -224,6 +230,30 @@ variable "pds_public_hostname" {
   description = "Public hostname for PDS (optional)"
   type        = string
   default     = null
+}
+
+variable "postgres_cluster_name" {
+  description = "The name of the PostgreSQL cluster."
+  type        = string
+  default     = "postgres-cluster"
+}
+
+variable "plc_db_password" {
+  description = "The password for the PLC database user."
+  type        = string
+  default     = "plc_password"
+}
+
+variable "enable_plc" {
+  description = "Whether to deploy the PLC service."
+  type        = bool
+  default     = true
+}
+
+variable "enable_pds" {
+  description = "Whether to deploy the PDS service."
+  type        = bool
+  default     = true
 }
 
 # Prometheus Configuration
