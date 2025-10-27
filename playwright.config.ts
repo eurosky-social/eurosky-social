@@ -18,7 +18,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [["list"], ["html"]],
-  timeout: 60_000,
+  timeout: 120_000,
   use: {
     baseURL: `https://ozone.${PARTITION}.${DOMAIN}`,
     trace: process.env.CI ? "on" : "on-first-retry",

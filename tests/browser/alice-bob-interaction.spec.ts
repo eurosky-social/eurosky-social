@@ -6,6 +6,7 @@ import * as path from "node:path";
 const DOMAIN = process.env.DOMAIN || "u-at-proto.work";
 const PARTITION = process.env.PARTITION || "local";
 const BASE_URL = `https://social.${PARTITION}.${DOMAIN}`;
+const MAILDEV = `https://maildev.${PARTITION}.${DOMAIN}`;
 const PDS_DOMAIN = `pds.${PARTITION}.${DOMAIN}`;
 
 // Read Ozone DID from shared volume file
@@ -61,49 +62,55 @@ async function createUser(
   testInfo: TestInfo,
   pdsDomain: string
 ) {
+  // User opens browser and goes to the bsky social app url
   const context = await browser.newContext({
     ...(process.env.CI && { recordVideo: { dir: testInfo.outputDir } }),
   });
   const page = await context.newPage();
-
   await page.goto(BASE_URL);
 
+  // User clicks on "Create account" button
   await page.getByRole("button", { name: "Close welcome modal" }).click();
   await page.getByRole("button", { name: "Create account" }).first().click();
 
+  // User selects "Bluesky Social" and then "Custom" to enter its preferred PDS
   await page.getByRole("button", { name: "Bluesky Social" }).click();
   await page.getByRole("radio", { name: "Custom" }).click();
-
   await page.getByRole("textbox", { name: "Server address" }).fill(pdsDomain);
   await page.getByRole("button", { name: "Done" }).click();
 
+  // User fills in email, password, handle
   const email = `${userName}@test.com`;
   const password = "TestPassword123!";
   await page.getByRole("textbox", { name: /enter.*email/i }).fill(email);
   await page.getByRole("textbox", { name: /choose.*password/i }).fill(password);
   await page.getByRole("button", { name: "Next" }).click();
-
   await page
-    .getByRole("textbox", { name: new RegExp(`\\.${pdsDomain}`) })
+    .getByRole("textbox", { name: pdsDomain, exact: false })
     .fill(userName);
   await page.getByRole("button", { name: "Next" }).click();
 
+  // User goes through the onboarding steps
+  // Step 1
   await expect(page.getByText("Give your profile a face")).toBeVisible();
   await page.getByRole("button", { name: /continue|skip/i }).click();
-
+  // Step 2
   await expect(page.getByText("What are your interests?")).toBeVisible();
   await page.getByRole("button", { name: /continue|skip/i }).click();
-
+  // Step 3
   try {
     await expect(
       page.getByText(/Suggested for you|Free your feed/)
     ).toBeVisible();
     await page.getByRole("button", { name: /continue|skip/i }).click();
   } catch {
+    // Steps have random multipath...
     await expect(page.getByText(/You're ready to go!/)).toBeVisible();
     await page.getByText(/let.*go/i).click();
+    // ...they can also fail from time to time
   }
 
+  // Verify that the user is logged in by checking for the home feed
   await expect(page.getByText(/what.*hot/i).first()).toBeVisible({
     timeout: 15000,
   });
@@ -111,114 +118,111 @@ async function createUser(
   return { page, context };
 }
 
-async function createPost(page: Page, text: string) {
-  await page.getByRole("button", { name: /^New post$/ }).click();
-  await page.getByRole("textbox", { name: "Rich-Text Editor" }).fill(text);
-  await page
-    .getByText("CancelPost")
-    .getByRole("button", { name: /post/i })
-    .click();
-  await setTimeout(5000);
-  await page.reload();
-  await expect(page.getByText(text, { exact: false })).toBeVisible();
-}
-
-async function replyToPost(page: Page, postText: string, replyText: string) {
-  await page
-    .getByRole("link", { name: postText, exact: false })
-    .getByRole("button", { name: /reply/i })
-    .click();
-  await page.getByRole("textbox", { name: "Rich-Text Editor" }).fill(replyText);
-  await page
-    .getByText("CancelReply")
-    .getByRole("button", { name: /reply/i })
-    .click();
-  await setTimeout(2000);
-  await page.reload();
-  await expect(page.getByText(replyText)).toBeVisible();
-}
-
-async function likePost(page: Page, postText: string) {
-  await page
-    .getByRole("link", { name: postText, exact: false })
-    .getByRole("button", { name: /like/i })
-    .click();
-  await setTimeout(2000);
-  await page.reload();
-}
-
-async function reportPost(
-  page: Page,
-  postText: string,
-  reason: string = "Spam"
-) {
-  await page
-    .getByRole("link", { name: postText, exact: false })
-    .getByRole("button", { name: "Open post options menu" })
-    .click();
-
-  await page.getByRole("menuitem", { name: /report/i }).click();
-
-  await page
-    .getByRole("button", { name: new RegExp(`create.*report.*${reason}`, "i") })
-    .click();
-
-  await page.getByRole("button", { name: /submit report/i }).click();
-}
+async function takedownAccount(adminPage: Page, user: string) {}
 
 test.describe("Alice and Bob interaction", () => {
   test("complete interaction flow", async ({ browser }, testInfo) => {
-    // const aliceName = `alice${uniqueId()}`;
-    // const { page: alicePage, context: aliceContext } = await createUser(
-    //   browser,
-    //   aliceName,
-    //   testInfo,
-    //   PDS_DOMAIN
-    // );
+    // Alice signs up
+    const aliceName = `alice${uniqueId()}`;
+    const { page: alicePage, context: aliceContext } = await createUser(
+      browser,
+      aliceName,
+      testInfo,
+      PDS_DOMAIN
+    );
 
-    // const alicePostText = `Hello from ${aliceName}`;
-    // await createPost(alicePage, alicePostText);
+    // Alice creates a post
+    const alicePostText = `Hello from ${aliceName}`;
+    await alicePage.getByRole("button", { name: /^New post$/ }).click();
+    await alicePage
+      .getByRole("textbox", { name: "Rich-Text Editor" })
+      .fill(alicePostText);
+    await alicePage
+      .getByText("CancelPost")
+      .getByRole("button", { name: /post/i })
+      .click();
+    await setTimeout(5000);
+    await alicePage.reload();
+    await expect(
+      alicePage.getByText(alicePostText, { exact: false })
+    ).toBeVisible();
 
-    // const bobName = `bob${uniqueId()}`;
-    // const { page: bobPage, context: bobContext } = await createUser(
-    //   browser,
-    //   bobName,
-    //   testInfo,
-    //   PDS_DOMAIN
-    // );
+    // Bob signs up
+    const bobName = `bob${uniqueId()}`;
+    const { page: bobPage, context: bobContext } = await createUser(
+      browser,
+      bobName,
+      testInfo,
+      PDS_DOMAIN
+    );
 
-    // await expect(bobPage.getByText(alicePostText)).toBeVisible();
-    // await likePost(bobPage, alicePostText);
+    // Bob likes Alice's post
+    await bobPage
+      .getByRole("link", { name: alicePostText, exact: false })
+      .getByRole("button", { name: /like/i })
+      .click();
+    await setTimeout(2000);
+    await bobPage.reload();
 
-    // const bobReplyText = `Hello ${aliceName}, buy everything from ${bobName}!`;
-    // await replyToPost(bobPage, alicePostText, bobReplyText);
+    // Bob replies to Alice's post with spam
+    const bobReplyText = `Hello ${aliceName}, buy everything from ${bobName}!`;
+    await bobPage
+      .getByRole("link", { name: alicePostText, exact: false })
+      .getByRole("button", { name: /reply/i })
+      .click();
+    await bobPage
+      .getByRole("textbox", { name: "Rich-Text Editor" })
+      .fill(bobReplyText);
+    await bobPage
+      .getByText("CancelReply")
+      .getByRole("button", { name: /reply/i })
+      .click();
+    await setTimeout(2000);
+    await bobPage.reload();
+    await expect(bobPage.getByText(bobReplyText)).toBeVisible();
 
-    // await alicePage.getByRole("link", { name: /notifications/i }).click();
-    // await alicePage.reload();
-    // await expect(alicePage.getByText(bobReplyText)).toBeVisible();
+    // Alice checks notifications
+    await alicePage.getByRole("link", { name: /notifications/i }).click();
+    await alicePage.reload();
+    await expect(alicePage.getByText(bobReplyText)).toBeVisible();
 
-    // // Alice reports Bob's reply for spam
-    // await reportPost(alicePage, bobReplyText, "Spam");
+    // Alice finds Bob's reply and reports it as spam
+    await alicePage
+      .getByRole("link", { name: bobReplyText, exact: false })
+      .getByRole("button", { name: "Open post options menu" })
+      .click();
 
+    await alicePage.getByRole("menuitem", { name: /report/i }).click();
+
+    await alicePage
+      .getByRole("button", {
+        name: new RegExp(`create.*report.*spam`, "i"),
+      })
+      .click();
+
+    await alicePage.getByRole("button", { name: /submit report/i }).click();
+
+    // Moderator (Ozone) logs in
     const { page: adminPage, context: adminContext } = await createOzoneAdmin(
       browser,
       testInfo,
       PDS_DOMAIN
     );
-    await setTimeout(2000);
-    const bobName = `test5112.pds.eurosky.u-at-proto.work`; // TODO Remove me
-    adminPage
-      .getByRole("link", { name: `@${bobName}.pds.eurosky.u-at-proto.work` })
-      .first();
-    await setTimeout(2000);
 
-    // Wait for the action panel dialog to appear automatically with account as subject
+    // Moderator click the report from the Ozone dashboard
+    // await setTimeout(2000);
+    await adminPage
+      .getByRole("link", { name: `@${bobName}.pds.eurosky.u-at-proto.work` })
+      .click();
+    // await setTimeout(2000);
+
+    // ... Verify report details are visible ...
     await expect(
       adminPage.getByRole("dialog", { name: /take moderation action/i })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible();
     await expect(adminPage.getByText(/reported user/i)).toBeVisible();
 
-    // Takedown
+    // Moderator takes takedown action on Bob's account
     await adminPage
       .getByRole("button", { name: /^acknowledge$/i })
       .first()
@@ -230,22 +234,15 @@ test.describe("Alice and Bob interaction", () => {
       .selectOption("0");
     await adminPage.getByText("(S)ubmit").click();
 
-    // Send Email
+    // Moderator sends takedown email to Bob
     await expect(
       adminPage.getByRole("button", { name: /^send email$/i }).first()
     ).toBeVisible();
-
-    // Wait for the email composer form to appear - look for the email Subject field (not the action subject)
     const subjectInput = adminPage.getByPlaceholder(
       "Subject line for the email"
     );
     await expect(subjectInput).toBeVisible({ timeout: 5000 });
-
-    // Fill in the email subject
     await subjectInput.fill("Moderation Action: Content Takedown Notice");
-
-    // Fill in the email message using the MDEditor textarea
-    // The MDEditor component renders a textarea with specific classes
     const messageTextarea = adminPage.locator(".w-md-editor-text-input");
     await expect(messageTextarea).toBeVisible();
     await messageTextarea.fill(
@@ -254,13 +251,51 @@ test.describe("Alice and Bob interaction", () => {
         "If you believe this was done in error, please contact support.\n\n" +
         "Best regards,\nModeration Team"
     );
-
-    // Submit the email using the Send button (the submit type button, not the dropdown)
     await adminPage.getByRole("button", { name: "Send", exact: true }).click();
+    // There is a 10 sec wait for undoing sending emails
     await setTimeout(15000);
 
+    // Bob tries to create a new post
+    await bobPage.getByRole("button", { name: /^New post$/ }).click();
+    await bobPage
+      .getByRole("textbox", { name: "Rich-Text Editor" })
+      .fill("some more spam");
+    await bobPage
+      .getByText("CancelPost")
+      .getByRole("button", { name: /post/i })
+      .click();
+
+    // Bob sees account takedown message
+    await expect(
+      bobPage.getByText(/account has been taken down/i)
+    ).toBeVisible();
+
+    // Bob goes finds an account takedown email in his inbox
+    await bobPage.goto(MAILDEV);
+    await bobPage.getByText(`${bobName}@test.com`).click();
+    await setTimeout(2000);
+    await expect(
+      bobPage
+        .locator(".email-content")
+        .locator("iframe")
+        .first()
+        .contentFrame()
+        .getByText(
+          "We have taken action on your content due to a spam violation"
+        )
+    ).toBeVisible();
+
+    // Alice checks her post...
+    await alicePage.getByRole("link", { name: "Profile", exact: true }).click();
+    await alicePage
+      .getByRole("link", { name: alicePostText, exact: false })
+      .click();
+    await setTimeout(2000);
+    // ...and find outs Bob's reply is gone
+    await expect(alicePage.getByText(bobReplyText)).not.toBeVisible();
+
     await adminContext.close();
-    // await aliceContext.close();
-    // await bobContext.close();
+    await aliceContext.close();
+    await bobContext.close();
   });
 });
