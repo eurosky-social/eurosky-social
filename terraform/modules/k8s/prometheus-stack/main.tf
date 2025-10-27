@@ -56,7 +56,6 @@ resource "kubernetes_priority_class" "system_cluster_critical" {
 }
 
 # TODO: Add PodDisruptionBudget for HA components (minAvailable=1)
-# TODO: Create ServiceMonitors for app workloads (use CRDs, NOT prometheus.io/scrape annotations)
 # TODO: Add PrometheusRules for infrastructure alerts (node/pod health, resource exhaustion)
 # TODO: Configure recording rules to reduce dashboard query load
 # TODO: Add NetworkPolicy to restrict monitoring namespace traffic

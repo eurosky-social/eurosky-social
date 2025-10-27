@@ -181,5 +181,5 @@ resource "kubectl_manifest" "pds_statefulset" {
 # TODO: Add pds_email_from_address for email verification
 # TODO: Add pds_repo_signing_key variable (CRITICAL REQUIRED)
 # TODO: Add pds_recovery_did_key variable (CRITICAL REQUIRED)
-# TODO: Add monitoring/observability integration
+# TODO: Add ServiceMonitor for PDS observability
 # TODO: Add PodDisruptionBudget (single replica limitation)
