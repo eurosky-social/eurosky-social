@@ -3,7 +3,7 @@ name: E2E Tests
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, e2e-mod]
 
 concurrency:
   group: e2e-tests
