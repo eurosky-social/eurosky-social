@@ -63,7 +63,7 @@ jobs:
           TAILSCALE_CLIENT_SECRET: ${{secrets.TAILSCALE_CLIENT_SECRET}}
           CF_API_EMAIL: ${{secrets.CF_API_EMAIL}}
           CF_DNS_API_TOKEN: ${{secrets.CF_DNS_API_TOKEN}}
-        run: docker compose up -d --wait
+        run: ./startup.sh
 
       - name: Run Jest E2E tests
         env:
