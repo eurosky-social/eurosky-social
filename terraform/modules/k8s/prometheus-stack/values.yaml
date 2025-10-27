@@ -168,6 +168,12 @@ prometheus:
     replicas: 1 # TODO: Increase to 2+ for HA (consider functional sharding for large deployments)
     retention: 7d # TODO: Increase to 30d for production
     retentionSize: "8GB" # TODO: Adjust based on actual TSDB usage
+    thanos:
+      baseImage: quay.io/thanos/thanos
+      version: v0.39.2
+      objectStorageConfig:
+        key: thanos.yaml
+        name: thanos-objstore-config
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false

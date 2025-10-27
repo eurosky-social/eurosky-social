@@ -21,6 +21,11 @@ module "prometheus_stack" {
   storage_class          = var.prometheus_storage_class
   cluster_domain         = var.cluster_domain
   alert_email            = var.alert_email
+  thanos_s3_bucket       = var.backup_s3_bucket
+  thanos_s3_region       = var.backup_s3_region
+  thanos_s3_endpoint     = var.backup_s3_endpoint
+  thanos_s3_access_key   = var.backup_s3_access_key
+  thanos_s3_secret_key   = var.backup_s3_secret_key
 }
 
 module "cert_manager" {
