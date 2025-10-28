@@ -31,13 +31,15 @@ resource "helm_release" "alloy" {
 
   repository = "https://grafana.github.io/helm-charts"
   chart      = "alloy"
-  version    = "0.10.0"
+  version    = "1.3.1"
 
   values = [
     templatefile("${path.module}/alloy-values.yaml", {
       loki_url = "http://loki.loki.svc.cluster.local:3100"
     })
   ]
+
+  timeout = 60 * 15  # 15 minutes for DaemonSet rollout
 
   depends_on = [helm_release.loki]
 }

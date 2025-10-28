@@ -1,4 +1,9 @@
 alloy:
+  mounts:
+    extra:
+      - name: tmp
+        mountPath: /tmp
+
   configMap:
     content: |-
       // Loki write endpoint
@@ -111,6 +116,10 @@ resources:
 # Deploy as DaemonSet (one pod per node)
 controller:
   type: "daemonset"
+  volumes:
+    extra:
+      - name: tmp
+        emptyDir: {}
 
 # Service monitor for Prometheus scraping
 serviceMonitor:
