@@ -27,22 +27,22 @@ jobs:
           SAVE_PATH: gh-pages/artifacts/e2e-tests
         run: |
           gh run list \
-              --branch main  \
               --workflow "E2E Tests" \
-              --json databaseId,displayTitle,status,headSha \
+              --json databaseId,displayTitle,status,headSha,headBranch \
           | jq -c '.[]' \
           | while read -r object; do
               databaseId=$(echo "$object" | jq -r '.databaseId // empty')
               displayTitle=$(echo "$object" | jq -r '.displayTitle // empty')
               status=$(echo "$object" | jq -r '.status // empty')
               headSha=$(echo "$object" | jq -r '.headSha // empty')
+              headBranch=$(echo "$object" | jq -r '.headBranch // empty')
 
               if [ -z "$databaseId" ] || [ -z "$headSha" ]; then
                 echo "Skipping invalid run data"
                 continue
               fi
 
-              filename=$(echo "run:${databaseId}-sha:${headSha:0:7}-status:${status}-title:${displayTitle}" | sed -E 's/[^[:alnum:]_-]/_/g; s/ +/_/g')
+              filename=$(echo "run:${databaseId}-branch:${headBranch}-sha:${headSha:0:7}-status:${status}-title:${displayTitle}" | sed -E 's/[^[:alnum:]_-]/_/g; s/ +/_/g')
               directory="${SAVE_PATH}/${filename:0:60}"
 
               echo $directory
