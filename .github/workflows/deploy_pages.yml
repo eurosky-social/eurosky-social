@@ -27,7 +27,7 @@ jobs:
           SAVE_PATH: gh-pages/artifacts/e2e-tests
         run: |
           gh run list \
-              --branch main  \
+              --branch e2e-mod  \
               --workflow "E2E Tests" \
               --json databaseId,displayTitle,status,headSha \
           | jq -c '.[]' \
