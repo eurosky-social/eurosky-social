@@ -38,6 +38,7 @@ metadata:
     # TODO: Consider adding nginx.ingress.kubernetes.io/enable-cors for CORS support if needed
 spec:
   ingressClassName: nginx
+  # TODO: need the right hostname for prod!
   tls:
     - hosts:
 %{ for hostname in ozone_hostnames ~}
