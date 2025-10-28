@@ -210,11 +210,11 @@ test.describe("Alice and Bob interaction", () => {
     );
 
     // Moderator click the report from the Ozone dashboard
-    // await setTimeout(2000);
+    await setTimeout(2000);
     await adminPage
       .getByRole("link", { name: `@${bobName}.pds.eurosky.u-at-proto.work` })
       .click();
-    // await setTimeout(2000);
+    await setTimeout(2000);
 
     // ... Verify report details are visible ...
     await expect(
