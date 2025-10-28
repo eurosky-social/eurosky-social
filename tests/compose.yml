@@ -8,7 +8,7 @@ services:
       - PARTITION=${PARTITION}
     volumes:
       - ./:/app/tests/
-      - ../jest.config.js:/app/jest.config.js
+      - ../jest.config.ts:/app/jest.config.ts
       - ../package-lock.json:/app/package-lock.json
       - ../package.json:/app/package.json
       - ../tsconfig.json:/app/tsconfig.json
@@ -32,9 +32,9 @@ services:
       - DOMAIN=${DOMAIN}
       - PARTITION=${PARTITION}
       - CI=true
-      - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD:-admin-password}
+      - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
     volumes:
-      - ./browser:/app/tests/browser
+      - ./:/app/tests/
       - ../playwright.config.ts:/app/playwright.config.ts
       - ../package-lock.json:/app/package-lock.json
       - ../package.json:/app/package.json
