@@ -1,6 +1,6 @@
 services:
   e2e-jest:
-    profiles: ["test"]
+    profiles: ["test", "browser-test"]
     image: node:22-alpine
     working_dir: /app
     environment:
@@ -8,7 +8,7 @@ services:
       - PARTITION=${PARTITION}
     volumes:
       - ./:/app/tests/
-      - ../jest.config.js:/app/jest.config.js
+      - ../jest.config.ts:/app/jest.config.ts
       - ../package-lock.json:/app/package-lock.json
       - ../package.json:/app/package.json
       - ../tsconfig.json:/app/tsconfig.json
@@ -23,4 +23,31 @@ services:
         condition: service_healthy
     command: >
       sh -c "npm install && npm test"
+
+  e2e-playwright:
+    profiles: ["test", "browser-test"]
+    image: mcr.microsoft.com/playwright:v1.56.1-noble
+    working_dir: /app
+    environment:
+      - DOMAIN=${DOMAIN}
+      - PARTITION=${PARTITION}
+      - CI=true
+      - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
+    volumes:
+      - ./:/app/tests/
+      - ../playwright.config.ts:/app/playwright.config.ts
+      - ../package-lock.json:/app/package-lock.json
+      - ../package.json:/app/package.json
+      - ../tsconfig.json:/app/tsconfig.json
+      - ../playwright-report:/app/playwright-report
+      - ../test-results:/app/test-results
+    depends_on:
+      e2e-jest:
+        condition: service_completed_successfully
+      ozone-https-check:
+        condition: service_healthy
+      pds-https-check:
+        condition: service_healthy
+    command: >
+      sh -c "npm install && npm run test:browser"
 

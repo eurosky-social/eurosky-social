@@ -3,7 +3,7 @@ name: E2E Tests
 on:
   workflow_dispatch:
   push:
-    branches: [e2e-mod]
+    branches: [main]
 
 concurrency:
   group: e2e-tests
@@ -63,7 +63,7 @@ jobs:
           TAILSCALE_CLIENT_SECRET: ${{secrets.TAILSCALE_CLIENT_SECRET}}
           CF_API_EMAIL: ${{secrets.CF_API_EMAIL}}
           CF_DNS_API_TOKEN: ${{secrets.CF_DNS_API_TOKEN}}
-        run: docker compose up -d --wait
+        run: ./startup.sh
 
       - name: Run Jest E2E tests
         env:
@@ -72,6 +72,21 @@ jobs:
           CF_DNS_API_TOKEN: ${{secrets.CF_DNS_API_TOKEN}}
         run: docker compose --profile test run --rm --no-deps e2e-jest
 
+      - name: Run Playwright E2E tests
+        env:
+          TAILSCALE_CLIENT_SECRET: ${{secrets.TAILSCALE_CLIENT_SECRET}}
+          CF_API_EMAIL: ${{secrets.CF_API_EMAIL}}
+          CF_DNS_API_TOKEN: ${{secrets.CF_DNS_API_TOKEN}}
+        run: docker compose --profile test run --rm --no-deps  e2e-playwright
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
       - name: Show logs
         if: always()
         env:
@@ -79,6 +94,70 @@ jobs:
           CF_API_EMAIL: ${{secrets.CF_API_EMAIL}}
           CF_DNS_API_TOKEN: ${{secrets.CF_DNS_API_TOKEN}}
         run: docker compose logs -n all
+
+      - name: Collect and analyze container healthchecks
+        if: always()
+        run: |
+          echo "🏥 Container Healthcheck Status Report"
+          echo "========================================"
+
+          # Get all containers
+          containers=$(docker compose ps --format "table {{.Service}}\t{{.Status}}" | tail -n +2)
+
+          echo "Current container statuses:"
+          echo "$containers"
+          echo ""
+
+          # Check healthchecks for all containers
+          failed_healthchecks=0
+          echo "Detailed healthcheck information:"
+          echo "================================="
+
+          docker ps --format "{{.Names}}" | while read container; do
+            if [ -z "$container" ]; then
+              continue
+            fi
+
+            # Get full inspect output
+            echo ""
+            echo "📋 Running: docker inspect $container"
+            inspect_output=$(docker inspect "$container" 2>&1)
+            inspect_exit=$?
+
+            if [ $inspect_exit -ne 0 ]; then
+              echo "❌ docker inspect $container FAILED with exit code $inspect_exit"
+              echo "Error output:"
+              echo "$inspect_output" | sed 's/^/   /'
+              failed_healthchecks=$((failed_healthchecks + 1))
+              continue
+            fi
+
+            # Extract healthcheck status
+            health=$(echo "$inspect_output" | jq -r '.[] | .State.Health.Status // "no-healthcheck"' 2>/dev/null)
+
+            if [ "$health" = "unhealthy" ] || [ "$health" = "starting" ]; then
+              echo "❌ $container - Status: $health"
+
+              # Show healthcheck configuration
+              healthcheck_cmd=$(echo "$inspect_output" | jq -r '.[] | .Config.Healthcheck.Test[]? // empty' 2>/dev/null | tail -1)
+              if [ -n "$healthcheck_cmd" ]; then
+                echo "   Healthcheck command: $healthcheck_cmd"
+              fi
+
+              # Show recent healthcheck logs with full details
+              echo "   Recent healthcheck attempts:"
+              echo "$inspect_output" | jq -r '.[] | .State.Health.Log[]? | "     [\(.Start)] Exit: \(.ExitCode) - \(.Output)"' 2>/dev/null | tail -5
+
+              failed_healthchecks=$((failed_healthchecks + 1))
+            elif [ "$health" = "healthy" ]; then
+              echo "✅ $container - Status: healthy"
+            else
+              echo "⚠️  $container - Status: $health (no healthcheck configured)"
+            fi
+          done
+
+          echo ""
+          echo "Summary: Found $failed_healthchecks container(s) with failed/starting healthchecks"
 
       - name: Compress and encrypt certificates
         if: always()

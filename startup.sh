@@ -1,12 +1,15 @@
 #!/bin/bash
-set -e
+set -ex
 
 # Load environment if .env exists
 if [ -f .env ]; then
     source .env
 fi
 
-# Run setup-ozone as a one-off task (won't be restarted by subsequent 'up' commands)
+docker compose up -d --wait bsky
+
+sleep 5
+
 docker compose run --rm setup-ozone
 
 # Read the DID file and export the admin DID
@@ -17,12 +20,13 @@ if [ ! -f "$ADMIN_DID_FILE" ]; then
 fi
 ADMIN_DID=$(cat "$ADMIN_DID_FILE")
 export OZONE_ADMIN_DIDS="$ADMIN_DID"
-export OZONE_ADMIN_DID="$ADMIN_DID"  # For ozone.yml OZONE_ADMIN_DIDS variable
+export OZONE_ADMIN_DID="$ADMIN_DID"
 export PDS_MOD_SERVICE_DID="$ADMIN_DID"
+export ATP_DEFAULT_LABELER_DID="$ADMIN_DID"
 echo "Using admin DID: $ADMIN_DID"
 
-# Recreate PDS with the admin DID environment variable
-docker compose up -d --force-recreate pds
+docker compose up -d --force-recreate bsky
 
-# Start all remaining services
+# Start remaining services
+echo "Starting remaining services..."
 docker compose up -d --wait
