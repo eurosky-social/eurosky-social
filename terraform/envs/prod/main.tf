@@ -75,10 +75,11 @@ module "k8s" {
   prometheus_storage_class          = var.prometheus_storage_class
   loki_storage_class                = var.loki_storage_class
 
-  alert_email      = var.alert_email
-  smtp_server      = var.smtp_server
-  smtp_port        = var.smtp_port
-  smtp_require_tls = var.smtp_require_tls
-  smtp_username    = var.smtp_username
-  smtp_password    = var.smtp_password
+  alert_email         = var.alert_email
+  smtp_server         = var.smtp_server
+  smtp_port           = var.smtp_port
+  smtp_require_tls    = var.smtp_require_tls
+  smtp_username       = var.smtp_username
+  smtp_password       = var.smtp_password
+  deadmansswitch_url  = var.deadmansswitch_url
 }

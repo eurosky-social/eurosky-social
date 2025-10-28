@@ -279,3 +279,10 @@ variable "smtp_password" {
   sensitive   = true
   default     = "changeme"
 }
+
+variable "deadmansswitch_url" {
+  description = "Webhook URL for dead man's switch heartbeat monitoring (e.g., Healthchecks.io). Leave empty to disable."
+  type        = string
+  sensitive   = true
+  default     = ""
+}

@@ -33,6 +33,7 @@ smtp_port                        = 587
 smtp_require_tls                 = true
 smtp_username                    = "alerts@example.com"
 smtp_password                    = "changeme"
+deadmansswitch_url               = "" 
 
 # # PostgreSQL disaster recovery configuration
 # postgres_cluster_name                 = "postgres-wal-gap-recovery-v2"

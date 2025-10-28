@@ -26,6 +26,7 @@ module "prometheus_stack" {
   smtp_require_tls       = var.smtp_require_tls
   smtp_username          = var.smtp_username
   smtp_password          = var.smtp_password
+  deadmansswitch_url     = var.deadmansswitch_url
   thanos_s3_bucket       = var.backup_s3_bucket
   thanos_s3_region       = var.backup_s3_region
   thanos_s3_endpoint     = var.backup_s3_endpoint

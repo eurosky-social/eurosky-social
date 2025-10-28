@@ -206,6 +206,13 @@ On Scaleway, we couldn't egress SMTP traffic until we switched to using a Public
 - **Warning**: Degraded state (high error rates, resource pressure)
 - **Info**: Informational (successful operations, state changes)
 
+### External Monitoring
+
+We have configured BetterStack to monitor us from the outside via:
+
+- **Dead Man's Switch**: Prometheus sends heartbeat webhook to BetterStack every minute to check if the alerting system is up and running.
+- **Synthetic Monitoring**: External health checks for critical public endpoints to detect issues from external perspective (DNS, network, SSL, response times).
+
 ## Understood Risks
 
 ### Accepted
@@ -214,7 +221,7 @@ On Scaleway, we couldn't egress SMTP traffic until we switched to using a Public
 - **Loki Single-Binary**: Suitable for <100GB/day, requires microservices mode migration for higher volumes
 - **7d Local Retention**: Prometheus retains 7 days locally before Thanos offloads to S3
 - **Learning Curve**: Team must learn PromQL and LogQL query languages
-- **No External Monitoring**: All monitoring runs inside the cluster; if the entire cluster or monitoring stack fails, no alerts are sent. Need dead man's switch (heartbeat to external service) and external synthetic monitoring (uptime checks from outside the cluster)
+
 
 ### Mitigated
 
