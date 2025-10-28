@@ -27,7 +27,7 @@ async function createOzoneAdmin(
   pdsDomain: string
 ) {
   const context = await browser.newContext({
-    ...(process.env.CI && { recordVideo: { dir: testInfo.outputDir } }),
+    // ...(process.env.CI && { recordVideo: { dir: testInfo.outputDir } }),
   });
 
   const page = await context.newPage();
@@ -64,7 +64,7 @@ async function createUser(
 ) {
   // User opens browser and goes to the bsky social app url
   const context = await browser.newContext({
-    ...(process.env.CI && { recordVideo: { dir: testInfo.outputDir } }),
+    // ...(process.env.CI && { recordVideo: { dir: testInfo.outputDir } }),
   });
   const page = await context.newPage();
   await page.goto(BASE_URL);

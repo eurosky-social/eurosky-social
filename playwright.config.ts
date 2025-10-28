@@ -22,7 +22,7 @@ export default defineConfig({
   use: {
     baseURL: `https://ozone.${PARTITION}.${DOMAIN}`,
     trace: process.env.CI ? "on" : "on-first-retry",
-    video: process.env.CI ? "on" : undefined,
+    // video: process.env.CI ? "on" : undefined,
     screenshot: "only-on-failure",
     actionTimeout: process.env.CI ? 10_000 : 2_000,
     navigationTimeout: process.env.CI ? 20_000 : 5_000,
