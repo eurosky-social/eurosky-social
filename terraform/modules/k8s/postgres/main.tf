@@ -18,7 +18,7 @@ resource "helm_release" "cloudnativepg" {
 
   set {
     name  = "monitoring.podMonitorEnabled"
-    value = var.monitoring_enabled
+    value = true
   }
 }
 
@@ -164,3 +164,4 @@ resource "kubectl_manifest" "postgres_pooler" {
 # TODO: Add alerts for backup failures, replication lag, and disk usage
 # TODO: Document connection string format for applications (use pooler endpoint)
 # TODO: Configure backup encryption at rest using ObjectStore encryption settings
+# TODO: https://cloudnative-pg.io/documentation/current/monitoring/

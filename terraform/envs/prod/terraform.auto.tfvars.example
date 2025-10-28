@@ -12,13 +12,29 @@ ozone_signing_key_hex         = "generate-with-openssl-rand-hex-32"
 ozone_db_password             = "generate-with-openssl-rand-base64-32"
 ozone_appview_url             = "https://api.bsky.app"
 ozone_appview_did             = "did:web:api.bsky.app"
+ozone_public_hostname         = "ozone.domain.tld"
+
 pds_cert_manager_issuer       = "letsencrypt-prod"
+pds_public_hostname           = "pds.domain.tld"
+
 pds_storage_size              = "100Gi"
 pds_jwt_secret                = "generate-with-openssl-rand-hex-32"
 postgres_storage_class        = "scw-bssd"
-elasticsearch_storage_class   = "scw-bssd"
 pds_admin_password            = "generate-with-openssl-rand-hex-16"
 pds_plc_rotation_key          = "generate-with-openssl-rand-hex-32"
-kibana_cert_manager_issuer    = "letsencrypt-prod"
-backup_bucket_name            = "eurosky-backups-prod"
-pds_blobstore_bucket_name     = "eurosky-pds-blobs-prod"
+backup_bucket_name               = "eurosky-backups-prod"
+pds_blobstore_bucket_name        = "eurosky-pds-blobs-prod"
+prometheus_grafana_admin_password = "generate-with-openssl-rand-hex-16"
+prometheus_storage_class         = "scw-bssd"
+loki_storage_class               = "scw-bssd"
+alert_email                      = "alerts_receiver@example.com"
+smtp_server                      = "smtp.example.com"
+smtp_port                        = 587
+smtp_require_tls                 = true
+smtp_username                    = "alerts@example.com"
+smtp_password                    = "changeme"
+
+# # PostgreSQL disaster recovery configuration
+# postgres_cluster_name                 = "postgres-wal-gap-recovery-v2"
+# postgres_recovery_source_cluster_name = "postgres-wal-gap-test"
+# postgres_enable_recovery              = true

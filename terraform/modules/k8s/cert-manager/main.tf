@@ -12,6 +12,16 @@ resource "helm_release" "cert_manager" {
     name  = "crds.enabled"
     value = "true"
   }
+
+  set {
+    name  = "prometheus.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "prometheus.servicemonitor.enabled"
+    value = "true"
+  }
 }
 
 resource "kubernetes_secret" "cert_manager_scaleway" {
@@ -86,7 +96,6 @@ resource "kubectl_manifest" "cluster_issuer" {
 # TODO: Add resource limits (controller/webhook/cainjector: 10m CPU, 32Mi-128Mi memory)
 # TODO: Add PodDisruptionBudget (minAvailable=1 for controller/webhook/cainjector)
 # TODO: Add global.priorityClassName=system-cluster-critical for production
-# TODO: Enable prometheus.enabled=true and servicemonitor for observability
 # TODO: Add security contexts (runAsNonRoot, allowPrivilegeEscalation=false)
 # TODO: Enable global.featureGates=ServerSideApply=true (prevents API conflicts)
 # TODO: Use secret.existingSecret instead of passing secret values via set blocks

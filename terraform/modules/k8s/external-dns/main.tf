@@ -36,5 +36,4 @@ resource "helm_release" "external_dns" {
 
 # TODO: Add high availability (replica: 2)
 # TODO: Add podDisruptionBudget for HA
-# TODO: Add serviceMonitor for Prometheus metrics
 # TODO: Consider adding interval configuration (default 1m)

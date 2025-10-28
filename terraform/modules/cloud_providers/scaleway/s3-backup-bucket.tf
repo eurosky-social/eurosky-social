@@ -3,13 +3,20 @@ data "scaleway_object_bucket" "backups_s3" {
   region = var.region
 }
 
+# TODO: Implement S3 lifecycle policy for cost optimization - depending on service!
+# e.g.:
+#   - 0-30 days: Standard storage (hot access for recent logs/backups)
+#   - 30 days - 2 years: Glacier (warm access for historical analysis)
+#   - 2+ years: Delete (adjust based on compliance requirements)
+
 resource "scaleway_iam_application" "backups" {
   name        = "unified-backups-${var.subdomain}"
   description = "Unified backup service account (PostgreSQL, Litestream)"
 
-  tags = ["backup", "postgres", "litestream"]
+  tags = ["backup", "postgres", "litestream", "loki"]
 }
 
+# TODO: Rotate to external secret management
 resource "scaleway_iam_api_key" "backups" {
   application_id = scaleway_iam_application.backups.id
   default_project_id = var.project_id

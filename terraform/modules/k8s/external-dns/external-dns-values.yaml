@@ -36,3 +36,6 @@ resources:
   limits:
     cpu: ${resources_limits_cpu}
     memory: ${resources_limits_memory}
+
+serviceMonitor:
+  enabled: true

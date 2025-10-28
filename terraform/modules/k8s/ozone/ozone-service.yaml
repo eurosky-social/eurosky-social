@@ -19,7 +19,9 @@ spec:
       port: 80
       targetPort: http
       protocol: TCP
-    # TODO: Add separate metrics port if Ozone exposes Prometheus metrics on different port
+    # TODO: Verify if Ozone exposes Prometheus metrics endpoint (check app documentation)
+    # TODO: Add separate metrics port if Ozone exposes Prometheus metrics on different port (e.g., port 9090)
+    # TODO: Create ServiceMonitor CRD for Ozone metrics instead of using prometheus.io/scrape annotations
   sessionAffinity: ClientIP # TODO: SessionAffinity ClientIP is used for WebSocket sticky sessions - verify this works correctly with ingress cookie affinity
   sessionAffinityConfig:
     clientIP:

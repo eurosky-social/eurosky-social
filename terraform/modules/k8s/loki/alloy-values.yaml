@@ -1,0 +1,124 @@
+alloy:
+  configMap:
+    content: |-
+      // Loki write endpoint
+      loki.write "default" {
+        endpoint {
+          url = "${loki_url}/loki/api/v1/push"
+        }
+      }
+
+      // Kubernetes pod discovery
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      // Relabel pods to add metadata
+      discovery.relabel "pods" {
+        targets = discovery.kubernetes.pods.targets
+
+        // Add namespace label
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+
+        // Add pod name label
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+
+        // Add container name label
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "container"
+        }
+
+        // Add node name label
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label  = "node"
+        }
+
+        // Job label from namespace/pod
+        rule {
+          source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name"]
+          separator     = "/"
+          target_label  = "job"
+        }
+
+        // Set path to pod logs
+        rule {
+          source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+          separator     = "/"
+          target_label  = "__path__"
+          replacement   = "/var/log/pods/*$1/*.log"
+        }
+      }
+
+      // Auto-detect log format and parse (JSON, logfmt, or plain text)
+      loki.source.kubernetes "pods" {
+        targets    = discovery.relabel.pods.output
+        forward_to = [loki.process.auto_detect.receiver]
+      }
+
+      // Auto-detection stage: tries JSON first, then logfmt, then keeps as-is
+      loki.process "auto_detect" {
+        // Multiline detection for stack traces (Java, Python, JavaScript exceptions)
+        stage.multiline {
+          firstline     = "^\\d{4}-\\d{2}-\\d{2}|^\\[|^{|^\\w+\\s+\\d+|^[A-Z][a-z]{2}\\s+\\d+"
+          max_wait_time = "3s"
+          max_lines     = 128
+        }
+
+        // Try JSON parsing
+        stage.json {
+          expressions = {
+            level   = "level",
+            msg     = "msg",
+            service = "service",
+          }
+        }
+
+        // If JSON fails, try logfmt
+        stage.logfmt {
+          mapping = {
+            level   = "",
+            msg     = "",
+            service = "",
+          }
+        }
+
+        // Extract level as label if found
+        stage.labels {
+          values = {
+            level = "",
+          }
+        }
+
+        forward_to = [loki.write.default.receiver]
+      }
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# Deploy as DaemonSet (one pod per node)
+controller:
+  type: "daemonset"
+
+# Service monitor for Prometheus scraping
+serviceMonitor:
+  enabled: true
+
+# TODO: Add drop stages for noisy logs (health checks, metrics scrapes, readiness probes)
+# TODO: Set up log sampling for high-volume applications (e.g., 1% sample for debug logs)
+# TODO: Add security context (runAsNonRoot, readOnlyRootFilesystem, drop ALL capabilities)
+# TODO: Configure resource requests/limits based on actual cluster log volume
+# TODO: Add tolerations for node taints if needed (e.g., monitoring=true:NoSchedule)
+# TODO: Configure persistent positions storage (current: default behavior stores in /tmp)

@@ -29,10 +29,8 @@ module "k8s" {
 
   ozone_cert_manager_issuer  = var.ozone_cert_manager_issuer
   pds_cert_manager_issuer    = var.pds_cert_manager_issuer
-  kibana_cert_manager_issuer = var.kibana_cert_manager_issuer
 
   ozone_public_hostname = var.ozone_public_hostname
-  elasticsearch_storage_class = var.elasticsearch_storage_class
 
   postgres_storage_class = var.postgres_storage_class
   backup_s3_access_key = module.scaleway.backup_s3_access_key
@@ -69,7 +67,18 @@ module "k8s" {
   pds_email_smtp_url       = var.pds_email_smtp_url
   pds_public_hostname      = var.pds_public_hostname
 
-  postgres_cluster_name                  = var.postgres_cluster_name
-  postgres_recovery_source_cluster_name  = var.postgres_recovery_source_cluster_name
-  postgres_enable_recovery               = var.postgres_enable_recovery
+  postgres_cluster_name                 = var.postgres_cluster_name
+  postgres_recovery_source_cluster_name = var.postgres_recovery_source_cluster_name
+  postgres_enable_recovery              = var.postgres_enable_recovery
+
+  prometheus_grafana_admin_password = var.prometheus_grafana_admin_password
+  prometheus_storage_class          = var.prometheus_storage_class
+  loki_storage_class                = var.loki_storage_class
+
+  alert_email      = var.alert_email
+  smtp_server      = var.smtp_server
+  smtp_port        = var.smtp_port
+  smtp_require_tls = var.smtp_require_tls
+  smtp_username    = var.smtp_username
+  smtp_password    = var.smtp_password
 }

@@ -178,7 +178,10 @@ spec:
 # TODO: Development resource limits (Production needs 500m-1000m CPU, 512Mi-1Gi memory for PDS)
 # TODO: ReadOnlyRootFilesystem: false (SQLite requires write access, unavoidable)
 # TODO: Increase Litestream resources if needed based on replication load
-# TODO: Add Prometheus metrics endpoint for observability
+# TODO: Verify if PDS exposes Prometheus metrics endpoint (check app documentation)
+# TODO: Add metrics port to PDS container if it exposes Prometheus metrics
+# TODO: Create ServiceMonitor CRD for PDS metrics (preferred over prometheus.io/scrape annotations)
+# TODO: Add Litestream metrics endpoint for replication lag monitoring (requires Litestream config update)
 # TODO: Set up Grafana dashboards for PDS health monitoring
 # TODO: Configure alerting on replication lag and service health
 # TODO: Test disaster recovery restore procedure from S3

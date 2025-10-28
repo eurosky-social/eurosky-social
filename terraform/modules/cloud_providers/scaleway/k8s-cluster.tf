@@ -53,6 +53,8 @@ resource "scaleway_k8s_pool" "pool" {
   root_volume_size_in_gb = 20
   root_volume_type       = "l_ssd"
 
+  public_ip_disabled = true
+
   # TODO: add a placement group per host per zone
   placement_group_id = scaleway_instance_placement_group.k8s[each.key].id
 

@@ -54,12 +54,6 @@ variable "barman_plugin_chart_version" {
   default     = "0.2.0"
 }
 
-variable "monitoring_enabled" {
-  description = "Enable Prometheus monitoring"
-  type        = bool
-  default     = false
-}
-
 variable "postgres_cluster_name" {
   description = "PostgreSQL cluster name (increment version for recovery: postgres-cluster-v2, v3, etc.)"
   type        = string

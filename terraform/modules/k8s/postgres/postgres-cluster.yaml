@@ -46,9 +46,8 @@ spec:
         barmanObjectName: ${backup_objectstore_name}
         serverName: ${cluster_name} 
 
-  # TODO: Enable monitoring when Prometheus is set up
-  # monitoring:
-  #   enablePodMonitor: true
+  monitoring:
+    enablePodMonitor: true
 
   managed:
     roles:

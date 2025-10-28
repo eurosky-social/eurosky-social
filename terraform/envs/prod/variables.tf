@@ -24,11 +24,6 @@ variable "pds_cert_manager_issuer" {
   type        = string
 }
 
-variable "kibana_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for Kibana (letsencrypt-staging or letsencrypt-prod)"
-  type        = string
-}
-
 variable "k8s_node_type" {
   description = "Kubernetes node instance type (DEV1-M for dev, PRO2-M for production)"
   type        = string
@@ -51,11 +46,6 @@ variable "pds_storage_size" {
 
 variable "postgres_storage_class" {
   description = "Kubernetes storage class for PostgreSQL persistent volumes"
-  type        = string
-}
-
-variable "elasticsearch_storage_class" {
-  description = "Kubernetes storage class for Elasticsearch persistent volumes"
   type        = string
 }
 
@@ -234,4 +224,58 @@ variable "postgres_enable_recovery" {
   description = "Enable recovery from S3 backup instead of fresh initdb (false for first deployment, true for disaster recovery)"
   type        = bool
   default     = false
+}
+
+variable "prometheus_grafana_admin_password" {
+  description = "Grafana admin password for Prometheus stack"
+  type        = string
+  sensitive   = true
+}
+
+variable "prometheus_storage_class" {
+  description = "Storage class for Prometheus stack persistent volumes"
+  type        = string
+}
+
+variable "loki_storage_class" {
+  description = "Storage class for Loki persistent volumes"
+  type        = string
+}
+
+variable "alert_email" {
+  description = "Email address for Alertmanager notifications"
+  type        = string
+  default     = "alerts@example.com"
+}
+
+variable "smtp_server" {
+  description = "SMTP server hostname for alert notifications"
+  type        = string
+  default     = "smtp.example.com"
+}
+
+variable "smtp_port" {
+  description = "SMTP server port"
+  type        = number
+  default     = 587
+}
+
+variable "smtp_require_tls" {
+  description = "Require TLS for SMTP connection"
+  type        = bool
+  default     = true
+}
+
+variable "smtp_username" {
+  description = "SMTP authentication username"
+  type        = string
+  sensitive   = true
+  default     = "alerts@example.com"
+}
+
+variable "smtp_password" {
+  description = "SMTP authentication password"
+  type        = string
+  sensitive   = true
+  default     = "changeme"
 }

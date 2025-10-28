@@ -75,7 +75,6 @@ resource "kubernetes_service" "nginx" {
 
 # TODO: Configure rate limiting (controller.config.limit-req-status-code, limit-conn-status-code)
 # TODO: Consider parameterizing replica_count via variable for different environments
-# TODO: Add ServiceMonitor for Prometheus metrics scraping (controller.metrics.serviceMonitor.enabled=true)
 # TODO: Add PodMonitor for enhanced observability of controller pods
 # TODO: Configure connection draining timeout (controller.lifecycle.preStop.exec.command for zero-downtime)
 # TODO: Add custom error pages (controller.customErrorPages) for better UX
