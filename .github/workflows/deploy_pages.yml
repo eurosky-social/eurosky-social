@@ -1,0 +1,73 @@
+name: Deploy Pages
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - E2E Tests
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    if: ${{ !(github.event.workflow_run) || !contains(fromJSON('["skipped", "cancelled"]'), github.event.workflow_run.conclusion) }}
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch all available Playwright reports
+        shell: bash {0}
+        env:
+          SAVE_PATH: gh-pages/artifacts/e2e-tests
+        run: |
+          gh run list \
+              --branch main  \
+              --workflow "E2E Tests" \
+              --json databaseId,displayTitle,status,headSha \
+          | jq -c '.[]' \
+          | while read -r object; do
+              databaseId=$(echo "$object" | jq -r '.databaseId // empty')
+              displayTitle=$(echo "$object" | jq -r '.displayTitle // empty')
+              status=$(echo "$object" | jq -r '.status // empty')
+              headSha=$(echo "$object" | jq -r '.headSha // empty')
+
+              if [ -z "$databaseId" ] || [ -z "$headSha" ]; then
+                echo "Skipping invalid run data"
+                continue
+              fi
+
+              filename=$(echo "run:${databaseId}-sha:${headSha:0:7}-status:${status}-title:${displayTitle}" | sed -E 's/[^[:alnum:]_-]/_/g; s/ +/_/g')
+              directory="${SAVE_PATH}/${filename:0:60}"
+
+              echo $directory
+              gh run download "$databaseId" -D "$directory" -n playwright-report &
+          done
+          wait
+      - name: Generate index for artifacts
+        run: |
+          mkdir -p gh-pages/artifacts
+          cd gh-pages/artifacts
+          tree -L 2 -P '**/' -r -H . -T "E2E Test Reports" -o index.html
+          cd ../..
+          echo '<html><head><meta http-equiv="refresh" content="0; url=artifacts/" /></head><body>Redirecting to <a href="artifacts/">artifacts</a>...</body></html>' > gh-pages/index.html
+      - name: Upload GH Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gh-pages
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
