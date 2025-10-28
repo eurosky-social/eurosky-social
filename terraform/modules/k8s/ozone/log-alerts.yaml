@@ -1,0 +1,42 @@
+groups:
+  - name: application-logs
+    interval: 1m
+    rules:
+      # Alert on ERROR and FATAL logs (pino level 50, 60)
+      - alert: OzoneHighErrorRate
+        expr: |
+          sum(rate({namespace="ozone"} | json | level >= 50 [5m])) by (namespace, pod) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          namespace: ozone
+          component: application
+        annotations:
+          summary: "High error rate in Ozone logs"
+          description: "Ozone pod {{ $labels.pod }} is logging errors at {{ $value | printf \"%.2f\" }} errors/sec (>0.1/sec threshold). Check logs for details."
+
+      # Alert on WARNING logs (pino level 40) - less urgent
+      - alert: OzoneHighWarningRate
+        expr: |
+          sum(rate({namespace="ozone"} | json | level="40" [10m])) by (namespace, pod) > 1
+        for: 5m
+        labels:
+          severity: warning
+          namespace: ozone
+          component: application
+        annotations:
+          summary: "High warning rate in Ozone logs"
+          description: "Ozone pod {{ $labels.pod }} is logging warnings at {{ $value | printf \"%.2f\" }} warnings/sec (>1/sec threshold). This may indicate degraded service."
+
+      # Alert on any ERROR/FATAL log burst (immediate detection)
+      - alert: OzoneCriticalError
+        expr: |
+          count_over_time({namespace="ozone"} | json | level="60" [2m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          namespace: ozone
+          component: application
+        annotations:
+          summary: "FATAL error detected in Ozone logs"
+          description: "Ozone detected FATAL level logs (pino level 60) in the last 2 minutes. Immediate attention required."

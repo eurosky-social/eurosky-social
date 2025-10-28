@@ -108,9 +108,23 @@ resource "kubectl_manifest" "ozone_ingress" {
   wait              = true
 }
 
+resource "kubernetes_config_map" "ozone_log_alerts" {
+  metadata {
+    name      = "ozone-log-alerts"
+    namespace = "loki"
+    labels = {
+      loki_rule = "1"
+    }
+  }
+
+  data = {
+    "ozone-log-alerts.yaml" = file("${path.module}/log-alerts.yaml")
+  }
+}
+
 # TODO: Add HorizontalPodAutoscaler for Ozone (2-5 replicas, 70% CPU target)
 # TODO: Add PodDisruptionBudget for Ozone (minAvailable: 1)
-# TODO: Add ServiceMonitor for Ozone observability
+# TODO: Add ServiceMonitor for Ozone observability (application metrics)
 # TODO: Consider progressive rollout strategy (Argo Rollouts/Flagger)
 # TODO: Add NetworkPolicy to restrict ingress/egress
 # TODO: Document disaster recovery procedures

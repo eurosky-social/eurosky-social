@@ -82,7 +82,7 @@ sidecar:
     enabled: true
     label: loki_rule
     labelValue: ""         # Any value as long as label match
-    folder: /rules         # Where to sync rules (must match ruler.rule_path)
+    folder: /rules/fake    # Tenant subdirectory required by Loki ruler local storage
     searchNamespace: loki  # Search for rule ConfigMaps in loki namespace
     watchMethod: WATCH     # Watch for ConfigMap changes in real-time
     resource: both         # Watch ConfigMaps and Secrets
@@ -177,6 +177,16 @@ networkPolicy:
           values:
             - promtail
             - grafana
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+
+  # Alertmanager: Allow Loki ruler to send alerts to Alertmanager
+  alertmanager:
+    port: 9093
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: alertmanager
     namespaceSelector:
       matchLabels:
         kubernetes.io/metadata.name: monitoring

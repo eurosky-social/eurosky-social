@@ -44,6 +44,16 @@ resource "helm_release" "alloy" {
   depends_on = [helm_release.loki]
 }
 
+# Additional NetworkPolicy to allow Loki pods (including sidecar) to access Kubernetes API server
+# Required for k8s-sidecar to discover ConfigMaps with loki_rule label
+resource "kubectl_manifest" "loki_egress_kube_apiserver" {
+  yaml_body = templatefile("${path.module}/networkpolicy-apiserver.yaml", {
+    namespace = "loki"
+  })
+
+  depends_on = [helm_release.loki]
+}
+
 # TODO: Switch to microservices mode for production HA (>100GB/day) - requires some strategy to not loose data or 10-15 mins logs downtime
 # TODO: Add zone-aware ingester replication across AZs (zone_awareness_enabled + replication_factor: 3)
 # TODO: Add PodDisruptionBudget for Loki single-binary pod to prevent data loss during cluster operations
