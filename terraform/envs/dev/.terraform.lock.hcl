@@ -1,1 +1,0 @@
-../prod/.terraform.lock.hcl
