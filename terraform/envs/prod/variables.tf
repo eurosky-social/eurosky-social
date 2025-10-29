@@ -3,15 +3,20 @@ variable "project_id" {
   type        = string
 }
 
-variable "domain" {
+variable "cluster_domain" {
   description = "Base domain for DNS records"
   type        = string
-  default     = "eurosky.social"
 }
 
-variable "subdomain" {
-  description = "Subdomain prefix for this environment (dev, prod, staging, etc.)"
+variable "partition" {
+  description = "Logical partition name for resources"
   type        = string
+}
+
+variable "cloudflare_dns_api_token" {
+  description = "Cloudflare API token for DNS management"
+  type        = string
+  sensitive   = true
 }
 
 variable "ozone_cert_manager_issuer" {
@@ -71,7 +76,7 @@ variable "ozone_image" {
   description = "Docker image for Ozone"
   type        = string
   # TODO: Pin to specific SHA or version tag instead of :latest for production (e.g., ghcr.io/bluesky-social/ozone:v1.0.0 or @sha256:abc123...)
-  default     = "ghcr.io/bluesky-social/ozone:latest"
+  default = "ghcr.io/bluesky-social/ozone:latest"
 }
 
 variable "ozone_public_hostname" {

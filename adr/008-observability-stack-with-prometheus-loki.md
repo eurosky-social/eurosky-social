@@ -208,9 +208,9 @@ On Scaleway, we couldn't egress SMTP traffic until we switched to using a Public
 
 ### External Monitoring
 
-We have configured BetterStack to monitor us from the outside via:
+We have configured Hyperping to monitor us from the outside via:
 
-- **Dead Man's Switch**: Prometheus sends heartbeat webhook to BetterStack every minute to check if the alerting system is up and running.
+- **Dead Man's Switch**: Prometheus sends heartbeat webhook to Hyperping every minute to check if the alerting system is up and running.
 - **Synthetic Monitoring**: External health checks for critical public endpoints to detect issues from external perspective (DNS, network, SSL, response times).
 
 ## Understood Risks

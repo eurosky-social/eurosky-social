@@ -1,11 +1,5 @@
-variable "scw_access_key" {
-  description = "Scaleway access key for cert-manager DNS01 challenge"
-  type        = string
-  sensitive   = true
-}
-
-variable "scw_secret_key" {
-  description = "Scaleway secret key for cert-manager DNS01 challenge"
+variable "cloudflare_dns_api_token" {
+  description = "Cloudflare API token for cert-manager DNS01 challenge"
   type        = string
   sensitive   = true
 }

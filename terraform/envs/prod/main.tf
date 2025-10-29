@@ -1,10 +1,8 @@
 module "scaleway" {
-  source = "../../modules/cloud_providers/scaleway"
-
+  source                    = "../../modules/cloud_providers/scaleway"
+  partition                 = var.partition
   project_id                = var.project_id
   region                    = var.region
-  domain                    = var.domain
-  subdomain                 = var.subdomain
   zones                     = var.zones
   k8s_node_type             = var.k8s_node_type
   k8s_node_min_size         = var.k8s_node_min_size
@@ -20,24 +18,21 @@ module "k8s" {
   kubeconfig_token                  = module.scaleway.kubeconfig_token
   kubeconfig_cluster_ca_certificate = module.scaleway.kubeconfig_cluster_ca_certificate
 
-  external_dns_access_key = module.scaleway.external_dns_access_key
-  external_dns_secret_key = module.scaleway.external_dns_secret_key
+  cloudflare_dns_api_token = var.cloudflare_dns_api_token
 
-  ingress_nginx_zones = module.scaleway.zones
-  cluster_domain          = module.scaleway.domain
+  ingress_nginx_zones     = module.scaleway.zones
+  cluster_domain          = var.cluster_domain
   cert_manager_acme_email = var.cert_manager_acme_email
 
-  ozone_cert_manager_issuer  = var.ozone_cert_manager_issuer
-  pds_cert_manager_issuer    = var.pds_cert_manager_issuer
-
-  ozone_public_hostname = var.ozone_public_hostname
+  ozone_cert_manager_issuer = var.ozone_cert_manager_issuer
+  pds_cert_manager_issuer   = var.pds_cert_manager_issuer
 
   postgres_storage_class = var.postgres_storage_class
-  backup_s3_access_key = module.scaleway.backup_s3_access_key
-  backup_s3_secret_key = module.scaleway.backup_s3_secret_key
-  backup_s3_bucket     = module.scaleway.backup_s3_bucket
-  backup_s3_region     = module.scaleway.backup_s3_region
-  backup_s3_endpoint   = module.scaleway.backup_s3_endpoint
+  backup_s3_access_key   = module.scaleway.backup_s3_access_key
+  backup_s3_secret_key   = module.scaleway.backup_s3_secret_key
+  backup_s3_bucket       = module.scaleway.backup_s3_bucket
+  backup_s3_region       = module.scaleway.backup_s3_region
+  backup_s3_endpoint     = module.scaleway.backup_s3_endpoint
 
   ozone_image           = var.ozone_image
   ozone_appview_url     = var.ozone_appview_url
@@ -65,7 +60,6 @@ module "k8s" {
   pds_log_enabled          = var.pds_log_enabled
   pds_email_from_address   = var.pds_email_from_address
   pds_email_smtp_url       = var.pds_email_smtp_url
-  pds_public_hostname      = var.pds_public_hostname
 
   postgres_cluster_name                 = var.postgres_cluster_name
   postgres_recovery_source_cluster_name = var.postgres_recovery_source_cluster_name
@@ -75,11 +69,11 @@ module "k8s" {
   prometheus_storage_class          = var.prometheus_storage_class
   loki_storage_class                = var.loki_storage_class
 
-  alert_email         = var.alert_email
-  smtp_server         = var.smtp_server
-  smtp_port           = var.smtp_port
-  smtp_require_tls    = var.smtp_require_tls
-  smtp_username       = var.smtp_username
-  smtp_password       = var.smtp_password
-  deadmansswitch_url  = var.deadmansswitch_url
+  alert_email        = var.alert_email
+  smtp_server        = var.smtp_server
+  smtp_port          = var.smtp_port
+  smtp_require_tls   = var.smtp_require_tls
+  smtp_username      = var.smtp_username
+  smtp_password      = var.smtp_password
+  deadmansswitch_url = var.deadmansswitch_url
 }

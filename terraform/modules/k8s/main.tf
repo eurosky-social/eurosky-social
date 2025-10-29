@@ -37,17 +37,16 @@ module "prometheus_stack" {
 module "cert_manager" {
   source = "./cert-manager"
 
-  scw_access_key        = var.external_dns_access_key
-  scw_secret_key        = var.external_dns_secret_key
-  acme_email            = var.cert_manager_acme_email
+  cloudflare_dns_api_token = var.cloudflare_dns_api_token
+  acme_email               = var.cert_manager_acme_email
 }
 
 module "ingress_nginx" {
   source = "./ingress-nginx"
 
-  zones                = var.ingress_nginx_zones
-  cluster_domain       = var.cluster_domain
-  cloud_provider       = "scaleway"
+  zones          = var.ingress_nginx_zones
+  cluster_domain = var.cluster_domain
+  cloud_provider = "scaleway"
 
   depends_on = [module.cert_manager, module.prometheus_stack]
 }
@@ -55,10 +54,7 @@ module "ingress_nginx" {
 module "external_dns" {
   source = "./external-dns"
 
-  access_key     = var.external_dns_access_key
-  secret_key     = var.external_dns_secret_key
-  cluster_domain = var.cluster_domain
-  cloud_provider = "scaleway"
+  api_token = var.cloudflare_dns_api_token
 
   depends_on = [module.ingress_nginx]
 }
@@ -85,7 +81,6 @@ module "ozone" {
 
   cluster_domain          = var.cluster_domain
   cert_manager_issuer     = var.ozone_cert_manager_issuer
-  ozone_public_hostname   = var.ozone_public_hostname
   ozone_image             = var.ozone_image
   ozone_appview_url       = var.ozone_appview_url
   ozone_appview_did       = var.ozone_appview_did
@@ -129,7 +124,6 @@ module "pds" {
   pds_log_enabled          = var.pds_log_enabled
   pds_email_from_address   = var.pds_email_from_address
   pds_email_smtp_url       = var.pds_email_smtp_url
-  pds_public_hostname      = var.pds_public_hostname
 
   depends_on = [module.ingress_nginx]
 }

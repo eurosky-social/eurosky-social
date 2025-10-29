@@ -1,24 +1,7 @@
-variable "access_key" {
-  description = "Cloud provider access key for external-dns"
+variable "api_token" {
+  description = "Cloudflare API token for external-dns"
   type        = string
   sensitive   = true
-}
-
-variable "secret_key" {
-  description = "Cloud provider secret key for external-dns"
-  type        = string
-  sensitive   = true
-}
-
-variable "cluster_domain" {
-  description = "Full cluster domain (subdomain.domain)"
-  type        = string
-}
-
-variable "cloud_provider" {
-  description = "Cloud provider (scaleway, aws, gcp, azure)"
-  type        = string
-  default     = "scaleway"
 }
 
 variable "sync_policy" {

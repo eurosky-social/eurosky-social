@@ -3,7 +3,7 @@ locals {
 }
 
 resource "scaleway_k8s_cluster" "kapsule_multi_az" {
-  name = "kapsule-multi-az-${var.subdomain}"
+  name = "kapsule-multi-az-${var.partition}"
   tags = ["multi-az"]
 
   type    = "kapsule"

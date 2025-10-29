@@ -15,14 +15,8 @@ variable "kubeconfig_cluster_ca_certificate" {
   sensitive   = true
 }
 
-variable "external_dns_access_key" {
-  description = "Scaleway access key for external-dns"
-  type        = string
-  sensitive   = true
-}
-
-variable "external_dns_secret_key" {
-  description = "Scaleway secret key for external-dns"
+variable "cloudflare_dns_api_token" {
+  description = "Cloudflare API token for external-dns"
   type        = string
   sensitive   = true
 }
@@ -87,12 +81,6 @@ variable "backup_s3_endpoint" {
 variable "ozone_image" {
   description = "Docker image for Ozone"
   type        = string
-}
-
-variable "ozone_public_hostname" {
-  description = "Public hostname for Ozone (optional, defaults to ozone.<cluster_domain>)"
-  type        = string
-  default     = null
 }
 
 variable "ozone_appview_url" {
@@ -231,12 +219,6 @@ variable "pds_email_smtp_url" {
   type        = string
   sensitive   = true
   default     = ""
-}
-
-variable "pds_public_hostname" {
-  description = "Public hostname for PDS (optional, defaults to pds.<cluster_domain>)"
-  type        = string
-  default     = null
 }
 
 variable "postgres_cluster_name" {

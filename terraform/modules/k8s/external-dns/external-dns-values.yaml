@@ -1,24 +1,15 @@
-# TODO this is tied to the cloud provider
-provider: scaleway
+provider: cloudflare
 
 env:
-  - name: SCW_ACCESS_KEY
+  - name: CF_API_TOKEN
     valueFrom:
       secretKeyRef:
         name: ${secret_name}
-        key: SCW_ACCESS_KEY
-  - name: SCW_SECRET_KEY
-    valueFrom:
-      secretKeyRef:
-        name: ${secret_name}
-        key: SCW_SECRET_KEY
+        key: CF_API_TOKEN
 
 sources:
   - service
   - ingress
-
-domainFilters:
-  - ${cluster_domain}
 
 policy: ${sync_policy}
 

@@ -4,7 +4,7 @@ data "scaleway_object_bucket" "pds_blobstore" {
 }
 
 resource "scaleway_iam_application" "pds_blobstore" {
-  name        = "pds-blobstore-${var.subdomain}"
+  name        = "pds-blobstore-${var.partition}"
   description = "PDS blob storage service account"
 
   tags = ["pds", "blobstore"]
@@ -17,7 +17,7 @@ resource "scaleway_iam_api_key" "pds_blobstore" {
 
 # TODO: define minimal permissions needed
 resource "scaleway_iam_policy" "pds_blobstore_policy" {
-  name           = "pds-blobstore-policy-${var.subdomain}"
+  name           = "pds-blobstore-policy-${var.partition}"
   description    = "Grant S3 access to PDS blobstore application"
   application_id = scaleway_iam_application.pds_blobstore.id
 

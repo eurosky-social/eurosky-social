@@ -3,13 +3,8 @@ variable "project_id" {
   type        = string
 }
 
-variable "domain" {
-  description = "Base domain for DNS records"
-  type        = string
-}
-
-variable "subdomain" {
-  description = "Subdomain prefix for this environment"
+variable "partition" {
+  description = "Logical partition name for resources"
   type        = string
 }
 

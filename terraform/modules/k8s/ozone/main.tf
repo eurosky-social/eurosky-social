@@ -1,9 +1,6 @@
 locals {
-  default_hostname = "ozone.${var.cluster_domain}"
-  public_hostname  = var.ozone_public_hostname
-  ozone_hostname   = coalesce(local.public_hostname, local.default_hostname)
-  ozone_public_url = "https://${local.ozone_hostname}"
-  ozone_hostnames  = compact([local.default_hostname, local.public_hostname])
+  hostname = "ozone.${var.cluster_domain}"
+  ozone_public_url = "https://${local.hostname}"
 
   # ConfigMap/Secret checksums for triggering rolling updates
   config_checksum = sha256(jsonencode({
@@ -99,7 +96,7 @@ resource "kubectl_manifest" "ozone_service" {
 resource "kubectl_manifest" "ozone_ingress" {
   yaml_body = templatefile("${path.module}/ozone-ingress.yaml", {
     namespace            = kubernetes_namespace.ozone.metadata[0].name
-    ozone_hostnames      = local.ozone_hostnames
+    hostname             = local.hostname
     ozone_cluster_domain = var.cluster_domain
     cert_manager_issuer  = var.cert_manager_issuer
   })

@@ -10,7 +10,7 @@ data "scaleway_object_bucket" "backups_s3" {
 #   - 2+ years: Delete (adjust based on compliance requirements)
 
 resource "scaleway_iam_application" "backups" {
-  name        = "unified-backups-${var.subdomain}"
+  name        = "unified-backups-${var.partition}"
   description = "Unified backup service account (PostgreSQL, Litestream)"
 
   tags = ["backup", "postgres", "litestream", "loki"]
@@ -18,14 +18,14 @@ resource "scaleway_iam_application" "backups" {
 
 # TODO: Rotate to external secret management
 resource "scaleway_iam_api_key" "backups" {
-  application_id = scaleway_iam_application.backups.id
+  application_id     = scaleway_iam_application.backups.id
   default_project_id = var.project_id
-  description    = "API key for unified backups to S3"
+  description        = "API key for unified backups to S3"
 }
 
 # TODO: define minimal permissions needed
 resource "scaleway_iam_policy" "backups_policy" {
-  name           = "unified-backups-policy-${var.subdomain}"
+  name           = "unified-backups-policy-${var.partition}"
   description    = "Grant S3 access to unified backup application"
   application_id = scaleway_iam_application.backups.id
 

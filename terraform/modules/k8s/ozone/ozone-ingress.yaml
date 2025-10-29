@@ -41,12 +41,9 @@ spec:
   # TODO: need the right hostname for prod!
   tls:
     - hosts:
-%{ for hostname in ozone_hostnames ~}
         - ${hostname}
-%{ endfor ~}
       secretName: ozone-tls
   rules:
-%{ for hostname in ozone_hostnames ~}
     - host: ${hostname}
       http:
         paths:
@@ -57,4 +54,3 @@ spec:
                 name: ozone
                 port:
                   number: 80
-%{ endfor ~}

@@ -1,14 +1,11 @@
 locals {
-  default_hostname = "pds.${var.cluster_domain}"
-  public_hostname  = var.pds_public_hostname
-  pds_hostname     = coalesce(local.public_hostname, local.default_hostname)
-  pds_hostnames    = compact([local.default_hostname, local.public_hostname])
+  hostname = "pds.${var.cluster_domain}"
   pds_version      = var.pds_version
   pds_storage_size = var.pds_storage_size
 
   # ConfigMap/Secret checksums for triggering rolling updates
   pds_config_checksum = sha256(jsonencode({
-    pds_hostname           = local.pds_hostname
+    pds_hostname           = local.hostname
     pds_blobstore_bucket   = var.pds_blobstore_bucket
     pds_did_plc_url        = var.pds_did_plc_url
     pds_bsky_app_view_url  = var.pds_bsky_app_view_url
@@ -71,7 +68,7 @@ resource "kubectl_manifest" "pds_configmap_litestream" {
 resource "kubectl_manifest" "pds_configmap" {
   yaml_body = templatefile("${path.module}/pds-configmap.yaml", {
     namespace              = kubernetes_namespace.pds.metadata[0].name
-    pds_hostname           = local.pds_hostname
+    pds_hostname           = local.hostname
     pds_blobstore_bucket   = var.pds_blobstore_bucket
     pds_blobstore_region   = var.backup_region
     pds_blobstore_endpoint = var.backup_endpoint
@@ -138,7 +135,7 @@ resource "kubectl_manifest" "pds_service" {
 resource "kubectl_manifest" "pds_ingress" {
   yaml_body = templatefile("${path.module}/pds-ingress.yaml", {
     namespace           = kubernetes_namespace.pds.metadata[0].name
-    pds_hostnames       = local.pds_hostnames
+    hostname        = local.hostname
     cluster_domain      = var.cluster_domain
     cert_manager_issuer = var.cert_manager_issuer
   })

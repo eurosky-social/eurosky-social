@@ -1,13 +1,12 @@
 resource "kubernetes_secret" "external_dns" {
   metadata {
-    name      = "external-dns-${var.cloud_provider}"
+    name      = "external-dns"
     namespace = "kube-system"
   }
 
-  data = var.cloud_provider == "scaleway" ? {
-    SCW_ACCESS_KEY = var.access_key
-    SCW_SECRET_KEY = var.secret_key
-  } : {}
+  data = {
+    CF_API_TOKEN = var.api_token
+  }
 }
 
 resource "helm_release" "external_dns" {
@@ -20,7 +19,6 @@ resource "helm_release" "external_dns" {
   values = [
     templatefile("${path.module}/external-dns-values.yaml", {
       secret_name               = kubernetes_secret.external_dns.metadata[0].name
-      cluster_domain            = var.cluster_domain
       sync_policy               = var.sync_policy
       txt_owner_id              = var.txt_owner_id
       txt_prefix                = var.txt_prefix
