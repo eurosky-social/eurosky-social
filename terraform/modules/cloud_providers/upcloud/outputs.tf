@@ -80,3 +80,31 @@ output "zones" {
   value       = [var.zone]
   description = "UpCloud zones used by the cluster"
 }
+
+
+output "backup_s3_bucket" {
+  value       = upcloud_managed_object_storage_bucket.backup.name
+  description = "Backup S3 bucket name"
+}
+
+output "backup_s3_region" {
+  value       = var.object_storage_region
+  description = "Backup S3 bucket region"
+}
+
+output "pds_blobstore_bucket" {
+  value       = upcloud_managed_object_storage_bucket.pds_blobstore.name
+  description = "PDS blobstore bucket name"
+}
+
+output "pds_blobstore_access_key" {
+  value       = upcloud_managed_object_storage_user_access_key.pds.access_key_id
+  description = "PDS blobstore access key"
+  sensitive   = true
+}
+
+output "pds_blobstore_secret_key" {
+  value       = upcloud_managed_object_storage_user_access_key.pds.secret_access_key
+  description = "PDS blobstore secret key"
+  sensitive   = true
+}

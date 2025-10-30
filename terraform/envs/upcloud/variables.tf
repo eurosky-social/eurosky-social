@@ -4,14 +4,8 @@ variable "project" {
   default     = "eurosky"
 }
 
-variable "domain" {
+variable "cluster_domain" {
   description = "Base domain for DNS records"
-  type        = string
-  default     = "eurosky.social"
-}
-
-variable "subdomain" {
-  description = "Subdomain prefix for this environment (dev, prod, staging, etc.)"
   type        = string
 }
 

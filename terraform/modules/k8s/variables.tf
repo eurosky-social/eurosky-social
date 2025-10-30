@@ -1,32 +1,36 @@
 variable "kubeconfig_host" {
   description = "Kubernetes API server host"
   type        = string
+  default     = ""
 }
 
 variable "kubeconfig_token" {
   description = "Kubernetes authentication token"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "kubeconfig_cluster_ca_certificate" {
   description = "Kubernetes cluster CA certificate (base64 encoded)"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
-variable "external_dns_access_key" {
-  description = "Scaleway access key for external-dns"
+variable "kubeconfig_client_key" {
+  description = "Kubernetes client key (base64 encoded)"
   type        = string
+  default     = ""
   sensitive   = true
 }
 
-variable "external_dns_secret_key" {
-  description = "Scaleway secret key for external-dns"
+variable "kubeconfig_client_certificate" {
+  description = "Kubernetes client certificate (base64 encoded)"
   type        = string
+  default     = ""
   sensitive   = true
 }
-
 variable "ingress_nginx_zones" {
   description = "List of zones for load balancer deployment"
   type        = list(string)
