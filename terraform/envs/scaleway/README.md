@@ -5,18 +5,18 @@ Kubernetes on Scaleway with Ozone moderation and Bluesky PDS.
 ## Setup
 
 ```bash
-cd envs/dev  # or envs/prod
-cp .env.example .env && cp terraform.auto.tfvars.example terraform.auto.tfvars
-# Edit both files
+cd envs/scaleway
+cp .env.example .env 
+# Edit .env and fill in all required variables
 
 source .env
 
 # First time: Create buckets for terraform state
-scw object bucket create name="terraform-state-bucket-${SCW_DEFAULT_PROJECT_ID}" region="${SCW_DEFAULT_REGION}"
+scw object bucket create name=${STATE_BUCKET} region=${SCW_DEFAULT_REGION}
 
 # First time: Create buckets for backups and PDS blobs (avoid managing with Terraform to not risk deletion)
-scw object bucket create name=eurosky-backups-${SUBDOMAIN} region="${SCW_DEFAULT_REGION}"
-scw object bucket create name=eurosky-pds-blobs-${SUBDOMAIN} region="${SCW_DEFAULT_REGION}"
+scw object bucket create name=${TF_VAR_backup_bucket_name} region=${SCW_DEFAULT_REGION}
+scw object bucket create name=${TF_VAR_pds_blobstore_bucket_name} region=${SCW_DEFAULT_REGION}
 
 # Deploy
 terraform init -backend-config="bucket=$STATE_BUCKET"  -backend-config="endpoint=$AWS_ENDPOINT_URL_S3" 
