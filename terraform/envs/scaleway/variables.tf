@@ -142,6 +142,12 @@ variable "pds_plc_rotation_key" {
   sensitive   = true
 }
 
+variable "pds_repo_signing_key" {
+  description = "Repository signing key (K256 private key hex)"
+  type        = string
+  sensitive   = true
+}
+
 variable "pds_did_plc_url" {
   description = "PLC directory URL for DID resolution"
   type        = string

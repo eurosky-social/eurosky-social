@@ -64,6 +64,12 @@ variable "pds_plc_rotation_key" {
   sensitive   = true
 }
 
+variable "pds_repo_signing_key" {
+  description = "Repository signing key (K256 private key hex)"
+  type        = string
+  sensitive   = true
+}
+
 variable "pds_blobstore_bucket" {
   description = "S3 bucket for PDS blob storage"
   type        = string

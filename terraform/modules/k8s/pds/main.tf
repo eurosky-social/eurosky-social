@@ -93,6 +93,7 @@ resource "kubectl_manifest" "pds_secret" {
     pds_jwt_secret           = var.pds_jwt_secret
     pds_admin_password       = var.pds_admin_password
     pds_plc_rotation_key     = var.pds_plc_rotation_key
+    pds_repo_signing_key     = var.pds_repo_signing_key
     pds_blobstore_access_key = var.pds_blobstore_access_key
     pds_blobstore_secret_key = var.pds_blobstore_secret_key
     pds_email_smtp_url       = var.pds_email_smtp_url
@@ -175,7 +176,6 @@ resource "kubectl_manifest" "pds_statefulset" {
 }
 
 # TODO: Increase storage_size based on production workloads
-# TODO: Add pds_repo_signing_key variable (CRITICAL REQUIRED)
 # TODO: Add pds_recovery_did_key variable (CRITICAL REQUIRED)
 # TODO: Add ServiceMonitor for PDS observability
 # TODO: Add PodDisruptionBudget (single replica limitation)
