@@ -161,6 +161,10 @@ resource "kubectl_manifest" "pds_statefulset" {
   server_side_apply = true
   wait              = true
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   depends_on = [
     kubectl_manifest.pds_storageclass,
     kubectl_manifest.pds_configmap,
@@ -172,7 +176,6 @@ resource "kubectl_manifest" "pds_statefulset" {
 
 # TODO: Increase storage_size for production workloads
 # TODO: Evaluate actual storage needs based on user count
-# TODO: Add lifecycle.prevent_destroy for production PVC
 # TODO: Production should use 100Gi+ storage, current 10Gi is dev sizing
 # TODO: Add pds_email_smtp_url for email verification
 # TODO: Add pds_email_from_address for email verification
