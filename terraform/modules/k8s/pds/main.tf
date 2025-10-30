@@ -174,9 +174,7 @@ resource "kubectl_manifest" "pds_statefulset" {
   ]
 }
 
-# TODO: Increase storage_size for production workloads
-# TODO: Evaluate actual storage needs based on user count
-# TODO: Production should use 100Gi+ storage, current 10Gi is dev sizing
+# TODO: Increase storage_size based on production workloads
 # TODO: Add pds_email_smtp_url for email verification
 # TODO: Add pds_email_from_address for email verification
 # TODO: Add pds_repo_signing_key variable (CRITICAL REQUIRED)
