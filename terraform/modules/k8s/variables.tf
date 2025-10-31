@@ -155,6 +155,13 @@ variable "pds_repo_signing_key" {
   sensitive   = true
 }
 
+variable "pds_recovery_did_key" {
+  description = "Recovery DID key (did:key format) - additional PDS-controlled recovery mechanism"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "pds_blobstore_bucket" {
   description = "S3 bucket for PDS blob storage"
   type        = string

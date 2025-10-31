@@ -24,6 +24,7 @@ data:
   PDS_BLOB_UPLOAD_LIMIT: "${pds_blob_upload_limit}"
   LOG_ENABLED: "${pds_log_enabled}"
   PDS_EMAIL_FROM_ADDRESS: "${pds_email_from_address}"
+  PDS_RECOVERY_DID_KEY: "${pds_recovery_did_key}"
 
   PDS_SERVICE_NAME: "Eurosky PDS"
   # TODO: Add PDS_DEV_MODE: "false" - Disable development mode for production

@@ -148,6 +148,13 @@ variable "pds_repo_signing_key" {
   sensitive   = true
 }
 
+variable "pds_recovery_did_key" {
+  description = "Recovery DID key (did:key format) - additional PDS-controlled recovery mechanism"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "pds_did_plc_url" {
   description = "PLC directory URL for DID resolution"
   type        = string

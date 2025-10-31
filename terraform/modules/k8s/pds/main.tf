@@ -15,6 +15,7 @@ locals {
     pds_blob_upload_limit  = var.pds_blob_upload_limit
     pds_log_enabled        = var.pds_log_enabled
     pds_email_from_address = var.pds_email_from_address
+    pds_recovery_did_key   = var.pds_recovery_did_key
   }))
 
   pds_secret_checksum = sha256(jsonencode({
@@ -80,6 +81,7 @@ resource "kubectl_manifest" "pds_configmap" {
     pds_blob_upload_limit  = var.pds_blob_upload_limit
     pds_log_enabled        = var.pds_log_enabled
     pds_email_from_address = var.pds_email_from_address
+    pds_recovery_did_key   = var.pds_recovery_did_key
   })
 
   server_side_apply = true
@@ -176,6 +178,6 @@ resource "kubectl_manifest" "pds_statefulset" {
 }
 
 # TODO: Increase storage_size based on production workloads
-# TODO: Add pds_recovery_did_key variable (CRITICAL REQUIRED)
 # TODO: Add ServiceMonitor for PDS observability
 # TODO: Add PodDisruptionBudget (single replica limitation)
+# TODO: Investigate how to swap pods with minimal downtime
