@@ -10,12 +10,16 @@ metadata:
 data:
   PDS_PORT: "2583"  # Official PDS port (uses PDS_PORT, not PORT)
   PDS_HOSTNAME: "${pds_hostname}"
-  PDS_DATA_DIRECTORY: "${pds_data_directory}"
   
   # System database locations (explicit paths for Litestream config)
+  PDS_DATA_DIRECTORY: "${pds_data_directory}"
   PDS_ACCOUNT_DB_LOCATION: "${pds_account_db_location}"
   PDS_SEQUENCER_DB_LOCATION: "${pds_sequencer_db_location}"
   PDS_DID_CACHE_DB_LOCATION: "${pds_did_cache_db_location}"
+
+  # Actor store (per-user databases)
+  PDS_ACTOR_STORE_DIRECTORY: "${pds_actor_store_location}"
+  PDS_ACTOR_STORE_CACHE_SIZE: "100"  # LRU cache for open user databases
 
   PDS_BLOBSTORE_S3_BUCKET: "${pds_blobstore_bucket}"
   PDS_BLOBSTORE_S3_REGION: "${pds_blobstore_region}"

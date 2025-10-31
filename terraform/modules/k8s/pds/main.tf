@@ -5,9 +5,10 @@ locals {
 
   # System database locations
   pds_data_directory        = "/pds"
-  pds_account_db_location   = "/pds/account.sqlite"
-  pds_sequencer_db_location = "/pds/sequencer.sqlite"
-  pds_did_cache_db_location = "/pds/did_cache.sqlite"
+  pds_account_db_location   = "${local.pds_data_directory}/account.sqlite"
+  pds_sequencer_db_location = "${local.pds_data_directory}/sequencer.sqlite"
+  pds_did_cache_db_location = "${local.pds_data_directory}/did_cache.sqlite"
+  pds_actor_store_location   = "${local.pds_data_directory}/actors"
 
   # ConfigMap/Secret checksums for triggering rolling updates
   pds_config_checksum = sha256(jsonencode({
@@ -83,6 +84,7 @@ resource "kubectl_manifest" "pds_configmap" {
     pds_account_db_location   = local.pds_account_db_location
     pds_sequencer_db_location = local.pds_sequencer_db_location
     pds_did_cache_db_location = local.pds_did_cache_db_location
+    pds_actor_store_location  = local.pds_actor_store_location
     pds_blobstore_bucket      = var.pds_blobstore_bucket
     pds_blobstore_region      = var.backup_region
     pds_blobstore_endpoint    = var.backup_endpoint
