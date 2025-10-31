@@ -1,68 +1,14 @@
 locals {
   hostname = "pds.${var.cluster_domain}"
-  pds_version      = var.pds_version
-  pds_storage_size = var.pds_storage_size
 
   # System database locations
-  pds_data_directory        = "/pds"
-  pds_account_db_location   = "${local.pds_data_directory}/account.sqlite"
-  pds_sequencer_db_location = "${local.pds_data_directory}/sequencer.sqlite"
-  pds_did_cache_db_location = "${local.pds_data_directory}/did_cache.sqlite"
+  pds_data_directory         = "/pds"
+  pds_account_db_location    = "${local.pds_data_directory}/account.sqlite"
+  pds_sequencer_db_location  = "${local.pds_data_directory}/sequencer.sqlite"
+  pds_did_cache_db_location  = "${local.pds_data_directory}/did_cache.sqlite"
   pds_actor_store_location   = "${local.pds_data_directory}/actors"
 
-  # ConfigMap/Secret checksums for triggering rolling updates
-  pds_config_checksum = sha256(jsonencode({
-    pds_hostname           = local.hostname
-    pds_blobstore_bucket   = var.pds_blobstore_bucket
-    pds_did_plc_url        = var.pds_did_plc_url
-    pds_bsky_app_view_url  = var.pds_bsky_app_view_url
-    pds_bsky_app_view_did  = var.pds_bsky_app_view_did
-    pds_report_service_url = var.pds_report_service_url
-    pds_report_service_did = var.pds_report_service_did
-    pds_blob_upload_limit  = var.pds_blob_upload_limit
-    pds_log_enabled        = var.pds_log_enabled
-    pds_email_from_address = var.pds_email_from_address
-    pds_recovery_did_key   = var.pds_recovery_did_key
-  }))
-
-  pds_secret_checksum = sha256(jsonencode({
-    pds_jwt_secret           = var.pds_jwt_secret
-    pds_admin_password       = var.pds_admin_password
-    pds_plc_rotation_key     = var.pds_plc_rotation_key
-    pds_blobstore_access_key = var.pds_blobstore_access_key
-    pds_blobstore_secret_key = var.pds_blobstore_secret_key
-    pds_email_smtp_url       = var.pds_email_smtp_url
-  }))
-
-  litestream_config_checksum = sha256(jsonencode({
-    backup_bucket   = var.backup_bucket
-    backup_region   = var.backup_region
-    backup_endpoint = var.backup_endpoint
-  }))
-
-  litestream_secret_checksum = sha256(jsonencode({
-    backup_access_key = var.backup_access_key
-    backup_secret_key = var.backup_secret_key
-  }))
-}
-
-resource "kubernetes_namespace" "pds" {
-  metadata {
-    name = var.namespace
-  }
-}
-
-resource "kubectl_manifest" "pds_storageclass" {
-  yaml_body = templatefile("${path.module}/pds-storageclass.yaml", {
-    storage_provisioner = var.storage_provisioner
-  })
-
-  server_side_apply = true
-  wait              = true
-}
-
-resource "kubectl_manifest" "pds_configmap_litestream" {
-  yaml_body = templatefile("${path.module}/pds-configmap-litestream.yaml", {
+  pds_configmap_litestream_yaml = templatefile("${path.module}/pds-configmap-litestream.yaml", {
     namespace                 = kubernetes_namespace.pds.metadata[0].name
     pds_account_db_location   = local.pds_account_db_location
     pds_sequencer_db_location = local.pds_sequencer_db_location
@@ -72,12 +18,7 @@ resource "kubectl_manifest" "pds_configmap_litestream" {
     backup_endpoint           = var.backup_endpoint
   })
 
-  server_side_apply = true
-  wait              = true
-}
-
-resource "kubectl_manifest" "pds_configmap" {
-  yaml_body = templatefile("${path.module}/pds-configmap.yaml", {
+  pds_configmap_yaml = templatefile("${path.module}/pds-configmap.yaml", {
     namespace                 = kubernetes_namespace.pds.metadata[0].name
     pds_hostname              = local.hostname
     pds_data_directory        = local.pds_data_directory
@@ -99,13 +40,7 @@ resource "kubectl_manifest" "pds_configmap" {
     pds_recovery_did_key      = var.pds_recovery_did_key
   })
 
-  server_side_apply = true
-  wait              = true
-}
-
-resource "kubectl_manifest" "pds_secret" {
-  # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
-  yaml_body = templatefile("${path.module}/pds-secret.yaml", {
+  pds_secret_yaml = templatefile("${path.module}/pds-secret.yaml", {
     namespace                = kubernetes_namespace.pds.metadata[0].name
     pds_jwt_secret           = var.pds_jwt_secret
     pds_admin_password       = var.pds_admin_password
@@ -116,17 +51,59 @@ resource "kubectl_manifest" "pds_secret" {
     pds_email_smtp_url       = var.pds_email_smtp_url
   })
 
+  pds_secret_litestream_yaml = templatefile("${path.module}/pds-secret-litestream.yaml", {
+    namespace                = kubernetes_namespace.pds.metadata[0].name
+    backup_access_key_id     = var.backup_access_key
+    backup_secret_access_key = var.backup_secret_key
+  })
+
+  # Checksums computed from rendered YAML (automatically tracks all changes)
+  litestream_config_checksum = sha256(local.pds_configmap_litestream_yaml)
+  litestream_secret_checksum = sha256(local.pds_secret_litestream_yaml)
+  pds_config_checksum        = sha256(local.pds_configmap_yaml)
+  pds_secret_checksum        = sha256(local.pds_secret_yaml)
+}
+
+resource "kubernetes_namespace" "pds" {
+  metadata {
+    name = var.namespace
+  }
+}
+
+resource "kubectl_manifest" "pds_storageclass" {
+  yaml_body = templatefile("${path.module}/pds-storageclass.yaml", {
+    storage_provisioner = var.storage_provisioner
+  })
+
+  server_side_apply = true
+  wait              = true
+}
+
+resource "kubectl_manifest" "pds_configmap_litestream" {
+  yaml_body = local.pds_configmap_litestream_yaml
+
+  server_side_apply = true
+  wait              = true
+}
+
+resource "kubectl_manifest" "pds_configmap" {
+  yaml_body = local.pds_configmap_yaml
+
+  server_side_apply = true
+  wait              = true
+}
+
+resource "kubectl_manifest" "pds_secret" {
+  # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
+  yaml_body = local.pds_secret_yaml
+
   server_side_apply = true
   wait              = true
 }
 
 resource "kubectl_manifest" "pds_secret_litestream" {
   # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
-  yaml_body = templatefile("${path.module}/pds-secret-litestream.yaml", {
-    namespace                = kubernetes_namespace.pds.metadata[0].name
-    backup_access_key_id     = var.backup_access_key
-    backup_secret_access_key = var.backup_secret_key
-  })
+  yaml_body = local.pds_secret_litestream_yaml
 
   server_side_apply = true
   wait              = true
@@ -166,8 +143,8 @@ resource "kubectl_manifest" "pds_statefulset" {
   yaml_body = templatefile("${path.module}/pds-statefulset.yaml", {
     namespace                  = kubernetes_namespace.pds.metadata[0].name
     pds_data_directory         = local.pds_data_directory
-    pds_version                = local.pds_version
-    pds_storage_size           = local.pds_storage_size
+    pds_version                = var.pds_version
+    pds_storage_size           = var.pds_storage_size
     backup_bucket              = var.backup_bucket
     backup_endpoint            = var.backup_endpoint
     backup_region              = var.backup_region
