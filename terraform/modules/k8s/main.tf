@@ -55,6 +55,7 @@ module "external_dns" {
   source = "./external-dns"
 
   api_token = var.cloudflare_dns_api_token
+  cluster_domain           = var.cluster_domain
 
   depends_on = [module.ingress_nginx]
 }

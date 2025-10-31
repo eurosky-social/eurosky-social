@@ -4,6 +4,11 @@ variable "api_token" {
   sensitive   = true
 }
 
+variable "cluster_domain" {
+  description = "Cluster domain to create unique owner ID per cluster"
+  type        = string
+}
+
 variable "sync_policy" {
   description = "external-dns sync policy (sync or upsert-only)"
   type        = string

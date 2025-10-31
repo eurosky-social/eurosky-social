@@ -20,7 +20,7 @@ resource "helm_release" "external_dns" {
     templatefile("${path.module}/external-dns-values.yaml", {
       secret_name               = kubernetes_secret.external_dns.metadata[0].name
       sync_policy               = var.sync_policy
-      txt_owner_id              = var.txt_owner_id
+      txt_owner_id              = "${var.txt_owner_id}-${var.cluster_domain}"
       txt_prefix                = var.txt_prefix
       log_level                 = var.log_level
       log_format                = var.log_format
