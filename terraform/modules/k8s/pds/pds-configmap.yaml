@@ -19,7 +19,6 @@ data:
 
   # Actor store (per-user databases)
   PDS_ACTOR_STORE_DIRECTORY: "${pds_actor_store_location}"
-  PDS_ACTOR_STORE_CACHE_SIZE: "100"  # LRU cache for open user databases
 
   PDS_BLOBSTORE_S3_BUCKET: "${pds_blobstore_bucket}"
   PDS_BLOBSTORE_S3_REGION: "${pds_blobstore_region}"
