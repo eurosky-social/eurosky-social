@@ -178,6 +178,6 @@ resource "kubectl_manifest" "pds_statefulset" {
 }
 
 # TODO: Increase storage_size based on production workloads
-# TODO: Add ServiceMonitor for PDS observability
+# TODO: Add PDS app metrics + ServiceMonitor
 # TODO: Add PodDisruptionBudget (single replica limitation)
 # TODO: Investigate how to swap pods with minimal downtime

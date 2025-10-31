@@ -121,7 +121,7 @@ resource "kubernetes_config_map" "ozone_log_alerts" {
 
 # TODO: Add HorizontalPodAutoscaler for Ozone (2-5 replicas, 70% CPU target)
 # TODO: Add PodDisruptionBudget for Ozone (minAvailable: 1)
-# TODO: Add ServiceMonitor for Ozone observability (application metrics)
+# TODO: Add Ozone application metrics + ServiceMonitor 
 # TODO: Consider progressive rollout strategy (Argo Rollouts/Flagger)
 # TODO: Add NetworkPolicy to restrict ingress/egress
 # TODO: Document disaster recovery procedures
