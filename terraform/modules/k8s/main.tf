@@ -123,10 +123,12 @@ module "pds" {
   pds_bsky_app_view_did    = var.pds_bsky_app_view_did
   pds_report_service_url   = var.pds_report_service_url
   pds_report_service_did   = var.pds_report_service_did
-  pds_blob_upload_limit    = var.pds_blob_upload_limit
-  pds_log_enabled          = var.pds_log_enabled
-  pds_email_from_address   = var.pds_email_from_address
-  pds_email_smtp_url       = var.pds_email_smtp_url
+  pds_blob_upload_limit          = var.pds_blob_upload_limit
+  pds_log_enabled                = var.pds_log_enabled
+  pds_email_from_address         = var.pds_email_from_address
+  pds_email_smtp_url             = var.pds_email_smtp_url
+  pds_moderation_email_address   = var.pds_moderation_email_address
+  pds_moderation_email_smtp_url  = var.pds_moderation_email_smtp_url
 
   depends_on = [module.ingress_nginx]
 }

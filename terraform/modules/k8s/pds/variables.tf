@@ -154,6 +154,19 @@ variable "pds_email_smtp_url" {
   default     = ""
 }
 
+variable "pds_moderation_email_address" {
+  description = "Email from address for admin moderation communications"
+  type        = string
+  default     = ""
+}
+
+variable "pds_moderation_email_smtp_url" {
+  description = "SMTP URL for moderation emails (format: smtps://user:pass@host:port/)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "pds_public_hostname" {
   description = "Public hostname for PDS (e.g., pds.eurosky.social)"
   type        = string

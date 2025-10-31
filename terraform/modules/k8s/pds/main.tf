@@ -19,36 +19,38 @@ locals {
   })
 
   pds_configmap_yaml = templatefile("${path.module}/pds-configmap.yaml", {
-    namespace                 = kubernetes_namespace.pds.metadata[0].name
-    pds_hostname              = local.hostname
-    pds_data_directory        = local.pds_data_directory
-    pds_account_db_location   = local.pds_account_db_location
-    pds_sequencer_db_location = local.pds_sequencer_db_location
-    pds_did_cache_db_location = local.pds_did_cache_db_location
-    pds_actor_store_location  = local.pds_actor_store_location
-    pds_blobstore_bucket      = var.pds_blobstore_bucket
-    pds_blobstore_region      = var.backup_region
-    pds_blobstore_endpoint    = var.backup_endpoint
-    pds_did_plc_url           = var.pds_did_plc_url
-    pds_bsky_app_view_url     = var.pds_bsky_app_view_url
-    pds_bsky_app_view_did     = var.pds_bsky_app_view_did
-    pds_report_service_url    = var.pds_report_service_url
-    pds_report_service_did    = var.pds_report_service_did
-    pds_blob_upload_limit     = var.pds_blob_upload_limit
-    pds_log_enabled           = var.pds_log_enabled
-    pds_email_from_address    = var.pds_email_from_address
-    pds_recovery_did_key      = var.pds_recovery_did_key
+    namespace                      = kubernetes_namespace.pds.metadata[0].name
+    pds_hostname                   = local.hostname
+    pds_data_directory             = local.pds_data_directory
+    pds_account_db_location        = local.pds_account_db_location
+    pds_sequencer_db_location      = local.pds_sequencer_db_location
+    pds_did_cache_db_location      = local.pds_did_cache_db_location
+    pds_actor_store_location       = local.pds_actor_store_location
+    pds_blobstore_bucket           = var.pds_blobstore_bucket
+    pds_blobstore_region           = var.backup_region
+    pds_blobstore_endpoint         = var.backup_endpoint
+    pds_did_plc_url                = var.pds_did_plc_url
+    pds_bsky_app_view_url          = var.pds_bsky_app_view_url
+    pds_bsky_app_view_did          = var.pds_bsky_app_view_did
+    pds_report_service_url         = var.pds_report_service_url
+    pds_report_service_did         = var.pds_report_service_did
+    pds_blob_upload_limit          = var.pds_blob_upload_limit
+    pds_log_enabled                = var.pds_log_enabled
+    pds_email_from_address         = var.pds_email_from_address
+    pds_moderation_email_address   = var.pds_moderation_email_address
+    pds_recovery_did_key           = var.pds_recovery_did_key
   })
 
   pds_secret_yaml = templatefile("${path.module}/pds-secret.yaml", {
-    namespace                = kubernetes_namespace.pds.metadata[0].name
-    pds_jwt_secret           = var.pds_jwt_secret
-    pds_admin_password       = var.pds_admin_password
-    pds_plc_rotation_key     = var.pds_plc_rotation_key
-    pds_repo_signing_key     = var.pds_repo_signing_key
-    pds_blobstore_access_key = var.pds_blobstore_access_key
-    pds_blobstore_secret_key = var.pds_blobstore_secret_key
-    pds_email_smtp_url       = var.pds_email_smtp_url
+    namespace                      = kubernetes_namespace.pds.metadata[0].name
+    pds_jwt_secret                 = var.pds_jwt_secret
+    pds_admin_password             = var.pds_admin_password
+    pds_plc_rotation_key           = var.pds_plc_rotation_key
+    pds_repo_signing_key           = var.pds_repo_signing_key
+    pds_blobstore_access_key       = var.pds_blobstore_access_key
+    pds_blobstore_secret_key       = var.pds_blobstore_secret_key
+    pds_email_smtp_url             = var.pds_email_smtp_url
+    pds_moderation_email_smtp_url  = var.pds_moderation_email_smtp_url
   })
 
   pds_secret_litestream_yaml = templatefile("${path.module}/pds-secret-litestream.yaml", {

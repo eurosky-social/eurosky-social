@@ -227,6 +227,19 @@ variable "pds_email_smtp_url" {
   default     = ""
 }
 
+variable "pds_moderation_email_address" {
+  description = "Email from address for admin moderation communications"
+  type        = string
+  default     = ""
+}
+
+variable "pds_moderation_email_smtp_url" {
+  description = "SMTP URL for moderation emails (format: smtps://user:pass@host:port/)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "postgres_cluster_name" {
   description = "PostgreSQL cluster name (increment version for recovery: postgres-cluster-v2, v3, etc.)"
   type        = string
