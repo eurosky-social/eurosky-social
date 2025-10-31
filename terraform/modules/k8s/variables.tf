@@ -182,43 +182,36 @@ variable "pds_blobstore_secret_key" {
 variable "pds_did_plc_url" {
   description = "PLC directory URL for DID resolution"
   type        = string
-  default     = "https://plc.directory"
 }
 
 variable "pds_bsky_app_view_url" {
   description = "Bluesky App View URL"
   type        = string
-  default     = "https://api.bsky.app"
 }
 
 variable "pds_bsky_app_view_did" {
   description = "Bluesky App View DID"
   type        = string
-  default     = "did:web:api.bsky.app"
 }
 
 variable "pds_report_service_url" {
   description = "Moderation/reporting service URL (Ozone)"
   type        = string
-  default     = "https://mod.bsky.app"
 }
 
 variable "pds_report_service_did" {
   description = "Moderation/reporting service DID (Ozone)"
   type        = string
-  default     = "did:plc:ar7c4by46qjdydhdevvrndac"
 }
 
 variable "pds_blob_upload_limit" {
   description = "Maximum blob upload size in bytes"
   type        = string
-  default     = "52428800"
 }
 
 variable "pds_log_enabled" {
   description = "Enable logging"
   type        = string
-  default     = "true"
 }
 
 variable "pds_email_from_address" {

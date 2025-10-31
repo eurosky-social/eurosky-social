@@ -3,6 +3,12 @@ locals {
   pds_version      = var.pds_version
   pds_storage_size = var.pds_storage_size
 
+  # System database locations
+  pds_data_directory        = "/pds"
+  pds_account_db_location   = "/pds/account.sqlite"
+  pds_sequencer_db_location = "/pds/sequencer.sqlite"
+  pds_did_cache_db_location = "/pds/did_cache.sqlite"
+
   # ConfigMap/Secret checksums for triggering rolling updates
   pds_config_checksum = sha256(jsonencode({
     pds_hostname           = local.hostname
@@ -56,10 +62,13 @@ resource "kubectl_manifest" "pds_storageclass" {
 
 resource "kubectl_manifest" "pds_configmap_litestream" {
   yaml_body = templatefile("${path.module}/pds-configmap-litestream.yaml", {
-    namespace       = kubernetes_namespace.pds.metadata[0].name
-    backup_bucket   = var.backup_bucket
-    backup_region   = var.backup_region
-    backup_endpoint = var.backup_endpoint
+    namespace                 = kubernetes_namespace.pds.metadata[0].name
+    pds_account_db_location   = local.pds_account_db_location
+    pds_sequencer_db_location = local.pds_sequencer_db_location
+    pds_did_cache_db_location = local.pds_did_cache_db_location
+    backup_bucket             = var.backup_bucket
+    backup_region             = var.backup_region
+    backup_endpoint           = var.backup_endpoint
   })
 
   server_side_apply = true
@@ -68,20 +77,24 @@ resource "kubectl_manifest" "pds_configmap_litestream" {
 
 resource "kubectl_manifest" "pds_configmap" {
   yaml_body = templatefile("${path.module}/pds-configmap.yaml", {
-    namespace              = kubernetes_namespace.pds.metadata[0].name
-    pds_hostname           = local.hostname
-    pds_blobstore_bucket   = var.pds_blobstore_bucket
-    pds_blobstore_region   = var.backup_region
-    pds_blobstore_endpoint = var.backup_endpoint
-    pds_did_plc_url        = var.pds_did_plc_url
-    pds_bsky_app_view_url  = var.pds_bsky_app_view_url
-    pds_bsky_app_view_did  = var.pds_bsky_app_view_did
-    pds_report_service_url = var.pds_report_service_url
-    pds_report_service_did = var.pds_report_service_did
-    pds_blob_upload_limit  = var.pds_blob_upload_limit
-    pds_log_enabled        = var.pds_log_enabled
-    pds_email_from_address = var.pds_email_from_address
-    pds_recovery_did_key   = var.pds_recovery_did_key
+    namespace                 = kubernetes_namespace.pds.metadata[0].name
+    pds_hostname              = local.hostname
+    pds_data_directory        = local.pds_data_directory
+    pds_account_db_location   = local.pds_account_db_location
+    pds_sequencer_db_location = local.pds_sequencer_db_location
+    pds_did_cache_db_location = local.pds_did_cache_db_location
+    pds_blobstore_bucket      = var.pds_blobstore_bucket
+    pds_blobstore_region      = var.backup_region
+    pds_blobstore_endpoint    = var.backup_endpoint
+    pds_did_plc_url           = var.pds_did_plc_url
+    pds_bsky_app_view_url     = var.pds_bsky_app_view_url
+    pds_bsky_app_view_did     = var.pds_bsky_app_view_did
+    pds_report_service_url    = var.pds_report_service_url
+    pds_report_service_did    = var.pds_report_service_did
+    pds_blob_upload_limit     = var.pds_blob_upload_limit
+    pds_log_enabled           = var.pds_log_enabled
+    pds_email_from_address    = var.pds_email_from_address
+    pds_recovery_did_key      = var.pds_recovery_did_key
   })
 
   server_side_apply = true
@@ -150,6 +163,7 @@ resource "kubectl_manifest" "pds_ingress" {
 resource "kubectl_manifest" "pds_statefulset" {
   yaml_body = templatefile("${path.module}/pds-statefulset.yaml", {
     namespace                  = kubernetes_namespace.pds.metadata[0].name
+    pds_data_directory         = local.pds_data_directory
     pds_version                = local.pds_version
     pds_storage_size           = local.pds_storage_size
     backup_bucket              = var.backup_bucket

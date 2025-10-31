@@ -10,7 +10,7 @@ metadata:
 data:
   litestream.yml: |
     dbs:
-      - path: /pds/account.sqlite
+      - path: ${pds_account_db_location}
         replicas:
           - type: s3
             bucket: ${backup_bucket}
@@ -19,7 +19,7 @@ data:
             endpoint: ${backup_endpoint}
             sync-interval: 15m
 
-      - path: /pds/sequencer.sqlite
+      - path: ${pds_sequencer_db_location}
         replicas:
           - type: s3
             bucket: ${backup_bucket}
@@ -28,7 +28,7 @@ data:
             endpoint: ${backup_endpoint}
             sync-interval: 15m
 
-      - path: /pds/did_cache.sqlite
+      - path: ${pds_did_cache_db_location}
         replicas:
           - type: s3
             bucket: ${backup_bucket}
