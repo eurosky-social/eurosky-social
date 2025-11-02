@@ -41,7 +41,4 @@ data:
 
   # TODO: Check and configure rate limits at ingress/load balancer level for additional DDoS protection
   # TODO: Add PDS_SQLITE_DISABLE_WAL_AUTO_CHECKPOINT to true for Litestream backup
-  # TODO: Add PDS_DEV_MODE: "false" - Disable development mode for production
-  # TODO: Add PDS_CONTACT_EMAIL_ADDRESS: "support@eurosky.example" - User support contact
-  # TODO: Add PDS_PRIVACY_POLICY_URL: "https://eurosky.example/privacy" - Legal requirement
-  # TODO: Add PDS_TERMS_OF_SERVICE_URL: "https://eurosky.example/terms" - Legal requirement
+  # TODO: Add PDS_REDIS_SCRATCH_* to store temporary data in Redis instead of local disk
