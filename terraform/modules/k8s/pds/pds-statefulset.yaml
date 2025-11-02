@@ -174,15 +174,11 @@ spec:
           requests:
             storage: ${pds_storage_size}
 
-# TODO: Single replica due to SQLite limitation (blocks HA - requires architectural change)
 # TODO: Development resource limits (Production needs 500m-1000m CPU, 512Mi-1Gi memory for PDS)
 # TODO: ReadOnlyRootFilesystem: false (SQLite requires write access, unavoidable)
 # TODO: Increase Litestream resources if needed based on replication load
-# TODO: Verify if PDS exposes Prometheus metrics endpoint (check app documentation)
-# TODO: Add metrics port to PDS container if it exposes Prometheus metrics
-# TODO: Create ServiceMonitor CRD for PDS metrics (preferred over prometheus.io/scrape annotations)
 # TODO: Add Litestream metrics endpoint for replication lag monitoring (requires Litestream config update)
-# TODO: Set up Grafana dashboards for PDS health monitoring
+# TODO: Set up Grafana dashboards for PDS health monitoring (use /xrpc/_health and nginx-ingress metrics)
 # TODO: Configure alerting on replication lag and service health
 # TODO: Test disaster recovery restore procedure from S3
 # TODO: Document and automate failover procedures
@@ -192,7 +188,6 @@ spec:
 # TODO: Add podManagementPolicy: Parallel for faster scaling (currently defaults to OrderedReady)
 # TODO: Add updateStrategy.rollingUpdate.partition for canary deployments
 # TODO: Add persistentVolumeClaimRetentionPolicy to control PVC cleanup behavior
-# TODO: Add annotations for Prometheus scraping if metrics endpoint is added
 # TODO: Add terminationGracePeriodSeconds (default 30s may be insufficient for SQLite flush + Litestream final sync)
 # TODO: Add affinity rules to prevent scheduling on same node as other critical services
 # TODO: Add topologySpreadConstraints for multi-AZ distribution when running multiple replicas in future
@@ -203,6 +198,5 @@ spec:
 # TODO: Use named port reference in probes instead of hardcoded 2583
 # TODO: Verify 60s total startup time (12 * 5s) is sufficient for cold start + S3 restore
 # TODO: Add liveness probe to detect Litestream replication failures
-# TODO: Add metrics endpoint for Prometheus scraping of replication lag
 # TODO: Add revisionHistoryLimit to control number of old ReplicaSets retained
 # TODO: Add volumeMode: Filesystem explicitly for clarity
