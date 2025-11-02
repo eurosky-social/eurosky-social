@@ -113,7 +113,6 @@ module "pds" {
   pds_jwt_secret           = var.pds_jwt_secret
   pds_admin_password       = var.pds_admin_password
   pds_plc_rotation_key     = var.pds_plc_rotation_key
-  pds_repo_signing_key     = var.pds_repo_signing_key
   pds_recovery_did_key     = var.pds_recovery_did_key
   pds_blobstore_bucket     = var.pds_blobstore_bucket
   pds_blobstore_access_key = var.pds_blobstore_access_key

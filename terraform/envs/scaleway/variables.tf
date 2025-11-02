@@ -137,12 +137,6 @@ variable "pds_plc_rotation_key" {
   sensitive   = true
 }
 
-variable "pds_repo_signing_key" {
-  description = "Repository signing key (K256 private key hex)"
-  type        = string
-  sensitive   = true
-}
-
 variable "pds_recovery_did_key" {
   description = "Recovery DID key (did:key format) - additional PDS-controlled recovery mechanism"
   type        = string
