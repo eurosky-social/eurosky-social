@@ -26,9 +26,20 @@ spec:
   tls:
     - hosts:
         - ${hostname}
+        - "*.${hostname}"
       secretName: pds-tls
   rules:
     - host: ${hostname}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pds
+                port:
+                  number: 80
+    - host: "*.${hostname}"
       http:
         paths:
           - path: /
