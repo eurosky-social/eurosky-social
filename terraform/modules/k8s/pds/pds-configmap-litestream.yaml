@@ -48,3 +48,5 @@ data:
 # TODO: Add snapshot-interval for daily full backups (snapshot-interval: "24h")
 # TODO: Add validation-interval for corruption detection (validation-interval: "1h")
 # TODO: Consider compression to reduce S3 costs (compression: gzip)
+# TODO: add an healthcheck watchdog for backups
+# TODO: Add PDS_SQLITE_DISABLE_WAL_AUTO_CHECKPOINT to true for Litestream backup

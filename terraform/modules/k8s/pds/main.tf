@@ -96,7 +96,6 @@ resource "kubectl_manifest" "pds_configmap" {
 }
 
 resource "kubectl_manifest" "pds_secret" {
-  # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
   yaml_body = local.pds_secret_yaml
 
   server_side_apply = true
@@ -104,7 +103,6 @@ resource "kubectl_manifest" "pds_secret" {
 }
 
 resource "kubectl_manifest" "pds_secret_litestream" {
-  # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
   yaml_body = local.pds_secret_litestream_yaml
 
   server_side_apply = true
@@ -176,4 +174,4 @@ resource "kubectl_manifest" "pds_statefulset" {
 # TODO: Add PDS app metrics + ServiceMonitor
 # TODO: Add PodDisruptionBudget (single replica limitation)
 # TODO: Investigate how to swap pods with minimal downtime
-# TODO: add an healthcheck watchdog for backups
+# TODO: Replace with external secret management solution (Sealed Secrets?)

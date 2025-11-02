@@ -48,3 +48,4 @@ spec:
 # TODO: Add CORS configuration if PDS serves API from different origins
 # TODO: Consider WAF rules for additional protection
 # TODO: Consider rate limiting per client IP (nginx.ingress.kubernetes.io/limit-connections)
+# TODO: Compare rate limits PDS_RATE_LIMITS_ENABLED vs ingress/load balancer
