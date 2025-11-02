@@ -100,11 +100,6 @@ variable "ozone_server_did" {
   type        = string
 }
 
-variable "ozone_admin_dids" {
-  description = "Admin DIDs for Ozone (comma-separated)"
-  type        = string
-}
-
 variable "ozone_db_password" {
   description = "PostgreSQL password for Ozone (store in tfvars for DR/portability)"
   type        = string
@@ -171,18 +166,6 @@ variable "pds_bsky_app_view_did" {
   description = "Bluesky App View DID"
   type        = string
   default     = "did:web:api.bsky.app"
-}
-
-variable "pds_report_service_url" {
-  description = "Moderation/reporting service URL (Ozone)"
-  type        = string
-  default     = "https://mod.bsky.app"
-}
-
-variable "pds_report_service_did" {
-  description = "Moderation/reporting service DID (Ozone)"
-  type        = string
-  default     = "did:plc:ar7c4by46qjdydhdevvrndac"
 }
 
 variable "pds_blob_upload_limit" {

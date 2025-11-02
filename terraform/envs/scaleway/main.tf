@@ -38,7 +38,7 @@ module "k8s" {
   ozone_appview_url     = var.ozone_appview_url
   ozone_appview_did     = var.ozone_appview_did
   ozone_server_did      = var.ozone_server_did
-  ozone_admin_dids      = var.ozone_admin_dids
+  ozone_admin_dids      = var.ozone_server_did
   ozone_db_password     = var.ozone_db_password
   ozone_admin_password  = var.ozone_admin_password
   ozone_signing_key_hex = var.ozone_signing_key_hex
@@ -56,8 +56,7 @@ module "k8s" {
   pds_did_plc_url               = var.pds_did_plc_url
   pds_bsky_app_view_url         = var.pds_bsky_app_view_url
   pds_bsky_app_view_did         = var.pds_bsky_app_view_did
-  pds_report_service_url        = var.pds_report_service_url
-  pds_report_service_did        = var.pds_report_service_did
+  pds_mod_service_did           = var.ozone_server_did
   pds_blob_upload_limit         = var.pds_blob_upload_limit
   pds_log_enabled               = var.pds_log_enabled
   pds_email_from_address        = var.pds_email_from_address

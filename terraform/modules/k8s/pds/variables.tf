@@ -121,13 +121,13 @@ variable "pds_bsky_app_view_did" {
   type        = string
 }
 
-variable "pds_report_service_url" {
-  description = "Moderation/reporting service URL (Ozone)"
+variable "pds_mod_service_url" {
+  description = "Moderation service URL (Ozone) for takedowns and moderation actions"
   type        = string
 }
 
-variable "pds_report_service_did" {
-  description = "Moderation/reporting service DID (Ozone)"
+variable "pds_mod_service_did" {
+  description = "Moderation service DID (Ozone) for takedowns and moderation actions"
   type        = string
 }
 
