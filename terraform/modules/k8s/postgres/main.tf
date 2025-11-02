@@ -165,3 +165,4 @@ resource "kubectl_manifest" "postgres_pooler" {
 # TODO: Document connection string format for applications (use pooler endpoint)
 # TODO: Configure backup encryption at rest using ObjectStore encryption settings
 # TODO: https://cloudnative-pg.io/documentation/current/monitoring/
+# TODO: add an healthcheck watchdog for backups
