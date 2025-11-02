@@ -2,11 +2,11 @@ locals {
   hostname = "pds.${var.cluster_domain}"
 
   # System database locations
-  pds_data_directory         = "/pds"
-  pds_account_db_location    = "${local.pds_data_directory}/account.sqlite"
-  pds_sequencer_db_location  = "${local.pds_data_directory}/sequencer.sqlite"
-  pds_did_cache_db_location  = "${local.pds_data_directory}/did_cache.sqlite"
-  pds_actor_store_location   = "${local.pds_data_directory}/actors"
+  pds_data_directory        = "/pds"
+  pds_account_db_location   = "${local.pds_data_directory}/account.sqlite"
+  pds_sequencer_db_location = "${local.pds_data_directory}/sequencer.sqlite"
+  pds_did_cache_db_location = "${local.pds_data_directory}/did_cache.sqlite"
+  pds_actor_store_location  = "${local.pds_data_directory}/actors"
 
   pds_configmap_litestream_yaml = templatefile("${path.module}/pds-configmap-litestream.yaml", {
     namespace                 = kubernetes_namespace.pds.metadata[0].name
@@ -19,26 +19,26 @@ locals {
   })
 
   pds_configmap_yaml = templatefile("${path.module}/pds-configmap.yaml", {
-    namespace                      = kubernetes_namespace.pds.metadata[0].name
-    pds_hostname                   = local.hostname
-    pds_data_directory             = local.pds_data_directory
-    pds_account_db_location        = local.pds_account_db_location
-    pds_sequencer_db_location      = local.pds_sequencer_db_location
-    pds_did_cache_db_location      = local.pds_did_cache_db_location
-    pds_actor_store_location       = local.pds_actor_store_location
-    pds_blobstore_bucket           = var.pds_blobstore_bucket
-    pds_blobstore_region           = var.backup_region
-    pds_blobstore_endpoint         = var.backup_endpoint
-    pds_did_plc_url                = var.pds_did_plc_url
-    pds_bsky_app_view_url          = var.pds_bsky_app_view_url
-    pds_bsky_app_view_did          = var.pds_bsky_app_view_did
-    pds_mod_service_url            = var.pds_mod_service_url
-    pds_mod_service_did            = var.pds_mod_service_did
-    pds_blob_upload_limit          = var.pds_blob_upload_limit
-    pds_log_enabled                = var.pds_log_enabled
-    pds_email_from_address         = var.pds_email_from_address
-    pds_moderation_email_address   = var.pds_moderation_email_address
-    pds_recovery_did_key           = var.pds_recovery_did_key
+    namespace                    = kubernetes_namespace.pds.metadata[0].name
+    pds_hostname                 = local.hostname
+    pds_data_directory           = local.pds_data_directory
+    pds_account_db_location      = local.pds_account_db_location
+    pds_sequencer_db_location    = local.pds_sequencer_db_location
+    pds_did_cache_db_location    = local.pds_did_cache_db_location
+    pds_actor_store_location     = local.pds_actor_store_location
+    pds_blobstore_bucket         = var.pds_blobstore_bucket
+    pds_blobstore_region         = var.backup_region
+    pds_blobstore_endpoint       = var.backup_endpoint
+    pds_did_plc_url              = var.pds_did_plc_url
+    pds_bsky_app_view_url        = var.pds_bsky_app_view_url
+    pds_bsky_app_view_did        = var.pds_bsky_app_view_did
+    pds_mod_service_url          = var.pds_mod_service_url
+    pds_mod_service_did          = var.pds_mod_service_did
+    pds_blob_upload_limit        = var.pds_blob_upload_limit
+    pds_log_enabled              = var.pds_log_enabled
+    pds_email_from_address       = var.pds_email_from_address
+    pds_moderation_email_address = var.pds_moderation_email_address
+    pds_recovery_did_key         = var.pds_recovery_did_key
   })
 
   pds_secret_yaml = templatefile("${path.module}/pds-secret.yaml", {
@@ -132,7 +132,7 @@ resource "kubectl_manifest" "pds_service" {
 resource "kubectl_manifest" "pds_ingress" {
   yaml_body = templatefile("${path.module}/pds-ingress.yaml", {
     namespace           = kubernetes_namespace.pds.metadata[0].name
-    hostname        = local.hostname
+    hostname            = local.hostname
     cluster_domain      = var.cluster_domain
     cert_manager_issuer = var.cert_manager_issuer
   })

@@ -2,7 +2,7 @@ resource "helm_release" "loki" {
   name      = "loki"
   namespace = "loki"
 
-  create_namespace = true 
+  create_namespace = true
 
   repository = "https://grafana.github.io/helm-charts"
   chart      = "loki"
@@ -39,7 +39,7 @@ resource "helm_release" "alloy" {
     })
   ]
 
-  timeout = 60 * 15  # 15 minutes for DaemonSet rollout
+  timeout = 60 * 15 # 15 minutes for DaemonSet rollout
 
   depends_on = [helm_release.loki]
 }

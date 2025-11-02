@@ -1,5 +1,5 @@
 resource "helm_release" "kube_prometheus_stack" {
-# Note: Manually update CRDs before upgrading chart (NOT auto-updated by helm)
+  # Note: Manually update CRDs before upgrading chart (NOT auto-updated by helm)
   name             = "kube-prometheus-stack"
   namespace        = "monitoring"
   create_namespace = true

@@ -1,5 +1,5 @@
 locals {
-  hostname = "ozone.${var.cluster_domain}"
+  hostname         = "ozone.${var.cluster_domain}"
   ozone_public_url = "https://${local.hostname}"
 
   # ConfigMap/Secret checksums for triggering rolling updates

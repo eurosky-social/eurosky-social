@@ -15,19 +15,19 @@ postgres_storage_class = "scw-bssd"
 # postgres_enable_recovery              = true
 
 # Ozone
-ozone_appview_url = "https://api.bsky.app"
-ozone_appview_did = "did:web:api.bsky.app"
-ozone_server_did  = "did:plc:7kykji2z2jie3tcaz6jypwsf"
+ozone_appview_url         = "https://api.bsky.app"
+ozone_appview_did         = "did:web:api.bsky.app"
+ozone_server_did          = "did:plc:7kykji2z2jie3tcaz6jypwsf"
 ozone_cert_manager_issuer = "letsencrypt-prod"
 
 # PDS
-pds_storage_size = "10Gi"
-pds_cert_manager_issuer   = "letsencrypt-prod"
-pds_did_plc_url= "https://plc.directory"
-pds_bsky_app_view_url= "https://api.bsky.app"
-pds_bsky_app_view_did= "did:web:api.bsky.app"
-pds_blob_upload_limit= "52428800"
-pds_log_enabled= "true"
+pds_storage_size        = "10Gi"
+pds_cert_manager_issuer = "letsencrypt-prod"
+pds_did_plc_url         = "https://plc.directory"
+pds_bsky_app_view_url   = "https://api.bsky.app"
+pds_bsky_app_view_did   = "did:web:api.bsky.app"
+pds_blob_upload_limit   = "52428800"
+pds_log_enabled         = "true"
 
 # Prometheus
 prometheus_storage_class = "scw-bssd"
