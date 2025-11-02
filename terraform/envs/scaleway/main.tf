@@ -48,6 +48,7 @@ module "k8s" {
   pds_jwt_secret                = var.pds_jwt_secret
   pds_admin_password            = var.pds_admin_password
   pds_plc_rotation_key          = var.pds_plc_rotation_key
+  pds_dpop_secret               = var.pds_dpop_secret
   pds_recovery_did_key          = var.pds_recovery_did_key
   pds_blobstore_bucket          = module.scaleway.pds_blobstore_bucket
   pds_blobstore_access_key      = module.scaleway.pds_blobstore_access_key

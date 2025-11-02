@@ -42,14 +42,15 @@ locals {
   })
 
   pds_secret_yaml = templatefile("${path.module}/pds-secret.yaml", {
-    namespace                      = kubernetes_namespace.pds.metadata[0].name
-    pds_jwt_secret                 = var.pds_jwt_secret
-    pds_admin_password             = var.pds_admin_password
-    pds_plc_rotation_key           = var.pds_plc_rotation_key
-    pds_blobstore_access_key       = var.pds_blobstore_access_key
-    pds_blobstore_secret_key       = var.pds_blobstore_secret_key
-    pds_email_smtp_url             = var.pds_email_smtp_url
-    pds_moderation_email_smtp_url  = var.pds_moderation_email_smtp_url
+    namespace                     = kubernetes_namespace.pds.metadata[0].name
+    pds_jwt_secret                = var.pds_jwt_secret
+    pds_admin_password            = var.pds_admin_password
+    pds_plc_rotation_key          = var.pds_plc_rotation_key
+    pds_dpop_secret               = var.pds_dpop_secret
+    pds_blobstore_access_key      = var.pds_blobstore_access_key
+    pds_blobstore_secret_key      = var.pds_blobstore_secret_key
+    pds_email_smtp_url            = var.pds_email_smtp_url
+    pds_moderation_email_smtp_url = var.pds_moderation_email_smtp_url
   })
 
   pds_secret_litestream_yaml = templatefile("${path.module}/pds-secret-litestream.yaml", {

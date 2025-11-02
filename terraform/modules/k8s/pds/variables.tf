@@ -64,6 +64,12 @@ variable "pds_plc_rotation_key" {
   sensitive   = true
 }
 
+variable "pds_dpop_secret" {
+  description = "DPoP secret for OAuth token binding (32-byte hex)"
+  type        = string
+  sensitive   = true
+}
+
 variable "pds_recovery_did_key" {
   description = "Recovery DID key (did:key format) - additional PDS-controlled recovery mechanism"
   type        = string
