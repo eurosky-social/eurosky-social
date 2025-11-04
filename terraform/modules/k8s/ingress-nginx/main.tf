@@ -18,10 +18,8 @@ resource "helm_release" "nginx_ingress" {
 }
 
 resource "kubernetes_service" "nginx" {
-  for_each = toset(var.zones)
-
   metadata {
-    name      = "ingress-nginx-controller-${each.key}"
+    name      = "ingress-nginx-controller"
     namespace = helm_release.nginx_ingress.namespace
 
     annotations = merge(
