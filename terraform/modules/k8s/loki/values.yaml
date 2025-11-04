@@ -173,69 +173,8 @@ monitoring:
   lokiCanary:
     enabled: false # Disabled to save resources on small cluster
 
-# NetworkPolicy - restrict access to authorized pods only
 networkPolicy:
-  enabled: true
-  flavor: kubernetes
-  metrics:
-    # Allow Prometheus to scrape metrics
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: prometheus
-    namespaceSelector:
-      matchLabels:
-        kubernetes.io/metadata.name: monitoring
-  ingress:
-    # Allow Promtail and Grafana to access Loki
-    podSelector:
-      matchExpressions:
-        - key: app.kubernetes.io/name
-          operator: In
-          values:
-            - promtail
-            - grafana
-    namespaceSelector:
-      matchLabels:
-        kubernetes.io/metadata.name: monitoring
-
-  # Alertmanager: Allow Loki ruler to send alerts to Alertmanager
-  alertmanager:
-    port: 9093
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: alertmanager
-    namespaceSelector:
-      matchLabels:
-        kubernetes.io/metadata.name: monitoring
-
-  # Prometheus: Allow Loki ruler to send recording rule metrics via remote_write
-  prometheus:
-    port: 9090
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: prometheus
-    namespaceSelector:
-      matchLabels:
-        kubernetes.io/metadata.name: monitoring
-
-  # Discovery: Allow DNS queries to kube-dns for service discovery
-  discovery:
-    podSelector:
-      matchLabels:
-        k8s-app: kube-dns
-    namespaceSelector:
-      matchLabels:
-        kubernetes.io/metadata.name: kube-system
-    port: 53  # DNS port
-
-  # Egress: Allow Loki to reach S3 and external services
-  egressWorld:
-    enabled: true  # Allow egress to S3 for object storage
-
-  externalStorage:
-    ports:
-      - 443  # HTTPS (S3)
-      - 80   # HTTP (S3)
+  enabled: false
 
 # TODO: Enable ingress with TLS for external Loki queries (optional - for federated log querying)
 # TODO: Configure PrometheusRules for Loki self-monitoring (errors, high cardinality, ingestion failures, disk space)
@@ -243,3 +182,4 @@ networkPolicy:
 # TODO: Add security context (runAsNonRoot, readOnlyRootFilesystem where possible)
 # TODO: Rotate S3 credentials via external secret management (Scaleway Secret Manager or Sealed Secrets)
 # TODO: Enable Loki query frontend caching for better dashboard performance (requires Redis/Memcached)
+# TODO: Add NetworkPolicy for monitoring namespace - defer until multi-tenant or compliance required

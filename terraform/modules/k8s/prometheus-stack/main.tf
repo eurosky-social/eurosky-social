@@ -1,8 +1,13 @@
+resource "kubernetes_namespace" "monitoring" {
+  metadata {
+    name = "monitoring"
+  }
+}
+
 resource "helm_release" "kube_prometheus_stack" {
   # Note: Manually update CRDs before upgrading chart (NOT auto-updated by helm)
   name             = "kube-prometheus-stack"
-  namespace        = "monitoring"
-  create_namespace = true
+  namespace        = kubernetes_namespace.monitoring.metadata[0].name
 
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
@@ -27,7 +32,6 @@ resource "helm_release" "kube_prometheus_stack" {
   timeout = 60 * 15
 
   depends_on = [
-    kubernetes_priority_class.system_cluster_critical,
     kubernetes_secret.thanos_objstore_config
   ]
 }
@@ -35,9 +39,8 @@ resource "helm_release" "kube_prometheus_stack" {
 resource "kubernetes_secret" "thanos_objstore_config" {
   metadata {
     name      = "thanos-objstore-config"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.monitoring.metadata[0].name
   }
-
   data = {
     "thanos.yaml" = <<-EOY
 type: s3
@@ -56,7 +59,7 @@ EOY
 resource "kubernetes_secret" "alertmanager_smtp" {
   metadata {
     name      = "alertmanager-smtp-config"
-    namespace = "monitoring"
+    namespace = helm_release.kube_prometheus_stack.namespace
   }
 
   data = {
@@ -65,15 +68,6 @@ resource "kubernetes_secret" "alertmanager_smtp" {
   }
 
   type = "Opaque"
-}
-
-resource "kubernetes_priority_class" "system_cluster_critical" {
-  metadata {
-    name = "system-cluster-critical"
-  }
-
-  value       = 2000000000
-  description = "Critical cluster components - monitoring, DNS, etc. Prevents eviction during node pressure."
 }
 
 # TODO: Add PodDisruptionBudget for HA components (minAvailable=1) - needed for go live

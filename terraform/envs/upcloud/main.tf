@@ -1,29 +1,43 @@
-module "scaleway" {
-  source                    = "../../modules/cloud_providers/scaleway"
+module "upcloud" {
+  source = "../../modules/cloud_providers/upcloud"
+
   partition                 = var.partition
-  project_id                = var.project_id
-  region                    = var.region
-  zones                     = var.zones
-  k8s_node_type             = var.k8s_node_type
-  k8s_node_min_size         = var.k8s_node_min_size
-  k8s_node_max_size         = var.k8s_node_max_size
+  zone                      = var.zone
+  k8s_node_plan             = var.k8s_node_plan
+  k8s_node_count_min        = var.k8s_node_count_min
+  k8s_node_count_max        = var.k8s_node_count_max
   backup_bucket_name        = var.backup_bucket_name
   pds_blobstore_bucket_name = var.pds_blobstore_bucket_name
+  object_storage_region     = var.object_storage_region
+  object_storage_name       = var.object_storage_name
+  autoscaler_username       = var.autoscaler_username
+  autoscaler_password       = var.autoscaler_password
 }
 
 module "k8s" {
   source = "../../modules/k8s"
 
-  kubeconfig_host                   = module.scaleway.kubeconfig_host
-  kubeconfig_token                  = module.scaleway.kubeconfig_token
-  kubeconfig_cluster_ca_certificate = module.scaleway.kubeconfig_cluster_ca_certificate
+  kubeconfig_host                   = module.upcloud.kubeconfig_host
+  kubeconfig_cluster_ca_certificate = module.upcloud.kubeconfig_cluster_ca_certificate
+  kubeconfig_client_key             = module.upcloud.kubeconfig_client_key
+  kubeconfig_client_certificate     = module.upcloud.kubeconfig_client_certificate
 
   cloudflare_dns_api_token = var.cloudflare_dns_api_token
-
-  ingress_nginx_zones = module.scaleway.zones
+  ingress_nginx_zones      = module.upcloud.zones
   ingress_nginx_extra_annotations = {
-    "service.beta.kubernetes.io/scw-loadbalancer-zone"           = each.key
-    "service.beta.kubernetes.io/scw-loadbalancer-timeout-tunnel" = "120000"
+    # UpCloud LoadBalancer config: Use TCP mode (Layer 4) for TLS passthrough to ingress-nginx
+    "service.beta.kubernetes.io/upcloud-load-balancer-config" = jsonencode({
+      frontends = [
+        {
+          name = "http"
+          mode = "tcp"
+        },
+        {
+          name = "https"
+          mode = "tcp"
+        }
+      ]
+    })
   }
   cluster_domain          = var.cluster_domain
   cert_manager_acme_email = var.cert_manager_acme_email
@@ -32,11 +46,11 @@ module "k8s" {
   pds_cert_manager_issuer   = var.pds_cert_manager_issuer
 
   postgres_storage_class = var.postgres_storage_class
-  backup_s3_access_key   = module.scaleway.backup_s3_access_key
-  backup_s3_secret_key   = module.scaleway.backup_s3_secret_key
-  backup_s3_bucket       = module.scaleway.backup_s3_bucket
-  backup_s3_region       = module.scaleway.backup_s3_region
-  backup_s3_endpoint     = module.scaleway.backup_s3_endpoint
+  backup_s3_access_key   = module.upcloud.backup_s3_access_key
+  backup_s3_secret_key   = module.upcloud.backup_s3_secret_key
+  backup_s3_bucket       = module.upcloud.backup_s3_bucket
+  backup_s3_region       = module.upcloud.object_storage_region
+  backup_s3_endpoint     = module.upcloud.object_storage_endpoint
 
   ozone_image           = var.ozone_image
   ozone_appview_url     = var.ozone_appview_url
@@ -47,16 +61,16 @@ module "k8s" {
   ozone_admin_password  = var.ozone_admin_password
   ozone_signing_key_hex = var.ozone_signing_key_hex
 
-  pds_storage_provisioner       = module.scaleway.storage_provisioner
+  pds_storage_provisioner       = module.upcloud.storage_provisioner
   pds_storage_size              = var.pds_storage_size
   pds_jwt_secret                = var.pds_jwt_secret
   pds_admin_password            = var.pds_admin_password
   pds_plc_rotation_key          = var.pds_plc_rotation_key
   pds_dpop_secret               = var.pds_dpop_secret
   pds_recovery_did_key          = var.pds_recovery_did_key
-  pds_blobstore_bucket          = module.scaleway.pds_blobstore_bucket
-  pds_blobstore_access_key      = module.scaleway.pds_blobstore_access_key
-  pds_blobstore_secret_key      = module.scaleway.pds_blobstore_secret_key
+  pds_blobstore_bucket          = module.upcloud.pds_blobstore_s3_bucket
+  pds_blobstore_access_key      = module.upcloud.pds_blobstore_s3_access_key
+  pds_blobstore_secret_key      = module.upcloud.pds_blobstore_s3_secret_key
   pds_did_plc_url               = var.pds_did_plc_url
   pds_bsky_app_view_url         = var.pds_bsky_app_view_url
   pds_bsky_app_view_did         = var.pds_bsky_app_view_did

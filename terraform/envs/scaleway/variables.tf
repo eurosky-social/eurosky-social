@@ -75,8 +75,7 @@ variable "cert_manager_acme_email" {
 variable "ozone_image" {
   description = "Docker image for Ozone"
   type        = string
-  # TODO: Pin to specific SHA or version tag instead of :latest for production (e.g., ghcr.io/bluesky-social/ozone:v1.0.0 or @sha256:abc123...)
-  default = "ghcr.io/bluesky-social/ozone:latest"
+  default     = "ghcr.io/bluesky-social/ozone:latest" # TODO: pin version
 }
 
 variable "ozone_public_hostname" {

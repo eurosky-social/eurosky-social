@@ -39,6 +39,8 @@ module "cert_manager" {
 
   cloudflare_dns_api_token = var.cloudflare_dns_api_token
   acme_email               = var.cert_manager_acme_email
+
+  depends_on = [ module.prometheus_stack ]
 }
 
 module "ingress_nginx" {
@@ -46,7 +48,7 @@ module "ingress_nginx" {
 
   zones          = var.ingress_nginx_zones
   cluster_domain = var.cluster_domain
-  cloud_provider = "scaleway"
+  extra_annotations = var.ingress_nginx_extra_annotations
 
   depends_on = [module.cert_manager, module.prometheus_stack]
 }
