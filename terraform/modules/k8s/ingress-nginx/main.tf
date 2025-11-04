@@ -30,10 +30,7 @@ resource "kubernetes_service" "nginx" {
         "external-dns.alpha.kubernetes.io/healthcheck-mode" = "all"
         "external-dns.alpha.kubernetes.io/healthcheck-url"  = "http://ingress.${var.cluster_domain}/healthz"
       },
-      var.cloud_provider == "scaleway" ? {
-        "service.beta.kubernetes.io/scw-loadbalancer-zone"           = each.key
-        "service.beta.kubernetes.io/scw-loadbalancer-timeout-tunnel" = "120000"
-      } : {}
+      var.extra_annotations
     )
   }
 

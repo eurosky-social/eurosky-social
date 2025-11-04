@@ -25,3 +25,6 @@ terraform.rc
 
 # Terraform plan output file
 tfplan
+
+# Kube config file
+kube-config

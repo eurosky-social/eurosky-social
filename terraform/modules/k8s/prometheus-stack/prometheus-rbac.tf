@@ -30,7 +30,7 @@ resource "kubernetes_cluster_role_binding" "prometheus_podmonitor_reader" {
   subject {
     kind      = "ServiceAccount"
     name      = "kube-prometheus-stack-prometheus"
-    namespace = "monitoring"
+    namespace = helm_release.kube_prometheus_stack.namespace
   }
 
   depends_on = [helm_release.kube_prometheus_stack]

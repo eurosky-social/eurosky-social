@@ -8,7 +8,7 @@ resource "kubectl_manifest" "deadmansswitch_rule" {
     kind: PrometheusRule
     metadata:
       name: deadmansswitch
-      namespace: monitoring
+      namespace: ${helm_release.kube_prometheus_stack.namespace}
       labels:
         app.kubernetes.io/name: prometheus
         app.kubernetes.io/component: alerting
@@ -25,6 +25,4 @@ resource "kubectl_manifest" "deadmansswitch_rule" {
                 summary: "Prometheus heartbeat"
                 description: "This alert continuously fires to indicate Prometheus and Alertmanager are operational. External monitoring should expect this alert every minute."
   YAML
-
-  depends_on = [helm_release.kube_prometheus_stack]
 }

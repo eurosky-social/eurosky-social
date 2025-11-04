@@ -1,108 +1,103 @@
-variable "kubeconfig_host" {
-  description = "Kubernetes API server host"
+variable "cluster_domain" {
+  description = "Base domain for DNS records"
   type        = string
 }
 
-variable "kubeconfig_token" {
-  description = "Kubernetes authentication token"
+variable "partition" {
+  description = "Logical partition name for resources"
   type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "kubeconfig_cluster_ca_certificate" {
-  description = "Kubernetes cluster CA certificate (base64 encoded)"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "kubeconfig_client_certificate" {
-  description = "Kubernetes client certificate (base64 encoded)"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "kubeconfig_client_key" {
-  description = "Kubernetes client key (base64 encoded)"
-  type        = string
-  sensitive   = true
-  default     = ""
 }
 
 variable "cloudflare_dns_api_token" {
-  description = "Cloudflare API token for external-dns"
+  description = "Cloudflare API token for DNS management"
   type        = string
   sensitive   = true
 }
 
-variable "ingress_nginx_zones" {
-  description = "List of zones for load balancer deployment"
-  type        = list(string)
-}
-
-variable "ingress_nginx_extra_annotations" {
-  description = "Extra annotations to add to the ingress-nginx service"
-  type        = map(string)
-  default     = {}
-}
-
-variable "cluster_domain" {
-  description = "Full cluster domain (subdomain.domain)"
-  type        = string
-}
-
-variable "cert_manager_acme_email" {
-  description = "Email for ACME registration"
-  type        = string
-}
-
 variable "ozone_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for Ozone ingress"
+  description = "cert-manager ClusterIssuer for Ozone (letsencrypt-staging or letsencrypt-prod)"
   type        = string
 }
 
 variable "pds_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for PDS ingress"
+  description = "cert-manager ClusterIssuer for PDS (letsencrypt-staging or letsencrypt-prod)"
   type        = string
+}
+
+variable "k8s_node_plan" {
+  description = "UpCloud server plan for Kubernetes nodes (e.g., 2xCPU-4GB, 4xCPU-8GB)"
+  type        = string
+  default     = "2xCPU-4GB" # Minimum for testing - upgrade to 4xCPU-8GB for production
+}
+
+variable "autoscaler_username" {
+  description = "API username to be used by the Autoscaler"
+  type        = string
+  sensitive   = true
+}
+
+variable "autoscaler_password" {
+  description = "API password to be used by the Autoscaler"
+  type        = string
+  sensitive   = true
+}
+
+variable "k8s_node_count_min" {
+  description = "Minimum number of nodes for cluster autoscaler"
+  type        = number
+  default     = 1
+}
+
+variable "k8s_node_count_max" {
+  description = "Maximum number of nodes for cluster autoscaler"
+  type        = number
+}
+
+variable "pds_storage_size" {
+  description = "PDS storage size (e.g., 10Gi for dev, 100Gi for production)"
+  type        = string
+  default     = "10Gi"
 }
 
 variable "postgres_storage_class" {
-  description = "Storage class for PostgreSQL persistent volumes"
+  description = "Kubernetes storage class for PostgreSQL persistent volumes"
+  type        = string
+  default     = "upcloud-block-storage-maxiops" # High-performance storage
+}
+
+variable "object_storage_region" {
+  description = "UpCloud Object Storage region (e.g., europe-2)"
+  type        = string
+  default     = "europe-2" # DE-FRA1
+}
+
+variable "object_storage_name" {
+  description = "Name of existing UpCloud Managed Object Storage instance"
   type        = string
 }
 
-variable "backup_s3_access_key" {
-  description = "S3 access key for all backups (PostgreSQL, Litestream)"
+variable "zone" {
+  description = "UpCloud zone for resources (e.g., de-fra1, nl-ams1, us-chi1, pl-waw1, sg-sin1)"
   type        = string
-  sensitive   = true
+  default     = "de-fra1"
 }
 
-variable "backup_s3_secret_key" {
-  description = "S3 secret key for all backups (PostgreSQL, Litestream)"
+variable "cert_manager_acme_email" {
+  description = "Email for ACME registration (Let's Encrypt)"
   type        = string
-  sensitive   = true
-}
-
-variable "backup_s3_bucket" {
-  description = "S3 bucket for all backups (postgres/, litestream/ prefixes)"
-  type        = string
-}
-
-variable "backup_s3_region" {
-  description = "S3 region for backup bucket"
-  type        = string
-}
-
-variable "backup_s3_endpoint" {
-  description = "S3 endpoint URL for backup bucket"
-  type        = string
+  default     = "admin@eurosky.social"
 }
 
 variable "ozone_image" {
   description = "Docker image for Ozone"
   type        = string
+  default     = "ghcr.io/bluesky-social/ozone:latest" # TODO: pin version
+}
+
+variable "ozone_public_hostname" {
+  description = "Public hostname for Ozone (optional, defaults to ozone.<subdomain>.<domain>)"
+  type        = string
+  default     = null
 }
 
 variable "ozone_appview_url" {
@@ -120,13 +115,8 @@ variable "ozone_server_did" {
   type        = string
 }
 
-variable "ozone_admin_dids" {
-  description = "Admin DIDs for Ozone (comma-separated)"
-  type        = string
-}
-
 variable "ozone_db_password" {
-  description = "PostgreSQL password for Ozone user"
+  description = "PostgreSQL password for Ozone (store in tfvars for DR/portability)"
   type        = string
   sensitive   = true
 }
@@ -143,15 +133,6 @@ variable "ozone_signing_key_hex" {
   sensitive   = true
 }
 
-variable "pds_storage_provisioner" {
-  description = "Storage provisioner for PDS volumes"
-  type        = string
-}
-
-variable "pds_storage_size" {
-  description = "PDS storage size"
-  type        = string
-}
 
 variable "pds_jwt_secret" {
   description = "JWT secret for PDS authentication"
@@ -184,51 +165,34 @@ variable "pds_recovery_did_key" {
   default     = ""
 }
 
-variable "pds_blobstore_bucket" {
-  description = "S3 bucket for PDS blob storage"
-  type        = string
-}
-
-variable "pds_blobstore_access_key" {
-  description = "S3 access key for PDS blobstore"
-  type        = string
-  sensitive   = true
-}
-
-variable "pds_blobstore_secret_key" {
-  description = "S3 secret key for PDS blobstore"
-  type        = string
-  sensitive   = true
-}
-
 variable "pds_did_plc_url" {
   description = "PLC directory URL for DID resolution"
   type        = string
+  default     = "https://plc.directory"
 }
 
 variable "pds_bsky_app_view_url" {
   description = "Bluesky App View URL"
   type        = string
+  default     = "https://api.bsky.app"
 }
 
 variable "pds_bsky_app_view_did" {
   description = "Bluesky App View DID"
   type        = string
-}
-
-variable "pds_mod_service_did" {
-  description = "Moderation service DID (Ozone) for takedowns and moderation actions"
-  type        = string
+  default     = "did:web:api.bsky.app"
 }
 
 variable "pds_blob_upload_limit" {
   description = "Maximum blob upload size in bytes"
   type        = string
+  default     = "52428800"
 }
 
 variable "pds_log_enabled" {
   description = "Enable logging"
   type        = string
+  default     = "true"
 }
 
 variable "pds_email_from_address" {
@@ -255,6 +219,22 @@ variable "pds_moderation_email_smtp_url" {
   type        = string
   sensitive   = true
   default     = ""
+}
+
+variable "pds_public_hostname" {
+  description = "Public hostname for PDS (optional, e.g., pds.eurosky.social for prod)"
+  type        = string
+  default     = null
+}
+
+variable "backup_bucket_name" {
+  description = "Backup bucket name (must be pre-created)"
+  type        = string
+}
+
+variable "pds_blobstore_bucket_name" {
+  description = "PDS blobstore bucket name (must be pre-created)"
+  type        = string
 }
 
 variable "postgres_cluster_name" {
@@ -284,22 +264,23 @@ variable "prometheus_grafana_admin_password" {
 variable "prometheus_storage_class" {
   description = "Storage class for Prometheus stack persistent volumes"
   type        = string
+  default     = "upcloud-block-storage-maxiops"
 }
 
 variable "loki_storage_class" {
   description = "Storage class for Loki persistent volumes"
   type        = string
+  default     = "upcloud-block-storage-maxiops"
 }
 
-# TODO this should be optional - perhaps having a monitoring object?
 variable "alert_email" {
-  description = "Email address to receive alerts from Alertmanager"
+  description = "Email address for Alertmanager notifications"
   type        = string
   default     = "alerts@example.com"
 }
 
 variable "smtp_server" {
-  description = "SMTP server hostname for alert email notifications"
+  description = "SMTP server hostname for alert notifications"
   type        = string
   default     = "smtp.example.com"
 }
