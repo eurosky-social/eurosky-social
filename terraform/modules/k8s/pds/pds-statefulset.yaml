@@ -179,7 +179,7 @@ spec:
 # TODO: Increase Litestream resources if needed based on replication load
 # TODO: Add Litestream metrics endpoint for replication lag monitoring (requires Litestream config update)
 # TODO: Add Litestream metrics to Grafana dashboard
-# TODO: Configure alerting on replication lag and service health
+# TODO: Configure alerting on Litestream replication lag and service health
 # TODO: Test disaster recovery restore procedure from S3
 # TODO: Document and automate failover procedures
 # TODO: Hot standby pod with read-only Litestream-restored databases
