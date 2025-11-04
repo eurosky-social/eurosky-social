@@ -1,6 +1,6 @@
 # Upcloud
 zone                = "de-fra1"
-cluster_domain      = "upcloud.eurosky.social"
+cluster_domain      = "eurosky.social"
 k8s_node_plan       = "2xCPU-4GB" # TODO: revisit for prod
 partition           = "eurosky"
 object_storage_name = "eurosky-data"
@@ -17,7 +17,7 @@ postgres_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-block
 ozone_appview_url         = "https://api.bsky.app"
 ozone_appview_did         = "did:web:api.bsky.app"
 ozone_server_did          = "did:plc:7kykji2z2jie3tcaz6jypwsf"
-ozone_cert_manager_issuer = "letsencrypt-staging"
+ozone_cert_manager_issuer = "letsencrypt-prod"
 
 # PDS
 pds_storage_size        = "10Gi"
