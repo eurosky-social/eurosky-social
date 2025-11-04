@@ -74,6 +74,15 @@ loki:
     alertmanager_url: http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093
     poll_interval: 1m
     evaluation_interval: 1m
+    # Remote write for recording rules - sends LogQL-derived metrics to Prometheus
+    remote_write:
+      enabled: true
+      clients:
+        default:
+          url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
+    # WAL for remote_write buffering
+    wal:
+      dir: /var/loki/ruler-wal
     
 # Sidecar for Kubernetes API rule discovery (k8s-sidecar)
 # Automatically discovers ConfigMaps with loki_rule: "1" label and syncs to /rules directory
@@ -114,6 +123,14 @@ singleBinary:
     enabled: true
     storageClass: ${storage_class}
     size: 10Gi # TODO: Increase to 30Gi+ for production (stores WAL + index before S3 upload)
+
+  # Extra volumes for ruler remote_write WAL
+  extraVolumes:
+    - name: ruler-wal
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: ruler-wal
+      mountPath: /var/loki/ruler-wal
 
   # TODO: Enable WAL (write-ahead log) for ingester durability
   # TODO: Add topologySpreadConstraints for multi-AZ distribution
@@ -187,6 +204,16 @@ networkPolicy:
     podSelector:
       matchLabels:
         app.kubernetes.io/name: alertmanager
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+
+  # Prometheus: Allow Loki ruler to send recording rule metrics via remote_write
+  prometheus:
+    port: 9090
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: prometheus
     namespaceSelector:
       matchLabels:
         kubernetes.io/metadata.name: monitoring

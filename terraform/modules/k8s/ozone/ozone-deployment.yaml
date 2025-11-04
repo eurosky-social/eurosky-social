@@ -136,3 +136,6 @@ spec:
           # TODO: Verify if Ozone exposes Prometheus metrics endpoint (check app documentation)
           # TODO: Add metrics port to container if Ozone exposes Prometheus metrics on different port
           # TODO: Create ServiceMonitor CRD for Ozone metrics (preferred over prometheus.io/scrape annotations)
+
+
+# TODO: Add Grafana dashboard + recording rules for Ozone LogQL

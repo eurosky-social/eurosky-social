@@ -86,19 +86,31 @@ alloy:
           }
         }
 
-        // If JSON fails, try logfmt
+        // Convert Pino numeric log levels to string names
+        // Pino levels: 10=trace, 20=debug, 30=info, 40=warn, 50=error, 60=fatal
+        stage.template {
+          source   = "level_pino"
+          template = "{{`{{ if eq .level \"10\" }}trace{{ else if eq .level \"20\" }}debug{{ else if eq .level \"30\" }}info{{ else if eq .level \"40\" }}warn{{ else if eq .level \"50\" }}error{{ else if eq .level \"60\" }}fatal{{ else if .level }}{{ .level }}{{ end }}`}}"
+        }
+
+        // Also try logfmt extraction (runs even if JSON succeeded, extracts if logfmt found)
         stage.logfmt {
           mapping = {
-            level   = "",
-            msg     = "",
-            service = "",
+            level_logfmt = "level",
           }
         }
 
-        // Extract level as label if found
+        // Normalize level to lowercase (handles Pino numeric, JSON strings, logfmt, uppercase)
+        // Priority: level_pino (from Pino conversion) > level_logfmt (from logfmt) > level (from JSON) > unknown
+        stage.template {
+          source   = "level_normalized"
+          template = "{{`{{ if .level_pino }}{{ .level_pino | ToLower }}{{ else if .level_logfmt }}{{ .level_logfmt | ToLower }}{{ else if .level }}{{ .level | ToLower }}{{ else }}unknown{{ end }}`}}"
+        }
+
+        // Extract normalized level as label
         stage.labels {
           values = {
-            level = "",
+            level = "level_normalized",
           }
         }
 

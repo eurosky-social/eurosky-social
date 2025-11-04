@@ -193,6 +193,14 @@ alertmanager:
               </body>
               </html>
 
+# Enable kubelet volume stats metrics for PVC usage monitoring
+kubelet:
+  enabled: true
+  serviceMonitor:
+    # Enable /metrics/resource endpoint for volume stats (kubelet_volume_stats_*)
+    resource: true
+    resourcePath: /metrics/resource
+
 # Disable Kubernetes control plane component alerts for Scaleway managed K8s
 # Control plane (kube-proxy, kube-scheduler, kube-controller-manager) is managed by Scaleway
 # and not exposed to cluster metrics - these alerts are false positives in managed K8s
@@ -323,6 +331,11 @@ grafana:
         revision: 2
         datasource: Loki
 
+      # PDS (Personal Data Server) - Custom Dashboard
+      pds-health:
+        json: >-
+          ${pds_dashboard_json}
+
 prometheus:
   enabled: true
   ingress:
@@ -332,6 +345,8 @@ prometheus:
     replicas: 1 # TODO: Increase to 2+ for HA (consider functional sharding for large deployments)
     retention: 7d # TODO: Increase to 30d for production
     retentionSize: "8GB" # TODO: Adjust based on actual TSDB usage
+    # Enable remote_write receiver for Loki recording rules
+    enableRemoteWriteReceiver: true
     thanos:
       baseImage: quay.io/thanos/thanos
       version: v0.39.2

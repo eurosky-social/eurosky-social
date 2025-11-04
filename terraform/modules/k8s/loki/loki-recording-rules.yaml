@@ -1,0 +1,9 @@
+groups:
+  - name: loki-log-recording-rules
+    interval: 1m
+    rules:
+      - record: log_count_by_level:1m
+        expr: |
+          sum by(namespace, level) (
+            count_over_time({level=~"warn|error"} [1m])
+          )

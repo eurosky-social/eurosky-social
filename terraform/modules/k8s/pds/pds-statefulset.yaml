@@ -178,7 +178,7 @@ spec:
 # TODO: ReadOnlyRootFilesystem: false (SQLite requires write access, unavoidable)
 # TODO: Increase Litestream resources if needed based on replication load
 # TODO: Add Litestream metrics endpoint for replication lag monitoring (requires Litestream config update)
-# TODO: Set up Grafana dashboards for PDS health monitoring (use /xrpc/_health and nginx-ingress metrics)
+# TODO: Add Litestream metrics to Grafana dashboard
 # TODO: Configure alerting on replication lag and service health
 # TODO: Test disaster recovery restore procedure from S3
 # TODO: Document and automate failover procedures
@@ -200,3 +200,5 @@ spec:
 # TODO: Add liveness probe to detect Litestream replication failures
 # TODO: Add revisionHistoryLimit to control number of old ReplicaSets retained
 # TODO: Add volumeMode: Filesystem explicitly for clarity
+# TODO: Add alerts on logging errors or high error rates
+# TODO: improve Grafana dashboard
