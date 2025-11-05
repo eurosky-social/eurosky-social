@@ -213,8 +213,6 @@ grafana:
   enabled: true
   adminPassword: ${grafana_admin_password} # TODO: Configure SSO/OAuth integration for production
   priorityClassName: system-cluster-critical
-  podDisruptionBudget:
-    minAvailable: 1
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -234,18 +232,11 @@ grafana:
   resources:
     requests:
       cpu: 50m
-      memory: 256Mi
+      memory: 384Mi
     limits:
       memory: 512Mi
-  replicas: 2
-  podAntiAffinity: hard
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
-      labelSelector:
-        matchLabels:
-          app.kubernetes.io/name: grafana
+  # Note: Single replica sufficient 
+  replicas: 1
   additionalDataSources:
     - name: Loki
       type: loki
