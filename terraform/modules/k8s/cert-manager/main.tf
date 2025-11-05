@@ -8,20 +8,9 @@ resource "helm_release" "cert_manager" {
   chart      = "cert-manager"
   version    = "v1.16.2"
 
-  set {
-    name  = "crds.enabled"
-    value = "true"
-  }
-
-  set {
-    name  = "prometheus.enabled"
-    value = "true"
-  }
-
-  set {
-    name  = "prometheus.servicemonitor.enabled"
-    value = "true"
-  }
+  values = [
+    file("${path.module}/values.yaml")
+  ]
 }
 
 resource "kubernetes_secret" "cert_manager_cloudflare" {
@@ -62,12 +51,4 @@ resource "kubectl_manifest" "cluster_issuer" {
   ]
 }
 
-# TODO: Add HA config (replicaCount=2 for controller/webhook/cainjector, pod anti-affinity)
-# TODO: Add resource limits (controller/webhook/cainjector: 10m CPU, 32Mi-128Mi memory)
-# TODO: Add PodDisruptionBudget (minAvailable=1 for controller/webhook/cainjector)
-# TODO: Add global.priorityClassName=system-cluster-critical for production
-# TODO: Add security contexts (runAsNonRoot, allowPrivilegeEscalation=false)
-# TODO: Enable global.featureGates=ServerSideApply=true (prevents API conflicts)
-# TODO: Use secret.existingSecret instead of passing secret values via set blocks
 # TODO: Add Let's Encrypt rate limit monitoring (50 certs/week limit)
-# TODO: Consider moving to values file approach for better maintainability

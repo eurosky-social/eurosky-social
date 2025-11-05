@@ -1,0 +1,73 @@
+crds:
+  enabled: true
+
+global:
+  priorityClassName: system-cluster-critical
+
+# Note: Single replica sufficient - cert renewal has 30-day window, brief downtime acceptable
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+securityContext:
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsUser: 1000
+
+# Webhook component
+webhook:
+  replicaCount: 1
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+  securityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsUser: 1000
+
+# CA Injector component
+cainjector:
+  replicaCount: 1
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+  securityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsUser: 1000
+
+# Prometheus monitoring
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+
+# Feature gates
+featureGates: "ServerSideApply=true"
