@@ -50,5 +50,3 @@ resource "kubectl_manifest" "cluster_issuer" {
     kubernetes_secret.cert_manager_cloudflare
   ]
 }
-
-# TODO: Add Let's Encrypt rate limit monitoring (50 certs/week limit)
