@@ -70,5 +70,17 @@ resource "kubernetes_secret" "alertmanager_smtp" {
   type = "Opaque"
 }
 
+resource "kubectl_manifest" "deadmansswitch_rule" {
+  count = var.deadmansswitch_url != "" ? 1 : 0
+
+  yaml_body = templatefile("${path.module}/deadmansswitch-rule.yaml", {
+    namespace = helm_release.kube_prometheus_stack.namespace
+  })
+
+  depends_on = [
+    helm_release.kube_prometheus_stack
+  ]
+}
+
 # TODO: Add recording rules for dashboard performance - defer until dashboard queries slow at scale
 # TODO: Add NetworkPolicy for monitoring namespace - defer until multi-tenant or compliance required

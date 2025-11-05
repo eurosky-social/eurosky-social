@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: deadmansswitch
+  namespace: ${namespace}
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: alerting
+spec:
+  groups:
+    - name: meta
+      interval: 30s
+      rules:
+        - alert: DeadMansSwitch
+          expr: vector(1)
+          labels:
+            severity: none
+          annotations:
+            summary: "Prometheus heartbeat"
+            description: "This alert continuously fires to indicate Prometheus and Alertmanager are operational. External monitoring should expect this alert every minute."
