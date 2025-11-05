@@ -80,9 +80,13 @@ resource "upcloud_managed_object_storage_policy" "backup" {
         Effect = "Allow"
         Action = [
           "s3:ListBucket",
-          "s3:GetBucketLocation"
+          "s3:GetBucketLocation",
+          "s3:ListAllMyBuckets"
         ]
-        Resource = "arn:aws:s3:::${var.backup_bucket_name}"
+        Resource = [
+          "arn:aws:s3:::${var.backup_bucket_name}",
+          "arn:aws:s3:::*"
+        ]
       },
       {
         Sid    = "BackupObjectAccess"

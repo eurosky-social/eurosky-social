@@ -93,6 +93,7 @@ resource "kubectl_manifest" "postgres_backup_objectstore" {
     destination_path = "s3://${var.backup_s3_bucket}/postgres/"
     endpoint_url     = var.backup_s3_endpoint
     secret_name      = kubernetes_secret.backup_s3_creds.metadata[0].name
+    s3_region        = var.backup_s3_region
   })
 
   server_side_apply = true

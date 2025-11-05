@@ -4,6 +4,10 @@ metadata:
   name: ${objectstore_name}
   namespace: ${namespace}
 spec:
+  instanceSidecarConfiguration:
+    env:
+      - name: AWS_DEFAULT_REGION
+        value: ${s3_region}
   configuration:
     destinationPath: "${destination_path}"
     endpointURL: "${endpoint_url}"
