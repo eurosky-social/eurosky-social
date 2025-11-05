@@ -1,17 +1,8 @@
-# TODO: Improve observability (o11y) - consider integrating:
-#   - SigNoz for distributed tracing and APM
-#   - Alerting infrastructure for proactive monitoring
-#   - Hubble (Cilium observability) for network flow visibility and egress monitoring
-#
+# TODO: Add SigNoz for distributed tracing and APM
+# TODO: Hubble (Cilium observability) for network flow visibility and egress monitoring
 # TODO: Implement lateral movement protection
-#
-# TODO: Switch to GitOps workflow (e.g., ArgoCD or Flux) for declarative,
-#   automated deployment and configuration management
-
+# TODO: Switch to GitOps workflow (e.g., ArgoCD or Flux) for declarative, automated deployment and configuration management
 # TODO: separate topology per workloads (dedicated nodes per core, apps, o11y, noisy apps, etc)
-
-# TODO: Consider explicitly managing metrics-server via Helm instead of relying on platform defaults
-
 # TODO: refactor module by workloads (e.g. monitoring for prometheus, loki)
 
 module "prometheus_stack" {
