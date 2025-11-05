@@ -1,4 +1,5 @@
 # TODO: consider not managing object storage via Terraform to avoid accidental deletions
+# Note: requires creating a router -> private network -> object storage service
 
 # UpCloud Managed Object Storage (S3-compatible)
 resource "upcloud_managed_object_storage" "main" {

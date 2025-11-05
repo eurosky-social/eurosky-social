@@ -57,11 +57,8 @@ resource "upcloud_kubernetes_cluster" "main" {
 }
 
 # Create the node group
-# TODO: For production, consider:
-# - Use larger plan (e.g., 2xCPU-4GB or higher)
-# - Add multiple node groups for different workload types
-# - Configure anti_affinity based on HA requirements
-# - Add taints for workload isolation
+# TODO: Add multiple node groups for different workload types
+# TODO: Configure anti_affinity based on HA requirements
 resource "upcloud_kubernetes_node_group" "main" {
   name = "${var.partition}-nodes"
 
