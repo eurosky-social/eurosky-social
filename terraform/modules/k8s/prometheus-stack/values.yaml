@@ -222,7 +222,6 @@ grafana:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       external-dns.alpha.kubernetes.io/target: ingress.${cluster_domain}
       # TODO: Add Tailscale access with IP whitelisting (ingress.kubernetes.io/whitelist-source-range: <tailscale-network-cidr>)
-      # TODO: SECURITY WARNING - Currently exposed without IP whitelisting or external auth!
     hosts:
       - grafana.${cluster_domain}
     path: /
