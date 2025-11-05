@@ -70,6 +70,5 @@ resource "kubernetes_secret" "alertmanager_smtp" {
   type = "Opaque"
 }
 
-# TODO: Add PodDisruptionBudget for HA components (minAvailable=1) - needed for go live
 # TODO: Add recording rules for dashboard performance - defer until dashboard queries slow at scale
 # TODO: Add NetworkPolicy for monitoring namespace - defer until multi-tenant or compliance required

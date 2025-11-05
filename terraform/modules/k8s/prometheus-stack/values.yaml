@@ -1,9 +1,11 @@
 alertmanager:
   enabled: true
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
   ingress:
     enabled: false # TODO: Enable with tailscale IP whitelisteing
   alertmanagerSpec:
-    replicas: 1 # TODO: Increase to 2+ for HA (auto-creates gossip cluster for alert deduplication)
     priorityClassName: system-cluster-critical
     storage:
       volumeClaimTemplate:
@@ -12,18 +14,19 @@ alertmanager:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 2Gi # TODO: Increase to 10Gi for production notification/silence history
-    resources: # TODO: Scale up based on actual usage metrics
+              storage: 2Gi
+    resources:
       requests:
         cpu: 10m
         memory: 32Mi
       limits:
         memory: 128Mi
+    replicas: 2
     podAntiAffinity: hard
     topologySpreadConstraints:
       - maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: ScheduleAnyway # TODO: Change to DoNotSchedule for strict multi-AZ in production
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
         labelSelector:
           matchLabels:
             app.kubernetes.io/name: alertmanager
@@ -34,7 +37,7 @@ alertmanager:
       receiver: email
       group_by: ['alertname', 'cluster', 'service']
       group_wait: 10s
-      group_interval: 10s # TODO: Increase to 5m for production to avoid email storms during incidents (currently 10s is aggressive for testing)
+      group_interval: 1m
       repeat_interval: 4h
       routes:
         - match:
@@ -193,17 +196,12 @@ alertmanager:
               </body>
               </html>
 
-# Enable kubelet volume stats metrics for PVC usage monitoring
 kubelet:
-  enabled: true
   serviceMonitor:
-    # Enable /metrics/resource endpoint for volume stats (kubelet_volume_stats_*)
     resource: true
     resourcePath: /metrics/resource
 
-# Disable Kubernetes control plane component alerts for Scaleway managed K8s
-# Control plane (kube-proxy, kube-scheduler, kube-controller-manager) is managed by Scaleway
-# and not exposed to cluster metrics - these alerts are false positives in managed K8s
+# Disable Kubernetes control plane component alerts for managed k8s
 defaultRules:
   create: true
   rules:
@@ -214,8 +212,9 @@ defaultRules:
 grafana:
   enabled: true
   adminPassword: ${grafana_admin_password} # TODO: Configure SSO/OAuth integration for production
-  replicas: 1 # TODO: Increase to 2+ for HA
   priorityClassName: system-cluster-critical
+  podDisruptionBudget:
+    minAvailable: 1
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -232,19 +231,19 @@ grafana:
         hosts:
           - grafana.${cluster_domain}
   persistence:
-    enabled: true
-    storageClassName: ${storage_class}
-    size: 2Gi # TODO: Increase to 10Gi for production dashboard persistence
-  resources: # TODO: Scale up based on actual usage
+    enabled: false
+  resources:
     requests:
       cpu: 50m
       memory: 256Mi
     limits:
       memory: 512Mi
+  replicas: 2
+  podAntiAffinity: hard
   topologySpreadConstraints:
     - maxSkew: 1
-      topologyKey: topology.kubernetes.io/zone
-      whenUnsatisfiable: ScheduleAnyway # TODO: Change to DoNotSchedule for strict multi-AZ in production
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
       labelSelector:
         matchLabels:
           app.kubernetes.io/name: grafana
@@ -338,11 +337,13 @@ grafana:
 
 prometheus:
   enabled: true
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
   ingress:
     enabled: false # TODO: Enable with TLS, IP whitelisting, external auth + set externalUrl in prometheusSpec
   prometheusSpec:
     priorityClassName: system-cluster-critical
-    replicas: 1 # TODO: Increase to 2+ for HA (consider functional sharding for large deployments)
     retention: 7d # TODO: Increase to 30d for production
     retentionSize: "8GB" # TODO: Adjust based on actual TSDB usage
     # Enable remote_write receiver for Loki recording rules
@@ -366,26 +367,27 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: ${storage_class} # TODO: Use high I/O SSD volumes for production
+          storageClassName: ${storage_class}
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 10Gi # TODO: Increase to 50Gi+ for production (with backup/snapshot policies)
-    resources: # TODO: Scale up based on TSDB metrics and memory pressure
+              storage: 10Gi
+    resources:
       requests:
         cpu: 50m
         memory: 256Mi
       limits:
         memory: 1Gi
+    replicas: 2
     podAntiAffinity: hard
     topologySpreadConstraints:
       - maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: ScheduleAnyway # TODO: Change to DoNotSchedule for strict multi-AZ in production
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
         labelSelector:
           matchLabels:
             app.kubernetes.io/name: prometheus
-    # TODO: Add sessionAffinity on Service or deploy Thanos Querier for consistent query results across replicas
+    # TODO: Deploy Thanos Querier for consistent query results across replicas
 
 prometheus-node-exporter:
   enabled: true
@@ -398,19 +400,32 @@ prometheus-node-exporter:
 
 kube-state-metrics:
   enabled: true
-  replicas: 1 # TODO: Run multiple replicas with load balancing for HA
   priorityClassName: system-cluster-critical
+  podDisruptionBudget:
+    minAvailable: 1
   resources:
     requests:
       cpu: 10m
       memory: 16Mi
     limits:
       memory: 64Mi
+  replicas: 2
+  podAntiAffinity: hard
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: kube-state-metrics
 
 prometheusOperator:
   enabled: true
-  replicas: 1 # Single pod only - potential SPOF for rule deployment
+  replicas: 1 # Can only operate active/passive multi-replicas
   priorityClassName: system-cluster-critical
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
   resources:
     requests:
       cpu: 10m
