@@ -34,9 +34,6 @@ module "k8s" {
   cluster_domain          = var.cluster_domain
   cert_manager_acme_email = var.cert_manager_acme_email
 
-  ozone_cert_manager_issuer = var.ozone_cert_manager_issuer
-  pds_cert_manager_issuer   = var.pds_cert_manager_issuer
-
   postgres_storage_class = var.postgres_storage_class
   backup_s3_access_key   = module.upcloud.backup_s3_access_key
   backup_s3_secret_key   = module.upcloud.backup_s3_secret_key

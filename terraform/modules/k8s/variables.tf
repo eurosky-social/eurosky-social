@@ -58,16 +58,6 @@ variable "cert_manager_acme_email" {
   type        = string
 }
 
-variable "ozone_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for Ozone ingress"
-  type        = string
-}
-
-variable "pds_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for PDS ingress"
-  type        = string
-}
-
 variable "postgres_storage_class" {
   description = "Storage class for PostgreSQL persistent volumes"
   type        = string

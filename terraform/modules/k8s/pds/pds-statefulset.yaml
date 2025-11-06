@@ -10,6 +10,7 @@ metadata:
 spec:
   replicas: 1
   serviceName: pds-headless
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: pds
@@ -26,6 +27,7 @@ spec:
         checksum/litestream-config: "${litestream_config_checksum}"
         checksum/litestream-secret: "${litestream_secret_checksum}"
     spec:
+      terminationGracePeriodSeconds: 120
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -34,7 +36,7 @@ spec:
           type: RuntimeDefault
       initContainers:
         - name: litestream-restore
-          image: litestream/litestream:0.3.13
+          image: litestream/litestream@sha256:e4fd484cb1cd9d6fa58fff7127d551118e150ab75b389cf868a053152ba6c9c0 # 0.5.2
           command: ["/bin/sh", "-c"]
           args:
             - |
@@ -65,10 +67,13 @@ spec:
             capabilities:
               drop:
                 - ALL
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
       containers:
         - name: pds
-          image: ghcr.io/bluesky-social/pds:sha-cdc46aae58ce04a2e64dc6487152d026f4b7b92f
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/bluesky-social/pds@sha256:87881525ec7a5cd2411a71b81a70ee2af9b5d79d770f9d1d1b84f74f91da4a9f # 0.4.188
           ports:
             - containerPort: 2583
               name: http
@@ -100,7 +105,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /xrpc/_health
-              port: 2583
+              port: http
               scheme: HTTP
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -110,7 +115,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /xrpc/_health
-              port: 2583
+              port: http
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -120,7 +125,7 @@ spec:
           startupProbe:
             httpGet:
               path: /xrpc/_health
-              port: 2583
+              port: http
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 5
@@ -128,7 +133,7 @@ spec:
             failureThreshold: 12
             successThreshold: 1
         - name: litestream
-          image: litestream/litestream:0.3.13
+          image: litestream/litestream:0.5.2@sha256:e4fd484cb1cd9d6fa58fff7127d551118e150ab75b389cf868a053152ba6c9c0
           args:
             - replicate
           envFrom:
@@ -169,13 +174,12 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
+        volumeMode: Filesystem
         storageClassName: pds-storage
         resources:
           requests:
             storage: ${pds_storage_size}
 
-# TODO: Development resource limits (Production needs 500m-1000m CPU, 512Mi-1Gi memory for PDS)
-# TODO: ReadOnlyRootFilesystem: false (SQLite requires write access, unavoidable)
 # TODO: Increase Litestream resources if needed based on replication load
 # TODO: Add Litestream metrics endpoint for replication lag monitoring (requires Litestream config update)
 # TODO: Add Litestream metrics to Grafana dashboard
@@ -183,22 +187,7 @@ spec:
 # TODO: Test disaster recovery restore procedure from S3
 # TODO: Document and automate failover procedures
 # TODO: Hot standby pod with read-only Litestream-restored databases
-# TODO: Automated failover on primary pod failure
-# TODO: Multi-region disaster recovery
-# TODO: Add podManagementPolicy: Parallel for faster scaling (currently defaults to OrderedReady)
-# TODO: Add updateStrategy.rollingUpdate.partition for canary deployments
-# TODO: Add persistentVolumeClaimRetentionPolicy to control PVC cleanup behavior
-# TODO: Add terminationGracePeriodSeconds (default 30s may be insufficient for SQLite flush + Litestream final sync)
-# TODO: Add affinity rules to prevent scheduling on same node as other critical services
-# TODO: Add topologySpreadConstraints for multi-AZ distribution when running multiple replicas in future
-# TODO: Pin litestream-restore image to SHA256 digest for immutability and security
-# TODO: Add resource requests/limits for init container to prevent resource starvation
-# TODO: Pin PDS image to SHA256 digest for immutability and security
-# TODO: Add lifecycle.preStop hook to gracefully shutdown PDS and allow Litestream final sync
-# TODO: Use named port reference in probes instead of hardcoded 2583
 # TODO: Verify 60s total startup time (12 * 5s) is sufficient for cold start + S3 restore
 # TODO: Add liveness probe to detect Litestream replication failures
-# TODO: Add revisionHistoryLimit to control number of old ReplicaSets retained
-# TODO: Add volumeMode: Filesystem explicitly for clarity
-# TODO: Add alerts on logging errors or high error rates
-# TODO: improve Grafana dashboard
+# TODO: Improve Grafana dashboard
+# TODO: Create backup script for all user account databases before shutdown - call it on preStop hook

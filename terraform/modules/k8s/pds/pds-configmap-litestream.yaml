@@ -37,7 +37,6 @@ data:
             endpoint: ${backup_endpoint}
             sync-interval: 15m
 
-# TODO: Switch to custom Litestream image with dynamic discovery for per-user databases
 # TODO: Enable Prometheus metrics endpoint by adding 'addr: ":9090"' to litestream.yml config
 # TODO: Add metrics port (9090) to Litestream container in pds-statefulset.yaml
 # TODO: Create ServiceMonitor CRD for Litestream replication lag monitoring
