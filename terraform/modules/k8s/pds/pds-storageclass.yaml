@@ -9,5 +9,4 @@ reclaimPolicy: Retain
 
 # TODO: Add standard labels (app.kubernetes.io/name, app.kubernetes.io/component, app.kubernetes.io/managed-by)
 # TODO: Add parameters block with provisioner-specific settings (e.g., type, iopsPerGB, encrypted, fsType)
-# TODO: Consider allowedTopologies to restrict volume provisioning to specific zones/regions for HA/DR requirements
 # TODO: Add mountOptions if specific mount options are needed for SQLite performance (e.g., noatime, data=ordered)

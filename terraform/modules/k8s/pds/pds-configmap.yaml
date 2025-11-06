@@ -32,5 +32,6 @@ data:
   PDS_RECOVERY_DID_KEY: "${pds_recovery_did_key}"
   PDS_SERVICE_NAME: "Eurosky PDS"
   PDS_RATE_LIMITS_ENABLED: "true"
+  # PDS_SQLITE_DISABLE_WAL_AUTO_CHECKPOINT: "true"
 
   # TODO: Add PDS_REDIS_SCRATCH_* to store temporary data in Redis instead of local disk

@@ -93,13 +93,6 @@ variable "pds_blobstore_secret_key" {
   type        = string
   sensitive   = true
 }
-
-variable "pds_version" {
-  description = "PDS version"
-  type        = string
-  default     = "0.4.0"
-}
-
 variable "pds_storage_size" {
   description = "PDS storage size"
   type        = string
