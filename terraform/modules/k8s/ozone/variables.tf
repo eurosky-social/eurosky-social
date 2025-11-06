@@ -9,11 +9,6 @@ variable "cluster_domain" {
   type        = string
 }
 
-variable "cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer to use for TLS certificates"
-  type        = string
-}
-
 variable "ozone_public_hostname" {
   description = "Public hostname for Ozone (e.g., ozone.eurosky.social). If set, derives URL and DID."
   type        = string

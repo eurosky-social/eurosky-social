@@ -59,3 +59,9 @@ variable "ip_network_range" {
   type        = string
   default     = "172.16.0.0/24"
 }
+
+variable "ingress_hostnames" {
+  description = "List of hostnames to include in the Load Balancer TLS certificate"
+  type        = list(string)
+  default     = []
+}

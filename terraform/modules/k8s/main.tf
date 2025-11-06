@@ -41,7 +41,7 @@ module "ingress_nginx" {
   cluster_domain = var.cluster_domain
   extra_annotations = var.ingress_nginx_extra_annotations
 
-  depends_on = [module.cert_manager, module.prometheus_stack]
+  depends_on = [module.prometheus_stack]
 }
 
 module "external_dns" {
@@ -74,7 +74,6 @@ module "ozone" {
   source = "./ozone"
 
   cluster_domain          = var.cluster_domain
-  cert_manager_issuer     = var.ozone_cert_manager_issuer
   ozone_image             = var.ozone_image
   ozone_appview_url       = var.ozone_appview_url
   ozone_appview_did       = var.ozone_appview_did
@@ -95,7 +94,6 @@ module "pds" {
   source = "./pds"
 
   cluster_domain                = var.cluster_domain
-  cert_manager_issuer           = var.pds_cert_manager_issuer
   storage_provisioner           = var.pds_storage_provisioner
   pds_storage_size              = var.pds_storage_size
   backup_bucket                 = var.backup_s3_bucket

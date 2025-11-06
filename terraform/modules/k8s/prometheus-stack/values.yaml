@@ -217,16 +217,11 @@ grafana:
     enabled: true
     ingressClassName: nginx
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
       external-dns.alpha.kubernetes.io/target: ingress.${cluster_domain}
       # TODO: Add Tailscale access with IP whitelisting (ingress.kubernetes.io/whitelist-source-range: <tailscale-network-cidr>)
     hosts:
       - grafana.${cluster_domain}
     path: /
-    tls:
-      - secretName: grafana-tls
-        hosts:
-          - grafana.${cluster_domain}
   persistence:
     enabled: false
   resources:

@@ -9,19 +9,11 @@ metadata:
     app.kubernetes.io/component: moderation
     # TODO: Add app.kubernetes.io/version and app.kubernetes.io/managed-by labels
   annotations:
-    cert-manager.io/cluster-issuer: "${cert_manager_issuer}"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    acme.cert-manager.io/http01-edit-in-place: "true"
-    # Security headers
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/hsts: "true"
-    nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
-    nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "1m"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
-    nginx.ingress.kubernetes.io/limit-rps: "25" # TODO: Review rate limit for production load (25 RPS may be too low)
+    nginx.ingress.kubernetes.io/limit-rps: "100"
     # Cookie-based sticky sessions (mainly for WebSocket connections)
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/affinity-mode: "persistent"
@@ -31,18 +23,11 @@ metadata:
     nginx.ingress.kubernetes.io/session-cookie-secure: "true"
     nginx.ingress.kubernetes.io/session-cookie-samesite: "Lax"
     nginx.ingress.kubernetes.io/session-cookie-change-on-failure: "true"
-    # Use CNAME to ingress LoadBalancer instead of A record from stale Ingress status
     external-dns.alpha.kubernetes.io/target: "ingress.${ozone_cluster_domain}"
-    # TODO: Consider CDN integration (Cloudflare or cloud provider CDN) per GUIDELINES.md networking requirement
     # TODO: Add nginx.ingress.kubernetes.io/configuration-snippet for WebSocket upgrade headers if needed
     # TODO: Consider adding nginx.ingress.kubernetes.io/enable-cors for CORS support if needed
 spec:
   ingressClassName: nginx
-  # TODO: need the right hostname for prod!
-  tls:
-    - hosts:
-        - ${hostname}
-      secretName: ozone-tls
   rules:
     - host: ${hostname}
       http:

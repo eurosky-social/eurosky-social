@@ -9,11 +9,6 @@ variable "cluster_domain" {
   type        = string
 }
 
-variable "cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer to use for TLS certificates"
-  type        = string
-}
-
 variable "storage_provisioner" {
   description = "Storage provisioner for PDS volumes"
   type        = string
@@ -92,12 +87,6 @@ variable "pds_blobstore_secret_key" {
   description = "S3 secret key for PDS blobstore"
   type        = string
   sensitive   = true
-}
-
-variable "pds_version" {
-  description = "PDS version"
-  type        = string
-  default     = "0.4.0"
 }
 
 variable "pds_storage_size" {

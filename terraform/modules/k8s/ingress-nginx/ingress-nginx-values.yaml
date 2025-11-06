@@ -1,6 +1,8 @@
 controller:
   replicaCount: ${replica_count}
 
+  priorityClassName: system-cluster-critical
+
   # TODO: Increase for production (cpu: 100m, memory: 90Mi request / 256Mi limit)
   resources:
     requests:
@@ -8,6 +10,27 @@ controller:
       memory: 64Mi
     limits:
       memory: 128Mi
+
+  config:
+    # Preserve client IP addresses for logging and application-level rate limiting
+    # UpCloud LB in HTTP mode sets X-Forwarded-For with real client IPs
+    # Load Balancer already sets proper X-Forwarded-For, don't recompute it
+    use-forwarded-headers: "true"
+    compute-full-forwarded-for: "false"
+    use-proxy-protocol: "false"
+
+    # File upload size limit (default 1MB is too restrictive for blob uploads)
+    proxy-body-size: "50m"
+
+    # Structured JSON logging for Loki/Grafana
+    log-format-escape-json: "true"
+    log-format-upstream: '{"time":"$time_iso8601","remote_addr":"$remote_addr","x_forwarded_for":"$http_x_forwarded_for","request_id":"$req_id","remote_user":"$remote_user","bytes_sent":"$bytes_sent","request_time":"$request_time","status":"$status","vhost":"$host","request_proto":"$server_protocol","path":"$uri","request_query":"$args","request_length":"$request_length","method":"$request_method","http_referrer":"$http_referer","http_user_agent":"$http_user_agent","upstream_addr":"$upstream_addr","upstream_status":"$upstream_status","upstream_response_time":"$upstream_response_time","upstream_response_length":"$upstream_response_length"}'
+
+    # Loose rate limiting
+    limit-req-zone: "$binary_remote_addr zone=global:10m rate=100r/s"
+    limit-req: "zone=global burst=200 nodelay"
+    limit-req-status-code: "429"
+    limit-conn-status-code: "429"
 
   containerSecurityContext:
     runAsNonRoot: true

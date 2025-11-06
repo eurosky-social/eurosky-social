@@ -12,6 +12,12 @@ module "upcloud" {
   object_storage_name       = var.object_storage_name
   autoscaler_username       = var.autoscaler_username
   autoscaler_password       = var.autoscaler_password
+  ingress_hostnames = [
+    "grafana.${var.cluster_domain}",
+    "ozone.${var.cluster_domain}",
+    "berlin-demo.${var.cluster_domain}",
+    "*.berlin-demo.${var.cluster_domain}"
+  ]
 }
 
 module "k8s" {
@@ -24,21 +30,7 @@ module "k8s" {
 
   cloudflare_dns_api_token = var.cloudflare_dns_api_token
   ingress_nginx_zones      = module.upcloud.zones
-  ingress_nginx_extra_annotations = {
-    # UpCloud LoadBalancer config: Use TCP mode (Layer 4) for TLS passthrough to ingress-nginx
-    "service.beta.kubernetes.io/upcloud-load-balancer-config" = jsonencode({
-      frontends = [
-        {
-          name = "http"
-          mode = "tcp"
-        },
-        {
-          name = "https"
-          mode = "tcp"
-        }
-      ]
-    })
-  }
+  ingress_nginx_extra_annotations = module.upcloud.ingress_nginx_extra_annotations
   cluster_domain          = var.cluster_domain
   cert_manager_acme_email = var.cert_manager_acme_email
 

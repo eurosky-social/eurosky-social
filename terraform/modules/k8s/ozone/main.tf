@@ -98,7 +98,6 @@ resource "kubectl_manifest" "ozone_ingress" {
     namespace            = kubernetes_namespace.ozone.metadata[0].name
     hostname             = local.hostname
     ozone_cluster_domain = var.cluster_domain
-    cert_manager_issuer  = var.cert_manager_issuer
   })
 
   server_side_apply = true

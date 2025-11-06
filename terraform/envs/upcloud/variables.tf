@@ -14,16 +14,6 @@ variable "cloudflare_dns_api_token" {
   sensitive   = true
 }
 
-variable "ozone_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for Ozone (letsencrypt-staging or letsencrypt-prod)"
-  type        = string
-}
-
-variable "pds_cert_manager_issuer" {
-  description = "cert-manager ClusterIssuer for PDS (letsencrypt-staging or letsencrypt-prod)"
-  type        = string
-}
-
 variable "k8s_node_plan" {
   description = "UpCloud server plan for Kubernetes nodes (e.g., 2xCPU-4GB, 4xCPU-8GB)"
   type        = string

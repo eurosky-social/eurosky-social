@@ -79,3 +79,8 @@ output "zones" {
   value       = [var.zone]
   description = "UpCloud zones used by the cluster"
 }
+
+output "ingress_nginx_extra_annotations" {
+  value = local.ingress_nginx_extra_annotations
+  description = "Extra annotations to add to Ingress-NGINX Load Balancer"
+}

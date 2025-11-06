@@ -17,11 +17,9 @@ postgres_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-block
 ozone_appview_url         = "https://api.bsky.app"
 ozone_appview_did         = "did:web:api.bsky.app"
 ozone_server_did          = "did:plc:7kykji2z2jie3tcaz6jypwsf"
-ozone_cert_manager_issuer = "letsencrypt-prod"
 
 # PDS
 pds_storage_size        = "10Gi"
-pds_cert_manager_issuer = "letsencrypt-prod"
 pds_did_plc_url         = "https://plc.directory"
 pds_bsky_app_view_url   = "https://api.bsky.app"
 pds_bsky_app_view_did   = "did:web:api.bsky.app"

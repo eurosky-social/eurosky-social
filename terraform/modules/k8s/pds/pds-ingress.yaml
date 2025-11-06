@@ -8,13 +8,6 @@ metadata:
     app.kubernetes.io/name: pds
     app.kubernetes.io/component: server
   annotations:
-    cert-manager.io/cluster-issuer: "${cert_manager_issuer}"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    acme.cert-manager.io/http01-edit-in-place: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/hsts: "true"
-    nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
-    nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
@@ -23,11 +16,6 @@ metadata:
     external-dns.alpha.kubernetes.io/target: "ingress.${cluster_domain}"
 spec:
   ingressClassName: nginx
-  tls:
-    - hosts:
-        - ${hostname}
-        - "*.${hostname}"
-      secretName: pds-tls
   rules:
     - host: ${hostname}
       http:
@@ -49,7 +37,6 @@ spec:
                 name: pds
                 port:
                   number: 80
-# TODO: Change cert-manager.io/cluster-issuer to "letsencrypt-prod" for production
 # TODO: Test proxy-body-size limit (100m) is sufficient for user uploads
 # TODO: Evaluate timeout settings (60s) under production load
 # TODO: Add session affinity if PDS uses WebSocket or requires sticky sessions

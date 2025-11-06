@@ -67,7 +67,7 @@ spec:
                 - ALL
       containers:
         - name: pds
-          image: ghcr.io/bluesky-social/pds:${pds_version}
+          image: ghcr.io/bluesky-social/pds:sha-cdc46aae58ce04a2e64dc6487152d026f4b7b92f
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 2583
