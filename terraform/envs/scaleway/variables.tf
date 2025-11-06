@@ -63,7 +63,8 @@ variable "region" {
 variable "zones" {
   description = "List of availability zones for deployment"
   type        = list(string)
-  default     = ["fr-par-1", "fr-par-2"]
+  # TODO we should split the cluster in multiple zones but it would requires some effort that we are not willing to invest ATM
+  default     = ["fr-par-1"]
 }
 
 variable "cert_manager_acme_email" {

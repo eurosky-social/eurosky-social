@@ -1,5 +1,5 @@
 locals {
-  hostname = "pds.${var.cluster_domain}"
+  hostname = "user.${var.cluster_domain}"
 
   # System database locations
   pds_data_directory        = "/pds"
@@ -143,7 +143,6 @@ resource "kubectl_manifest" "pds_statefulset" {
   yaml_body = templatefile("${path.module}/pds-statefulset.yaml", {
     namespace                  = kubernetes_namespace.pds.metadata[0].name
     pds_data_directory         = local.pds_data_directory
-    pds_version                = var.pds_version
     pds_storage_size           = var.pds_storage_size
     backup_bucket              = var.backup_bucket
     backup_endpoint            = var.backup_endpoint

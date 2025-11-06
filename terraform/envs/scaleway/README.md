@@ -24,5 +24,8 @@ terraform plan -out=tfplan
 terraform apply tfplan
 
 # Get kubeconfig
-scw k8s kubeconfig install $(terraform output -raw cluster_id | sed -E "s/fr-par\/(.*)%/\1/")
+cluster_id=$(terraform output -raw cluster_id | sed -E "s/fr-par\/(.*)%/\1/")
+scw k8s kubeconfig get $cluster_id
+export KUBECONFIG=kube-config
+k9s
 ```

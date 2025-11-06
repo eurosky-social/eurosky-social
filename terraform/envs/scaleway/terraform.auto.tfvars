@@ -1,12 +1,12 @@
 ### Scaleway
 region         = "fr-par"
 partition      = "prod"
-cluster_domain = "eurosky.social"
+cluster_domain = "cieloblu.xyz"
 
 # Kubernetes
 k8s_node_type     = "DEV1-M"
 k8s_node_min_size = 1
-k8s_node_max_size = 1
+k8s_node_max_size = 2
 
 # PostgreSQL
 postgres_storage_class = "scw-bssd"

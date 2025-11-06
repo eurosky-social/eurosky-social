@@ -22,8 +22,9 @@ module "k8s" {
 
   ingress_nginx_zones = module.scaleway.zones
   ingress_nginx_extra_annotations = {
-    "service.beta.kubernetes.io/scw-loadbalancer-zone"           = each.key
-    "service.beta.kubernetes.io/scw-loadbalancer-timeout-tunnel" = "120000"
+    # TODO we should split the cluster in multiple zones but it would requires some effort that we are not willing to invest ATM
+    "service.beta.kubernetes.io/scw-loadbalancer-zone"           = var.zones[0]
+    "service.beta.kubernetes.io/scw-loadbalancer-timeout-tunnel" = "2m"
   }
   cluster_domain          = var.cluster_domain
   cert_manager_acme_email = var.cert_manager_acme_email
