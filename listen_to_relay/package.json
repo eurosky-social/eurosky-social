@@ -1,14 +1,20 @@
 {
-  "name": "atproto",
+  "name": "listen-to-relay",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "AT Protocol relay firehose listener",
+  "type": "module",
+  "main": "index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.mjs wss://relay.eurosky.social"
   },
-  "keywords": [],
+  "keywords": [
+    "atproto",
+    "bluesky",
+    "relay",
+    "firehose"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@skyware/firehose": "^0.5.2"
   }

@@ -8,24 +8,25 @@ if (!relay) {
 
 const firehose = new Firehose({ relay  });
 
-const events = [
-	"open",
-	"close",
-	"reconnect",
-	"error",
-	"websocketError",
-	"commit",
-	"sync",
-	"account",
-	"identity",
-	"info",
-	"unknown"
-];
+firehose.on("commit", (commit) => {
+	for (const op of commit.ops) {
+		if (op.action === "create" && op.path.includes("app.bsky.feed.post")) {
+			console.log("\n🆕 New Post:");
+			console.log("  Author:", commit.repo);
+			console.log("  Text:", op.record.text);
+			console.log("  Time:", commit.time);
+			if (op.record.reply) {
+				console.log("  💬 Reply to:", op.record.reply.parent.uri);
+			}
+		} else if (op.action === "create" && op.path.includes("app.bsky.feed.like")) {
+			console.log("\n❤️  Like:", commit.repo, "→", op.record.subject.uri);
+		} else if (op.action === "create" && op.path.includes("app.bsky.graph.follow")) {
+			console.log("\n👤 Follow:", commit.repo, "→", op.record.subject);
+		}
+	}
+});
 
-for (const event of events) {
-	firehose.on(event, (message) => {
-		console.log(JSON.stringify({ event, message }));
-	});
-}
+firehose.on("open", () => console.log("✅ Connected to relay"));
+firehose.on("error", ({ error }) => console.error("❌ Error:", error.message));
 
 firehose.start();
