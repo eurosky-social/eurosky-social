@@ -13,6 +13,9 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
     nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/websocket-services: "relay"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/use-http2: "false"
     external-dns.alpha.kubernetes.io/target: "ingress.${cluster_domain}"
 spec:
   ingressClassName: nginx

@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: relay-sync-hosts
+  namespace: ${namespace}
+spec:
+  schedule: "0 * * * *"  # Every hour at minute 0
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: sync-hosts
+              image: registry.gitlab.com/gitlab-ci-utils/curl-jq
+              command:
+                - sh
+                - -c
+                - |
+                  sh /scripts/sync-hosts.sh
+              env:
+                - name: UPSTREAM_RELAY_HOST
+                  value: "https://relay1.us-west.bsky.network"
+                - name: LOCAL_RELAY_HOST
+                  value: "http://relay.relay.svc.cluster.local:2470"
+                - name: BATCH_SIZE
+                  value: "500"
+                - name: RELAY_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: relay-secret
+                      key: RELAY_ADMIN_PASSWORD
+              volumeMounts:
+                - name: sync-script
+                  mountPath: /scripts
+          volumes:
+            - name: sync-script
+              configMap:
+                name: relay-sync-hosts-script
+                defaultMode: 0755

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: relay-litestream-config
+  namespace: ${namespace}
+data:
+  litestream.yml: |
+    dbs:
+      - path: ${relay_db_path}
+        replicas:
+          - type: s3
+            bucket: ${backup_bucket}
+            path: relay/relay.sqlite
+            endpoint: ${backup_endpoint}
+            region: ${backup_region}
+            force-path-style: true
+            sync-interval: 5m
+            snapshot-interval: 24h
+            retention: 168h

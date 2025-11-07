@@ -86,9 +86,35 @@ resource "upcloud_kubernetes_node_group" "main" {
   }
 }
 
+# Create dedicated single-node group for relay with taint to ensure only relay pods are scheduled
+resource "upcloud_kubernetes_node_group" "relay" {
+  name = "${var.partition}-relay"
+
+  cluster       = upcloud_kubernetes_cluster.main.id
+  node_count    = 1
+  plan          = "DEV-2xCPU-16GB"  # good enough for testing things
+  anti_affinity = false 
+
+  labels = {
+    managed-by = "terraform"
+    project    = var.partition
+    relay      = "true"
+  }
+
+  taint {
+    effect = "NoSchedule"
+    key    = "relay"
+    value  = "true"
+  }
+
+}
+
 # Fetch cluster details after creation to get real kubeconfig
 data "upcloud_kubernetes_cluster" "main" {
-  depends_on = [upcloud_kubernetes_node_group.main]
-  id         = upcloud_kubernetes_cluster.main.id
+  depends_on = [
+    upcloud_kubernetes_node_group.main,
+    upcloud_kubernetes_node_group.relay
+  ]
+  id = upcloud_kubernetes_cluster.main.id
 }
 

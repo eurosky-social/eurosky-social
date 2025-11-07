@@ -332,3 +332,19 @@ variable "deadmansswitch_url" {
   sensitive   = true
   default     = ""
 }
+
+variable "relay_admin_password" {
+  description = "Admin password for relay admin API"
+  type        = string
+  sensitive   = true
+}
+
+variable "relay_storage_class" {
+  description = "Storage class for relay PVC"
+  type        = string
+}
+
+variable "relay_storage_size" {
+  description = "Storage size for relay data"
+  type        = string
+}

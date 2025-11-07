@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: relay
+  namespace: ${namespace}
+  labels:
+    app: relay
+spec:
+  serviceName: relay
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay
+  template:
+    metadata:
+      labels:
+        app: relay
+      annotations:
+        checksum/config: "${relay_config_checksum}"
+        checksum/secret: "${relay_secret_checksum}"
+        checksum/litestream-config: "${litestream_config_checksum}"
+        checksum/litestream-secret: "${litestream_secret_checksum}"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      nodeSelector:
+        relay: "true"
+      tolerations:
+        - key: "relay"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      initContainers:
+        - name: litestream-restore
+          image: litestream/litestream@sha256:027eda2a89a86015b9797d2129d4dd447e8953097b4190e1d5a30b73e76d8d58
+          args:
+            - restore
+            - -if-db-not-exists
+            - -if-replica-exists
+            - ${relay_data_directory}/relay.sqlite
+          envFrom:
+            - secretRef:
+                name: relay-litestream-secret
+          volumeMounts:
+            - name: relay-data
+              mountPath: ${relay_data_directory}
+            - name: litestream-config
+              mountPath: /etc/litestream.yml
+              subPath: litestream.yml
+      containers:
+        - name: relay
+          image: ghcr.io/eurosky-social/indigo@sha256:f935afc07e7d551cafb216621909ed82099a5e2a920e6f86827602dbe05e0162
+          ports:
+            - name: api
+              containerPort: 2470
+              protocol: TCP
+            - name: metrics
+              containerPort: 2471
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: relay-config
+            - secretRef:
+                name: relay-secret
+          volumeMounts:
+            - name: relay-data
+              mountPath: ${relay_data_directory}
+          livenessProbe:
+            httpGet:
+              path: /xrpc/_health
+              port: 2470
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /xrpc/_health
+              port: 2470
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+        - name: litestream
+          image: litestream/litestream@sha256:027eda2a89a86015b9797d2129d4dd447e8953097b4190e1d5a30b73e76d8d58
+          args:
+            - replicate
+          envFrom:
+            - secretRef:
+                name: relay-litestream-secret
+          volumeMounts:
+            - name: relay-data
+              mountPath: ${relay_data_directory}
+            - name: litestream-config
+              mountPath: /etc/litestream.yml
+              subPath: litestream.yml
+        - name: sync-hosts-startup
+          image: registry.gitlab.com/gitlab-ci-utils/curl-jq
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for relay to be ready..."
+              until curl -sf http://127.0.0.1:2470/xrpc/_health > /dev/null 2>&1; do
+                echo "Relay not ready, waiting..."
+                sleep 5
+              done
+              echo "Relay is ready! Starting initial host sync..."
+              sh /scripts/sync-hosts.sh
+              echo "Initial sync complete. Sleeping forever..."
+              while true; do sleep 3600; done
+          env:
+            - name: UPSTREAM_RELAY_HOST
+              value: "https://relay1.us-west.bsky.network"
+            - name: LOCAL_RELAY_HOST
+              value: "http://127.0.0.1:2470"
+            - name: BATCH_SIZE
+              value: "500"
+            - name: RELAY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: relay-secret
+                  key: RELAY_ADMIN_PASSWORD
+          volumeMounts:
+            - name: sync-script
+              mountPath: /scripts
+      volumes:
+        - name: litestream-config
+          configMap:
+            name: relay-litestream-config
+        - name: sync-script
+          configMap:
+            name: relay-sync-hosts-script
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: relay-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: ${relay_storage_class}
+        resources:
+          requests:
+            storage: ${relay_storage_size}

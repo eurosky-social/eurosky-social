@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: relay
+  namespace: ${namespace}
+  labels:
+    app: relay
+spec:
+  type: ClusterIP
+  ports:
+    - name: api
+      port: 2470
+      targetPort: 2470
+      protocol: TCP
+    - name: metrics
+      port: 2471
+      targetPort: 2471
+      protocol: TCP
+  selector:
+    app: relay

@@ -138,3 +138,19 @@ module "loki" {
 
   depends_on = [module.prometheus_stack]
 }
+
+module "relay" {
+  source = "./relay"
+
+  relay_admin_password = var.relay_admin_password
+  relay_storage_class  = var.relay_storage_class
+  relay_storage_size   = var.relay_storage_size
+  cluster_domain       = var.cluster_domain
+  backup_bucket        = var.backup_s3_bucket
+  backup_region        = var.backup_s3_region
+  backup_endpoint      = var.backup_s3_endpoint
+  backup_access_key    = var.backup_s3_access_key
+  backup_secret_key    = var.backup_s3_secret_key
+
+  depends_on = [module.ingress_nginx]
+}

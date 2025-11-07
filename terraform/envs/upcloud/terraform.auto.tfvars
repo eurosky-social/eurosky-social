@@ -31,3 +31,7 @@ prometheus_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-blo
 
 # Loki
 loki_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-block-storage-maxiops"
+
+# Relay
+relay_storage_class="upcloud-block-storage-standard"
+relay_storage_size="90Gi"

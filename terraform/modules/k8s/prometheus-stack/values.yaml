@@ -323,6 +323,11 @@ grafana:
         json: >-
           ${pds_dashboard_json}
 
+      # Relay (ATProto Firehose) - Custom Dashboard
+      relay-monitoring:
+        json: >-
+          ${relay_dashboard_json}
+
 prometheus:
   enabled: true
   podDisruptionBudget:

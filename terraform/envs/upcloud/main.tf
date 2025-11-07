@@ -15,6 +15,7 @@ module "upcloud" {
   ingress_hostnames = [
     "grafana.${var.cluster_domain}",
     "ozone.${var.cluster_domain}",
+    "relay.${var.cluster_domain}",
     "berlin-demo.${var.cluster_domain}",
     "*.berlin-demo.${var.cluster_domain}"
   ]
@@ -87,4 +88,8 @@ module "k8s" {
   smtp_username      = var.smtp_username
   smtp_password      = var.smtp_password
   deadmansswitch_url = var.deadmansswitch_url
+
+  relay_admin_password = var.relay_admin_password
+  relay_storage_class  = var.relay_storage_class
+  relay_storage_size   = var.relay_storage_size
 }

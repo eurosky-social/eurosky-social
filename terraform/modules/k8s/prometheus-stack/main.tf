@@ -16,6 +16,7 @@ resource "helm_release" "kube_prometheus_stack" {
   values = [
     templatefile("${path.module}/values.yaml", {
       pds_dashboard_json     = jsonencode(jsondecode(file("${path.module}/dashboards/pds-dashboard.json")))
+      relay_dashboard_json   = jsonencode(jsondecode(file("${path.module}/dashboards/relay-dashboard.json")))
       grafana_admin_password = var.grafana_admin_password
       storage_class          = var.storage_class
       cluster_domain         = var.cluster_domain
