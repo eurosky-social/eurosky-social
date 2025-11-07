@@ -84,3 +84,5 @@ locals {
     })
   }
 }
+
+# TODO: find out how to set HSTS
