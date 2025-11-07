@@ -286,6 +286,9 @@ grafana:
         gnetId: 9614
         revision: 1
         datasource: Prometheus
+      # TODO: the geo view and few more panels are broken - trying to refactor gnetId #13865
+      nginx-geoip-analytics:
+        file: dashboards/nginx-geoip-analytics.json
 
       # PostgreSQL (CloudNativePG)
       cnpg-cluster:

@@ -31,6 +31,7 @@ module "k8s" {
   cloudflare_dns_api_token = var.cloudflare_dns_api_token
   ingress_nginx_zones      = module.upcloud.zones
   ingress_nginx_extra_annotations = module.upcloud.ingress_nginx_extra_annotations
+  maxmind_license_key     = var.maxmind_license_key
   cluster_domain          = var.cluster_domain
   cert_manager_acme_email = var.cert_manager_acme_email
 

@@ -14,6 +14,12 @@ variable "cloudflare_dns_api_token" {
   sensitive   = true
 }
 
+variable "maxmind_license_key" {
+  description = "MaxMind license key for GeoIP2 database (get free key at https://www.maxmind.com/en/geolite2/signup)"
+  type        = string
+  sensitive   = true
+}
+
 variable "k8s_node_plan" {
   description = "UpCloud server plan for Kubernetes nodes (e.g., 2xCPU-4GB, 4xCPU-8GB)"
   type        = string

@@ -25,3 +25,9 @@ variable "extra_annotations" {
   type        = map(string)
   default     = {}
 }
+
+variable "maxmind_license_key" {
+  description = "MaxMind license key for GeoIP2 database (get free key at https://www.maxmind.com/en/geolite2/signup)"
+  type        = string
+  sensitive   = true
+}

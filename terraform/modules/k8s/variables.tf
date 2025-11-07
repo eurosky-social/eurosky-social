@@ -48,6 +48,12 @@ variable "ingress_nginx_extra_annotations" {
   default     = {}
 }
 
+variable "maxmind_license_key" {
+  description = "MaxMind license key for GeoIP2 database (get free key at https://www.maxmind.com/en/geolite2/signup)"
+  type        = string
+  sensitive   = true
+}
+
 variable "cluster_domain" {
   description = "Full cluster domain (subdomain.domain)"
   type        = string

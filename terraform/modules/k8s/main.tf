@@ -37,9 +37,10 @@ module "cert_manager" {
 module "ingress_nginx" {
   source = "./ingress-nginx"
 
-  zones          = var.ingress_nginx_zones
-  cluster_domain = var.cluster_domain
-  extra_annotations = var.ingress_nginx_extra_annotations
+  zones               = var.ingress_nginx_zones
+  cluster_domain      = var.cluster_domain
+  extra_annotations   = var.ingress_nginx_extra_annotations
+  maxmind_license_key = var.maxmind_license_key
 
   depends_on = [module.prometheus_stack]
 }
