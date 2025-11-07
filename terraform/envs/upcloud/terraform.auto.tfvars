@@ -4,8 +4,8 @@ cluster_domain      = "eurosky.social"
 k8s_node_plan       = "2xCPU-4GB" # TODO: revisit for prod
 partition           = "eurosky"
 object_storage_name = "eurosky-data"
-k8s_node_count_min  = 1
-k8s_node_count_max  = 2
+k8s_node_count_min  = 2
+k8s_node_count_max  = 3
 
 # PostgreSQL
 postgres_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-block-storage-maxiops"
