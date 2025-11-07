@@ -10,7 +10,7 @@ spec:
 
   storage:
     storageClass: ${storage_class}
-    size: 1Gi # TODO: Right-size based on expected data volume and growth projections
+    size: 20Gi
 
   primaryUpdateStrategy: unsupervised
 
