@@ -37,6 +37,8 @@ spec:
           image: litestream/litestream@sha256:027eda2a89a86015b9797d2129d4dd447e8953097b4190e1d5a30b73e76d8d58
           args:
             - restore
+            - -config
+            - /etc/litestream.yml
             - -if-db-not-exists
             - -if-replica-exists
             - ${relay_data_directory}/relay.sqlite
@@ -87,6 +89,8 @@ spec:
           image: litestream/litestream@sha256:027eda2a89a86015b9797d2129d4dd447e8953097b4190e1d5a30b73e76d8d58
           args:
             - replicate
+            - -config
+            - /etc/litestream.yml
           envFrom:
             - secretRef:
                 name: relay-litestream-secret
