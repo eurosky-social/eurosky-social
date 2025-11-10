@@ -61,14 +61,14 @@ async function main(): Promise<void> {
 
   const response = await agent.com.atproto.repo.createRecord({
     repo: agent.session?.did!,
-    collection: "app.flashes.feed.post",
+    collection: "app.flashes.story",
     record: {
-      $type: "app.flashes.feed.post",
+      $type: "app.flashes.story",
       createdAt: new Date().toISOString(),
       text: args.text ?? args.gtube ? gtubeString : imageText,
       embed: args.image
         ? {
-            $type: "app.flashes.feed.post#embedImages",
+            $type: "app.flashes.story#image",
             images: [
               {
                 image: (await uploadBlob(agent, args.image)).data.blob,
