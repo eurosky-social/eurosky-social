@@ -6,3 +6,4 @@ temp/
 .venv
 playwright-report/
 test-results/
+.playwright-mcp/
