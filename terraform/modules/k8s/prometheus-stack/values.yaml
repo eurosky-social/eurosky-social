@@ -208,6 +208,16 @@ defaultRules:
     kubeProxy: false
     kubeControllerManager: false
     kubeScheduler: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+
+# Disable control plane components entirely for managed k8s
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeProxy:
+  enabled: false
 
 grafana:
   enabled: true
