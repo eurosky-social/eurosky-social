@@ -14,6 +14,8 @@ resource "helm_release" "kube_prometheus_stack" {
       storage_class          = var.storage_class
     })
   ]
+
+  timeout = 60 * 10
 }
 
 # TODO: Manually update CRDs before upgrading chart (NOT auto-updated by helm)

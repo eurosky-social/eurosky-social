@@ -1,13 +1,17 @@
-variable "scw_access_key" {
-  description = "Scaleway access key for cert-manager DNS01 challenge"
-  type        = string
+variable "dns_secrets" {
+  description = "DNS provider secrets for cert-manager (map of key names to secret values)"
+  type        = map(string)
   sensitive   = true
 }
 
-variable "scw_secret_key" {
-  description = "Scaleway secret key for cert-manager DNS01 challenge"
+variable "secret_name" {
+  description = "Name for the Kubernetes secret containing DNS credentials"
   type        = string
-  sensitive   = true
+}
+
+variable "solver_config" {
+  description = "DNS01 solver configuration (YAML string) - provider-specific structure"
+  type        = string
 }
 
 variable "acme_email" {

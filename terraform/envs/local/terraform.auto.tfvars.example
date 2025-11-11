@@ -1,0 +1,50 @@
+# Local K3d Environment Configuration Example
+# Copy this file to terraform.auto.tfvars and fill in your values
+# Secrets should be loaded from environment variables (see .env.example)
+
+# Domain Configuration
+cluster_domain = "local-k8s.u-at-proto.work"  # Your Cloudflare-managed domain for local testing
+
+# Kubernetes Connection (leave empty to use current kubeconfig context)
+kubeconfig_host                   = ""  # Will use ~/.kube/config
+kubeconfig_token                  = ""
+kubeconfig_cluster_ca_certificate = ""
+
+# Storage Configuration (k3d uses local-path by default)
+pds_storage_provisioner     = "rancher.io/local-path"
+pds_storage_size            = "5Gi"
+postgres_storage_class      = "local-path"
+elasticsearch_storage_class = "local-path"
+
+# Certificate Issuers (use staging for local to avoid rate limits)
+ozone_cert_manager_issuer  = "letsencrypt-staging"
+pds_cert_manager_issuer    = "letsencrypt-staging"
+kibana_cert_manager_issuer = "letsencrypt-staging"
+
+# S3/MinIO Configuration (local MinIO will be deployed in cluster)
+backup_s3_endpoint   = "http://minio.minio-system.svc.cluster.local:9000"
+backup_s3_bucket     = "postgres-backups"
+backup_s3_region     = "us-east-1"
+backup_s3_access_key = "minioadmin"
+backup_s3_secret_key = "minioadmin"
+
+# PDS Blobstore (uses local MinIO)
+pds_blobstore_bucket     = "pds-blobstore"
+pds_blobstore_access_key = "minioadmin"
+pds_blobstore_secret_key = "minioadmin"
+
+# Ozone Configuration
+ozone_image        = "ghcr.io/bluesky-social/ozone:latest"
+ozone_appview_url  = "https://api.bsky.app"
+ozone_appview_did  = "did:web:api.bsky.app"
+
+# Load secrets from environment variables
+# cloudflare_api_token     = env("CLOUDFLARE_API_TOKEN")
+# ozone_server_did         = env("OZONE_SERVER_DID")
+# ozone_admin_dids         = env("OZONE_ADMIN_DIDS")
+# ozone_db_password        = env("OZONE_DB_PASSWORD")
+# ozone_admin_password     = env("OZONE_ADMIN_PASSWORD")
+# ozone_signing_key_hex    = env("OZONE_SIGNING_KEY_HEX")
+# pds_jwt_secret           = env("PDS_JWT_SECRET")
+# pds_admin_password       = env("PDS_ADMIN_PASSWORD")
+# pds_plc_rotation_key     = env("PDS_PLC_ROTATION_KEY")

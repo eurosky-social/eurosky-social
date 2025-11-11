@@ -20,8 +20,8 @@ variable "topology_max_skew" {
   default     = 1
 }
 
-variable "cloud_provider" {
-  description = "Cloud provider (scaleway, aws, gcp, azure)"
-  type        = string
-  default     = "scaleway"
+variable "extra_nginx_annotations" {
+  description = "Extra annotations to add to ingress-nginx LoadBalancer services (e.g., cloud provider specific or DNS target overrides)"
+  type        = map(string)
+  default     = {}
 }

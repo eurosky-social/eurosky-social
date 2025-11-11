@@ -3,14 +3,14 @@ output "zones" {
   value       = var.zones
 }
 
-output "external_dns_access_key" {
-  description = "External-DNS Scaleway access key"
+output "dns_zone_access_key" {
+  description = "Scaleway DNS zone access key (for external-dns and cert-manager)"
   value       = scaleway_iam_api_key.external_dns.access_key
   sensitive   = true
 }
 
-output "external_dns_secret_key" {
-  description = "External-DNS Scaleway secret key"
+output "dns_zone_secret_key" {
+  description = "Scaleway DNS zone secret key (for external-dns and cert-manager)"
   value       = scaleway_iam_api_key.external_dns.secret_key
   sensitive   = true
 }
