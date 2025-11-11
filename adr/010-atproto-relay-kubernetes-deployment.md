@@ -14,12 +14,16 @@ ATProto Relay aggregates repository events from multiple PDS instances and redis
 
 ## Constraints
 
-- **Current limitation:** Relay has NO coordination mechanism for multiple instances.  
 - **Resource usage:**  
-  - CPU: scales with consumers but generally light
+  - CPU: generally sits around 1 vCPU
   - Memory: mainly used for caching identities and can grow large.
   - Net: Firehouse is currently oscillating between 1.25/2.5 megabytes/sec - 1x upstream in total, 1x downstream per consumer.
-- **Storage:** Maintain a replay window that scales with the network, average of 4-6GB / hour
+- **Storage:** 
+  - Maintain a replay window that scales with the network, average of 4-6GB / hour
+
+- **Current limitation:** 
+  - Relay has NO coordination mechanism for multiple instances.  
+  - Relay code doesn't do much to handle resource exhaustion gracefully, apart not writing data to disk if storage is full.
 
 ## Decision
 
