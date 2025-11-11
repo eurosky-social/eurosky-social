@@ -6,7 +6,9 @@ A TypeScript CLI toolkit for testing the integration of Flashes events on the AT
 ## Features
 
 - **Create test posts:**
-  - Normal text, GTUBE spam, or image-based posts (see `dog.jpg`, `kids.jpg`).
+  - Image-based posts (stories must include images). Use `spam.jpg` for spam detection testing.
+- **Test spam image detection:**
+  - Perceptual hash-based spam image detection using reference image `spam.jpg`.
 - **Report posts:**
   - File moderation reports with specific reasons.
 - **Query moderation events:**
@@ -39,25 +41,15 @@ All commands use `npm exec ts-node` to run TypeScript files directly without req
 
 ### Create posts
 
-- Normal:
+**Note:** Flashes stories must include an image - text-only stories are not supported.
+
+- Spam test image (for perceptual hash detection):
     ```bash
-    npm exec ts-node src/create_flash_post.ts
+    npm exec ts-node src/create_flash_post.ts -- --image spam.jpg
     ```
-- GTUBE spam:
+- Custom text with image:
     ```bash
-    npm exec ts-node src/create_flash_post.ts -- --gtube
-    ```
-- Safe image:
-    ```bash
-    npm exec ts-node src/create_flash_post.ts -- --image dog.jpg
-    ```
-- CSAM test image:
-    ```bash
-    npm exec ts-node src/create_flash_post.ts -- --image kids.jpg
-    ```
-- Custom text:
-    ```bash
-    npm exec ts-node src/create_flash_post.ts -- --text "Custom text"
+    npm exec ts-node src/create_flash_post.ts -- --image spam.jpg --text "Custom text"
     ```
 
 ### Report a post
@@ -164,6 +156,44 @@ If the post or blob is invalid, errors will be printed with details.
 - Node.js (v18 or higher recommended)
 - AT Protocol/Bluesky account with app password
 - Access to an Ozone moderation service
+
+## Spam Image Detection
+
+The toolkit includes `spam.jpg` as a reference image for testing perceptual hash-based spam detection in the HEPA automod service.
+
+### How it works
+
+- HEPA computes a perceptual hash (AverageHash) of the reference spam image (`spam.jpg`)
+- Incoming images in `app.flashes.story` posts are hashed and compared using Hamming distance
+- Images with hash distance ≤ threshold (default: 15 bits) are flagged as spam
+- Detection triggers: spam label (`spam`), account tag (`spam-image-posted`), record tag (`spam-image-detected`), and moderation report
+
+### Testing spam detection
+
+1. Configure HEPA with spam image path (default in Docker: `/data/hepa/spam.jpg`):
+   ```bash
+   export HEPA_SPAM_IMAGE_PATH=/path/to/ozone-flashes-toolkit/spam.jpg
+   export HEPA_SPAM_HASH_THRESHOLD=15
+   ```
+
+2. Post a story with the spam image:
+   ```bash
+   npm exec ts-node src/create_flash_post.ts -- --image spam.jpg
+   ```
+
+3. Check for spam detection events in Ozone:
+   ```bash
+   npm exec ts-node src/get_ozone_events.ts
+   ```
+
+### Test Images
+
+- `spam.jpg` - Reference spam image (187K, hash: `a:ffd304008187cfcf`)
+
+Additional test images for integration tests are located in `indigo/testing/`:
+
+- `spam-also.jpg` - Matches reference (distance=12, should trigger detection)
+- `spam-not.jpg` - Different image (distance=21, should NOT trigger detection)
 
 ## Finding Post URIs
 

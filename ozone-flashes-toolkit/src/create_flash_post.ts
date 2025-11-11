@@ -7,42 +7,26 @@ import { createAuthenticatedAgent } from "./auth";
 import * as fs from "fs";
 import AtpAgent from "@atproto/api";
 
-const gtubeString =
-  "XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X";
-const imageText = "Some test image";
+const defaultText = "Test flashes story";
 
-const ArgsSchema = z
-  .object({
-    gtube: z.boolean().optional(),
-    text: z.string().optional(),
-    image: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      // Only one of gtube, text, or image can be specified
-      const specified = [data.gtube, data.text, data.image].filter(
-        Boolean
-      ).length;
-      return specified <= 1;
-    },
-    {
-      message: "Only one of --gtube, --text, or --image can be specified",
-    }
-  );
+const ArgsSchema = z.object({
+  text: z.string().optional(),
+  image: z.string({
+    required_error: "Image is required for flashes stories",
+    invalid_type_error: "Image path must be a string",
+  }),
+});
 
 async function main(): Promise<void> {
   const argv = await yargs(hideBin(process.argv))
-    .option("gtube", {
-      type: "boolean",
-      description: "Include GTUBE test string for spam detection testing",
-    })
     .option("text", {
       type: "string",
-      description: "Custom text for the post",
+      description: "Custom text for the post (optional)",
     })
     .option("image", {
       type: "string",
-      description: "Image filename to use",
+      description: "Image filename to use (required)",
+      demandOption: true,
     })
     .help()
     .parse();
@@ -65,18 +49,16 @@ async function main(): Promise<void> {
     record: {
       $type: "app.flashes.story",
       createdAt: new Date().toISOString(),
-      text: args.text ?? args.gtube ? gtubeString : imageText,
-      embed: args.image
-        ? {
-            $type: "app.flashes.story#image",
-            images: [
-              {
-                image: (await uploadBlob(agent, args.image)).data.blob,
-                alt: imageText,
-              },
-            ],
-          }
-        : undefined,
+      text: args.text ?? defaultText,
+      embed: {
+        $type: "app.flashes.story#image",
+        images: [
+          {
+            image: (await uploadBlob(agent, args.image)).data.blob,
+            alt: args.text ?? defaultText,
+          },
+        ],
+      },
     },
   });
 
