@@ -22,7 +22,26 @@ Unlike prod/dev environments which use Scaleway cloud infrastructure, the local 
 
 ## Quick Start
 
+### 0. CRITICAL: Set Local Kubeconfig
+
+**EXTREMELY IMPORTANT**: Always use a local kubeconfig to avoid polluting your shared `~/.kube/config`!
+
+```bash
+# Set KUBECONFIG to a local path in THIS directory
+export KUBECONFIG="$(pwd)/kube-config"
+
+# Verify it's set correctly (should show the local path, NOT ~/.kube/config)
+echo $KUBECONFIG
+```
+
+**Add this to your shell session** or put it in a `.envrc` file (if using direnv):
+```bash
+export KUBECONFIG="$PWD/kube-config"
+```
+
 ### 1. Create k3d Cluster
+
+**IMPORTANT**: Ensure `KUBECONFIG` is set (see step 0) before running this command!
 
 ```bash
 k3d cluster create eurosky-local \
@@ -30,6 +49,8 @@ k3d cluster create eurosky-local \
   --port 80:80@loadbalancer \
   --port 443:443@loadbalancer
 ```
+
+This will automatically write the kubeconfig to your `$KUBECONFIG` path.
 
 **Why these settings:**
 - **Disable Traefik:** k3s ships with Traefik, but we use nginx-ingress (same as prod/dev). Keeping both would conflict on ports 80/443.

@@ -12,6 +12,7 @@ crash.*.log
 # Environment files with credentials
 .env*
 !.env*.example
+!.envrc
 
 # Ignore override files as they are usually used to override resources locally
 override.tf
@@ -26,10 +27,8 @@ terraform.rc
 # Terraform plan output file
 tfplan
 
-<<<<<<< HEAD
 # Kube config file
 kube-config
-=======
+
 # Ignore local MinIO data directory
 .minio-data/
->>>>>>> d173284 (WIP)
