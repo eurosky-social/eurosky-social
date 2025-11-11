@@ -87,6 +87,7 @@ module "ozone" {
   postgres_cluster_name   = module.postgres.cluster_name
   postgres_ca_secret_name = module.postgres.ca_secret_name
   postgres_pooler_name    = module.postgres.pooler_name
+  pds_hostname            = var.pds_hostname
 
   depends_on = [module.postgres, module.ingress_nginx]
 }
@@ -95,6 +96,7 @@ module "pds" {
   source = "./pds"
 
   cluster_domain                = var.cluster_domain
+  pds_hostname                  = var.pds_hostname
   storage_provisioner           = var.pds_storage_provisioner
   pds_storage_size              = var.pds_storage_size
   backup_bucket                 = var.pds_backup_s3_bucket

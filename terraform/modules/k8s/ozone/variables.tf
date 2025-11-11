@@ -77,3 +77,8 @@ variable "postgres_pooler_name" {
   description = "PostgreSQL pooler service name"
   type        = string
 }
+
+variable "pds_hostname" {
+  description = "PDS hostname for OZONE_PDS_URL and OZONE_PDS_DID (e.g., berlin-demo.eurosky.social)"
+  type        = string
+}

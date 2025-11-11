@@ -14,8 +14,8 @@ module "upcloud" {
     "grafana.${var.cluster_domain}",
     "ozone.${var.cluster_domain}",
     "relay.${var.cluster_domain}",
-    "berlin-demo.${var.cluster_domain}",
-    "*.berlin-demo.${var.cluster_domain}"
+    var.pds_hostname,
+    "*.${var.pds_hostname}"
   ]
 }
 
@@ -50,6 +50,7 @@ module "k8s" {
   ozone_admin_password  = var.ozone_admin_password
   ozone_signing_key_hex = var.ozone_signing_key_hex
 
+  pds_hostname                  = var.pds_hostname
   pds_storage_provisioner       = module.upcloud.storage_provisioner
   pds_storage_size              = var.pds_storage_size
   pds_backup_s3_bucket          = module.upcloud.pds_backup_s3_bucket

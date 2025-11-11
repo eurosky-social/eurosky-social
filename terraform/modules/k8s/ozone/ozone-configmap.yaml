@@ -17,6 +17,8 @@ data:
   OZONE_APPVIEW_DID: "${ozone_appview_did}"
   OZONE_SERVER_DID: "${ozone_server_did}"
   OZONE_ADMIN_DIDS: "${ozone_admin_dids}"
+  OZONE_PDS_URL: "https://${pds_hostname}"
+  OZONE_PDS_DID: "did:web:${pds_hostname}"
   # TODO: Add OZONE_PORT if non-default port is needed (default is 3000)
   # TODO: Consider adding OZONE_DB_POOL_SIZE, OZONE_DB_POOL_MAX_USES, OZONE_DB_POOL_IDLE_TIMEOUT_MS for connection pooling tuning
   # TODO: Consider adding OZONE_DID_CACHE_STALE_TTL, OZONE_DID_CACHE_MAX_TTL for DID caching optimization

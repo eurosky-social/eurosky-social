@@ -19,6 +19,7 @@ ozone_appview_did = "did:web:api.bsky.app"
 ozone_server_did  = "did:plc:7kykji2z2jie3tcaz6jypwsf"
 
 # PDS
+pds_hostname          = "berlin-demo.eurosky.social"
 pds_storage_size      = "10Gi"
 pds_did_plc_url       = "https://plc.directory"
 pds_bsky_app_view_url = "https://api.bsky.app"

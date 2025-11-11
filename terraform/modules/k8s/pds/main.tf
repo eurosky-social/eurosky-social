@@ -1,6 +1,4 @@
 locals {
-  hostname = "berlin-demo.${var.cluster_domain}"
-
   # System database locations
   pds_data_directory        = "/pds"
   pds_account_db_location   = "${local.pds_data_directory}/account.sqlite"
@@ -20,7 +18,7 @@ locals {
 
   pds_configmap_yaml = templatefile("${path.module}/pds-configmap.yaml", {
     namespace                    = kubernetes_namespace.pds.metadata[0].name
-    pds_hostname                 = local.hostname
+    pds_hostname                 = var.pds_hostname
     pds_data_directory           = local.pds_data_directory
     pds_account_db_location      = local.pds_account_db_location
     pds_sequencer_db_location    = local.pds_sequencer_db_location
@@ -130,7 +128,7 @@ resource "kubectl_manifest" "pds_service" {
 resource "kubectl_manifest" "pds_ingress" {
   yaml_body = templatefile("${path.module}/pds-ingress.yaml", {
     namespace      = kubernetes_namespace.pds.metadata[0].name
-    hostname       = local.hostname
+    hostname       = var.pds_hostname
     cluster_domain = var.cluster_domain
   })
 

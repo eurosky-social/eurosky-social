@@ -9,6 +9,7 @@ locals {
     ozone_appview_did = var.ozone_appview_did
     ozone_server_did  = var.ozone_server_did
     ozone_admin_dids  = var.ozone_admin_dids
+    pds_hostname      = var.pds_hostname
   }))
 
   secret_checksum = sha256(jsonencode({
@@ -49,6 +50,7 @@ resource "kubectl_manifest" "ozone_configmap" {
     ozone_appview_did = var.ozone_appview_did
     ozone_server_did  = var.ozone_server_did
     ozone_admin_dids  = var.ozone_admin_dids
+    pds_hostname      = var.pds_hostname
   })
 
   server_side_apply = true

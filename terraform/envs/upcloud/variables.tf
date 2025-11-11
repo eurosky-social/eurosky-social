@@ -49,6 +49,11 @@ variable "k8s_node_count_max" {
   type        = number
 }
 
+variable "pds_hostname" {
+  description = "PDS hostname (e.g., berlin-demo.eurosky.social)"
+  type        = string
+}
+
 variable "pds_storage_size" {
   description = "PDS storage size (e.g., 10Gi for dev, 100Gi for production)"
   type        = string

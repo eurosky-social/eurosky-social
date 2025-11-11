@@ -9,6 +9,11 @@ variable "cluster_domain" {
   type        = string
 }
 
+variable "pds_hostname" {
+  description = "PDS hostname (e.g., berlin-demo.eurosky.social)"
+  type        = string
+}
+
 variable "storage_provisioner" {
   description = "Storage provisioner for PDS volumes"
   type        = string

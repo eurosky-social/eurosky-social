@@ -139,6 +139,11 @@ variable "ozone_signing_key_hex" {
   sensitive   = true
 }
 
+variable "pds_hostname" {
+  description = "PDS hostname (e.g., berlin-demo.eurosky.social)"
+  type        = string
+}
+
 variable "pds_storage_provisioner" {
   description = "Storage provisioner for PDS volumes"
   type        = string
