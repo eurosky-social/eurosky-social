@@ -13,7 +13,14 @@ resource "upcloud_managed_object_storage" "main" {
     name   = "${var.partition}-object-storage-network"
     type   = "private"
     uuid   = upcloud_network.main.id
-  }
+  }  
+
+  # Disable public access  
+  # network {
+  #   family = "IPv4"
+  #   name   = "${var.partition}-object-storage-network-pub"
+  #   type   = "public"
+  # }
 
   # Protect existing Object Storage from accidental deletion
   lifecycle {
