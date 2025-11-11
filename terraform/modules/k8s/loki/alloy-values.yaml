@@ -93,10 +93,15 @@ alloy:
           template = "{{`{{ if eq .level \"10\" }}trace{{ else if eq .level \"20\" }}debug{{ else if eq .level \"30\" }}info{{ else if eq .level \"40\" }}warn{{ else if eq .level \"50\" }}error{{ else if eq .level \"60\" }}fatal{{ else if .level }}{{ .level }}{{ end }}`}}"
         }
 
-        // Also try logfmt extraction (runs even if JSON succeeded, extracts if logfmt found)
-        stage.logfmt {
-          mapping = {
-            level_logfmt = "level",
+        // Only parse logfmt for Prometheus (monitoring namespace)
+        // Prevents "failed to decode logfmt" errors on JSON logs
+        stage.match {
+          selector = "{namespace=\"monitoring\"}"
+
+          stage.logfmt {
+            mapping = {
+              level_logfmt = "level",
+            }
           }
         }
 
