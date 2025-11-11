@@ -6,10 +6,14 @@ Kubernetes on Scaleway with Ozone moderation and Bluesky PDS.
 
 ```bash
 cd envs/scaleway
-cp .env.example .env 
-# Edit .env and fill in all required variables
+cp .envrc.example .envrc
+# Edit .envrc and fill in all required variables
 
-source .env
+# Option 1: Using direnv (auto-loads/unloads on directory change)
+direnv allow
+
+# Option 2: Manual source (once per shell session)
+source .envrc
 
 # First time: Create buckets for terraform state
 scw object bucket create name=${STATE_BUCKET} region=${SCW_DEFAULT_REGION}

@@ -26,17 +26,18 @@ Unlike prod/dev environments which use Scaleway cloud infrastructure, the local 
 
 **EXTREMELY IMPORTANT**: Always use a local kubeconfig to avoid polluting your shared `~/.kube/config`!
 
-```bash
-# Set KUBECONFIG to a local path in THIS directory
-export KUBECONFIG="$(pwd)/kube-config"
+The `.envrc` file (created in step 3) automatically sets `KUBECONFIG="$PWD/kube-config"`.
 
-# Verify it's set correctly (should show the local path, NOT ~/.kube/config)
+**Verify it's set correctly:**
+```bash
 echo $KUBECONFIG
+# Should show: /path/to/terraform/envs/local/kube-config
+# NOT: ~/.kube/config
 ```
 
-**Add this to your shell session** or put it in a `.envrc` file (if using direnv):
+**If not using direnv**, manually export before running kubectl:
 ```bash
-export KUBECONFIG="$PWD/kube-config"
+export KUBECONFIG="$(pwd)/kube-config"
 ```
 
 ### 1. Create k3d Cluster
@@ -73,18 +74,22 @@ You should see `local-path` as the default storage class.
 cd terraform/envs/local
 
 # Copy example files
-cp .env.example .env
+cp .envrc.example .envrc
 cp terraform.auto.tfvars.example terraform.auto.tfvars
 
-# Edit .env with your secrets
-vim .env
+# Edit .envrc with your secrets
+vim .envrc
 
-# Generate random secrets (examples in .env.example)
+# Generate random secrets (examples in .envrc.example)
 openssl rand -hex 16  # for 16-byte secrets
 openssl rand -hex 32  # for 32-byte secrets
 
 # Load environment variables
-source .env
+# Option 1: Using direnv (auto-loads/unloads on directory change)
+direnv allow
+
+# Option 2: Manual source (once per shell session)
+source .envrc
 
 # Edit terraform.auto.tfvars with your configuration
 vim terraform.auto.tfvars

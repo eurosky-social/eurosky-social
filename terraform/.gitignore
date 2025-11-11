@@ -12,7 +12,8 @@ crash.*.log
 # Environment files with credentials
 .env*
 !.env*.example
-!.envrc
+.envrc
+!.envrc.example
 
 # Ignore override files as they are usually used to override resources locally
 override.tf

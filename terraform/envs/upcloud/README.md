@@ -3,11 +3,15 @@
 ## Setup
 
 ```bash
-cd envs/dev  # or envs/prod
-cp .env.example .env && cp terraform.auto.tfvars.example terraform.auto.tfvars
+cd envs/upcloud
+cp .envrc.example .envrc && cp terraform.auto.tfvars.example terraform.auto.tfvars
 # Edit both files
 
-source .env
+# Option 1: Using direnv (auto-loads/unloads on directory change)
+direnv allow
+
+# Option 2: Manual source (once per shell session)
+source .envrc
 
 $STORAGE_SERVICE_NAME="your-storage-service"
 upctl objectstorage create --name $STORAGE_SERVICE_NAME --region europe-1

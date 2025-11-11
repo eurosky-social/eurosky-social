@@ -1,6 +1,9 @@
-# Local K3d Environment Secrets
-# Copy this file to .env and fill in your values
-# Load with: source .env
+# Local K3d Environment Configuration
+# Copy this file to .envrc and fill in your values
+# If using direnv: run 'direnv allow' to auto-load when entering this directory
+
+# Set local kubeconfig to avoid polluting ~/.kube/config
+export KUBECONFIG="$PWD/kube-config"
 
 # Cloudflare Configuration (for external-dns)
 export TF_VAR_cloudflare_api_token="your-cloudflare-api-token-here"
