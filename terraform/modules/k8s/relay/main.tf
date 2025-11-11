@@ -89,8 +89,8 @@ resource "kubectl_manifest" "relay_servicemonitor" {
 
 resource "kubectl_manifest" "relay_ingress" {
   yaml_body = templatefile("${path.module}/relay-ingress.yaml", {
-    namespace = kubernetes_namespace.relay.metadata[0].name
-    hostname  = "relay.${var.cluster_domain}"
+    namespace      = kubernetes_namespace.relay.metadata[0].name
+    hostname       = "relay.${var.cluster_domain}"
     cluster_domain = var.cluster_domain
   })
 

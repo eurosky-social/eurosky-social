@@ -129,9 +129,9 @@ resource "kubectl_manifest" "pds_service" {
 
 resource "kubectl_manifest" "pds_ingress" {
   yaml_body = templatefile("${path.module}/pds-ingress.yaml", {
-    namespace           = kubernetes_namespace.pds.metadata[0].name
-    hostname            = local.hostname
-    cluster_domain      = var.cluster_domain
+    namespace      = kubernetes_namespace.pds.metadata[0].name
+    hostname       = local.hostname
+    cluster_domain = var.cluster_domain
   })
 
   server_side_apply = true

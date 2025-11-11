@@ -223,16 +223,6 @@ variable "pds_public_hostname" {
   default     = null
 }
 
-variable "backup_bucket_name" {
-  description = "Backup bucket name (must be pre-created)"
-  type        = string
-}
-
-variable "pds_blobstore_bucket_name" {
-  description = "PDS blobstore bucket name (must be pre-created)"
-  type        = string
-}
-
 variable "postgres_cluster_name" {
   description = "PostgreSQL cluster name (increment version for recovery: postgres-cluster-v2, v3, etc.)"
   type        = string

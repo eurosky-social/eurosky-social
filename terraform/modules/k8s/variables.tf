@@ -69,30 +69,30 @@ variable "postgres_storage_class" {
   type        = string
 }
 
-variable "backup_s3_access_key" {
-  description = "S3 access key for all backups (PostgreSQL, Litestream)"
+variable "postgres_backup_s3_access_key" {
+  description = "S3 access key for PostgreSQL backups"
   type        = string
   sensitive   = true
 }
 
-variable "backup_s3_secret_key" {
-  description = "S3 secret key for all backups (PostgreSQL, Litestream)"
+variable "postgres_backup_s3_secret_key" {
+  description = "S3 secret key for PostgreSQL backups"
   type        = string
   sensitive   = true
 }
 
-variable "backup_s3_bucket" {
-  description = "S3 bucket for all backups (postgres/, litestream/ prefixes)"
+variable "postgres_backup_s3_bucket" {
+  description = "S3 bucket for PostgreSQL backups"
   type        = string
 }
 
-variable "backup_s3_region" {
-  description = "S3 region for backup bucket"
+variable "postgres_backup_s3_region" {
+  description = "S3 region for PostgreSQL backup bucket"
   type        = string
 }
 
-variable "backup_s3_endpoint" {
-  description = "S3 endpoint URL for backup bucket"
+variable "postgres_backup_s3_endpoint" {
+  description = "S3 endpoint URL for PostgreSQL backup bucket"
   type        = string
 }
 
@@ -197,6 +197,33 @@ variable "pds_blobstore_secret_key" {
   sensitive   = true
 }
 
+variable "pds_backup_s3_bucket" {
+  description = "S3 bucket for PDS backups"
+  type        = string
+}
+
+variable "pds_backup_s3_access_key" {
+  description = "S3 access key for PDS backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_backup_s3_secret_key" {
+  description = "S3 secret key for PDS backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_backup_s3_region" {
+  description = "S3 region for PDS backup bucket"
+  type        = string
+}
+
+variable "pds_backup_s3_endpoint" {
+  description = "S3 endpoint URL for PDS backup bucket"
+  type        = string
+}
+
 variable "pds_did_plc_url" {
   description = "PLC directory URL for DID resolution"
   type        = string
@@ -282,8 +309,62 @@ variable "prometheus_storage_class" {
   type        = string
 }
 
+variable "thanos_s3_bucket" {
+  description = "S3 bucket for Thanos long-term metrics"
+  type        = string
+}
+
+variable "thanos_s3_access_key" {
+  description = "S3 access key for Thanos metrics"
+  type        = string
+  sensitive   = true
+}
+
+variable "thanos_s3_secret_key" {
+  description = "S3 secret key for Thanos metrics"
+  type        = string
+  sensitive   = true
+}
+
+variable "thanos_s3_region" {
+  description = "S3 region for Thanos metrics bucket"
+  type        = string
+}
+
+variable "thanos_s3_endpoint" {
+  description = "S3 endpoint URL for Thanos metrics bucket"
+  type        = string
+}
+
 variable "loki_storage_class" {
   description = "Storage class for Loki persistent volumes"
+  type        = string
+}
+
+variable "loki_s3_bucket" {
+  description = "S3 bucket for Loki logs"
+  type        = string
+}
+
+variable "loki_s3_access_key" {
+  description = "S3 access key for Loki logs"
+  type        = string
+  sensitive   = true
+}
+
+variable "loki_s3_secret_key" {
+  description = "S3 secret key for Loki logs"
+  type        = string
+  sensitive   = true
+}
+
+variable "loki_s3_region" {
+  description = "S3 region for Loki logs bucket"
+  type        = string
+}
+
+variable "loki_s3_endpoint" {
+  description = "S3 endpoint URL for Loki logs bucket"
   type        = string
 }
 
@@ -346,5 +427,32 @@ variable "relay_storage_class" {
 
 variable "relay_storage_size" {
   description = "Storage size for relay data"
+  type        = string
+}
+
+variable "relay_backup_s3_bucket" {
+  description = "S3 bucket for Relay backups"
+  type        = string
+}
+
+variable "relay_backup_s3_access_key" {
+  description = "S3 access key for Relay backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "relay_backup_s3_secret_key" {
+  description = "S3 secret key for Relay backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "relay_backup_s3_region" {
+  description = "S3 region for Relay backup bucket"
+  type        = string
+}
+
+variable "relay_backup_s3_endpoint" {
+  description = "S3 endpoint URL for Relay backup bucket"
   type        = string
 }

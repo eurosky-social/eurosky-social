@@ -18,11 +18,11 @@ module "prometheus_stack" {
   smtp_username          = var.smtp_username
   smtp_password          = var.smtp_password
   deadmansswitch_url     = var.deadmansswitch_url
-  thanos_s3_bucket       = var.backup_s3_bucket
-  thanos_s3_region       = var.backup_s3_region
-  thanos_s3_endpoint     = var.backup_s3_endpoint
-  thanos_s3_access_key   = var.backup_s3_access_key
-  thanos_s3_secret_key   = var.backup_s3_secret_key
+  thanos_s3_bucket       = var.thanos_s3_bucket
+  thanos_s3_region       = var.thanos_s3_region
+  thanos_s3_endpoint     = var.thanos_s3_endpoint
+  thanos_s3_access_key   = var.thanos_s3_access_key
+  thanos_s3_secret_key   = var.thanos_s3_secret_key
 }
 
 module "cert_manager" {
@@ -31,7 +31,7 @@ module "cert_manager" {
   cloudflare_dns_api_token = var.cloudflare_dns_api_token
   acme_email               = var.cert_manager_acme_email
 
-  depends_on = [ module.prometheus_stack ]
+  depends_on = [module.prometheus_stack]
 }
 
 module "ingress_nginx" {
@@ -58,11 +58,11 @@ module "postgres" {
   source = "./postgres"
 
   storage_class                = var.postgres_storage_class
-  backup_s3_access_key         = var.backup_s3_access_key
-  backup_s3_secret_key         = var.backup_s3_secret_key
-  backup_s3_bucket             = var.backup_s3_bucket
-  backup_s3_region             = var.backup_s3_region
-  backup_s3_endpoint           = var.backup_s3_endpoint
+  backup_s3_access_key         = var.postgres_backup_s3_access_key
+  backup_s3_secret_key         = var.postgres_backup_s3_secret_key
+  backup_s3_bucket             = var.postgres_backup_s3_bucket
+  backup_s3_region             = var.postgres_backup_s3_region
+  backup_s3_endpoint           = var.postgres_backup_s3_endpoint
   ozone_db_password            = var.ozone_db_password
   postgres_cluster_name        = var.postgres_cluster_name
   recovery_source_cluster_name = var.postgres_recovery_source_cluster_name
@@ -97,11 +97,11 @@ module "pds" {
   cluster_domain                = var.cluster_domain
   storage_provisioner           = var.pds_storage_provisioner
   pds_storage_size              = var.pds_storage_size
-  backup_bucket                 = var.backup_s3_bucket
-  backup_region                 = var.backup_s3_region
-  backup_endpoint               = var.backup_s3_endpoint
-  backup_access_key             = var.backup_s3_access_key
-  backup_secret_key             = var.backup_s3_secret_key
+  backup_bucket                 = var.pds_backup_s3_bucket
+  backup_region                 = var.pds_backup_s3_region
+  backup_endpoint               = var.pds_backup_s3_endpoint
+  backup_access_key             = var.pds_backup_s3_access_key
+  backup_secret_key             = var.pds_backup_s3_secret_key
   pds_jwt_secret                = var.pds_jwt_secret
   pds_admin_password            = var.pds_admin_password
   pds_plc_rotation_key          = var.pds_plc_rotation_key
@@ -129,11 +129,11 @@ module "loki" {
   source = "./loki"
 
   storage_class        = var.loki_storage_class
-  s3_bucket            = var.backup_s3_bucket
-  s3_region            = var.backup_s3_region
-  s3_endpoint          = var.backup_s3_endpoint
-  s3_access_key        = var.backup_s3_access_key
-  s3_secret_key        = var.backup_s3_secret_key
+  s3_bucket            = var.loki_s3_bucket
+  s3_region            = var.loki_s3_region
+  s3_endpoint          = var.loki_s3_endpoint
+  s3_access_key        = var.loki_s3_access_key
+  s3_secret_key        = var.loki_s3_secret_key
   monitoring_namespace = module.prometheus_stack.monitoring_namespace
 
   depends_on = [module.prometheus_stack]
@@ -146,11 +146,11 @@ module "relay" {
   relay_storage_class  = var.relay_storage_class
   relay_storage_size   = var.relay_storage_size
   cluster_domain       = var.cluster_domain
-  backup_bucket        = var.backup_s3_bucket
-  backup_region        = var.backup_s3_region
-  backup_endpoint      = var.backup_s3_endpoint
-  backup_access_key    = var.backup_s3_access_key
-  backup_secret_key    = var.backup_s3_secret_key
+  backup_bucket        = var.relay_backup_s3_bucket
+  backup_region        = var.relay_backup_s3_region
+  backup_endpoint      = var.relay_backup_s3_endpoint
+  backup_access_key    = var.relay_backup_s3_access_key
+  backup_secret_key    = var.relay_backup_s3_secret_key
 
   depends_on = [module.ingress_nginx]
 }

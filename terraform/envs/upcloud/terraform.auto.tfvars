@@ -14,17 +14,17 @@ postgres_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-block
 # postgres_enable_recovery              = true
 
 # Ozone
-ozone_appview_url         = "https://api.bsky.app"
-ozone_appview_did         = "did:web:api.bsky.app"
-ozone_server_did          = "did:plc:7kykji2z2jie3tcaz6jypwsf"
+ozone_appview_url = "https://api.bsky.app"
+ozone_appview_did = "did:web:api.bsky.app"
+ozone_server_did  = "did:plc:7kykji2z2jie3tcaz6jypwsf"
 
 # PDS
-pds_storage_size        = "10Gi"
-pds_did_plc_url         = "https://plc.directory"
-pds_bsky_app_view_url   = "https://api.bsky.app"
-pds_bsky_app_view_did   = "did:web:api.bsky.app"
-pds_blob_upload_limit   = "52428800"
-pds_log_enabled         = "true"
+pds_storage_size      = "10Gi"
+pds_did_plc_url       = "https://plc.directory"
+pds_bsky_app_view_url = "https://api.bsky.app"
+pds_bsky_app_view_did = "did:web:api.bsky.app"
+pds_blob_upload_limit = "52428800"
+pds_log_enabled       = "true"
 
 # Prometheus
 prometheus_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-block-storage-maxiops"
@@ -33,5 +33,5 @@ prometheus_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-blo
 loki_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-block-storage-maxiops"
 
 # Relay
-relay_storage_class="upcloud-block-storage-standard"
-relay_storage_size="90Gi"
+relay_storage_class = "upcloud-block-storage-standard"
+relay_storage_size  = "90Gi"

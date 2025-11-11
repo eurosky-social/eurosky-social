@@ -92,8 +92,8 @@ resource "upcloud_kubernetes_node_group" "relay" {
 
   cluster       = upcloud_kubernetes_cluster.main.id
   node_count    = 1
-  plan          = "DEV-2xCPU-16GB"  # good enough for testing things
-  anti_affinity = false 
+  plan          = "DEV-2xCPU-16GB" # good enough for testing things
+  anti_affinity = false
 
   labels = {
     managed-by = "terraform"

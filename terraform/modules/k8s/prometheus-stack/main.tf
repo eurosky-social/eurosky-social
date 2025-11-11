@@ -6,8 +6,8 @@ resource "kubernetes_namespace" "monitoring" {
 
 resource "helm_release" "kube_prometheus_stack" {
   # Note: Manually update CRDs before upgrading chart (NOT auto-updated by helm)
-  name             = "kube-prometheus-stack"
-  namespace        = kubernetes_namespace.monitoring.metadata[0].name
+  name      = "kube-prometheus-stack"
+  namespace = kubernetes_namespace.monitoring.metadata[0].name
 
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"

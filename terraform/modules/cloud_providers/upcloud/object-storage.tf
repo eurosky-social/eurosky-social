@@ -21,130 +21,39 @@ resource "upcloud_managed_object_storage" "main" {
   }
 }
 
-# Backup bucket for PostgreSQL Barman Cloud backups
-resource "upcloud_managed_object_storage_bucket" "backup" {
-  service_uuid = upcloud_managed_object_storage.main.id
-  name         = var.backup_bucket_name
-
-  lifecycle {
-    prevent_destroy = true
+# Define bucket configuration for all workloads
+locals {
+  buckets = {
+    postgres-backup = {
+      description = "PostgreSQL Barman backups"
+    }
+    relay-backup = {
+      description = "Relay SQLite backups"
+    }
+    pds-backup = {
+      description = "PDS SQLite backups"
+    }
+    logs = {
+      description = "Loki log storage"
+    }
+    metrics = {
+      description = "Thanos long-term metrics"
+    }
+    pds-blobs = {
+      description = "PDS user content"
+    }
   }
 }
 
-# PDS blobstore bucket for user-uploaded content
-resource "upcloud_managed_object_storage_bucket" "pds_blobstore" {
+# Create S3 bucket with dedicated IAM user for each workload
+module "s3_bucket" {
+  source = "./modules/s3-bucket-with-iam"
+
+  for_each = local.buckets
+
   service_uuid = upcloud_managed_object_storage.main.id
-  name         = var.pds_blobstore_bucket_name
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-# Backup user - only access to backup bucket
-resource "upcloud_managed_object_storage_user" "backup" {
-  username     = "${var.partition}-backup-user"
-  service_uuid = upcloud_managed_object_storage.main.id
-}
-
-resource "upcloud_managed_object_storage_user_access_key" "backup" {
-  username     = upcloud_managed_object_storage_user.backup.username
-  service_uuid = upcloud_managed_object_storage.main.id
-  status       = "Active"
-}
-
-# PDS user - only access to PDS blobstore bucket
-resource "upcloud_managed_object_storage_user" "pds" {
-  username     = "${var.partition}-pds-user"
-  service_uuid = upcloud_managed_object_storage.main.id
-}
-
-resource "upcloud_managed_object_storage_user_access_key" "pds" {
-  username     = upcloud_managed_object_storage_user.pds.username
-  service_uuid = upcloud_managed_object_storage.main.id
-  status       = "Active"
-}
-
-# Backup user policy - restrict to backup bucket only
-resource "upcloud_managed_object_storage_policy" "backup" {
-  name         = "${var.partition}-backup-policy"
-  description  = "Allow read/write access only to backup bucket"
-  service_uuid = upcloud_managed_object_storage.main.id
-
-  # IAM policy document (URL-encoded JSON)
-  document = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "BackupBucketAccess"
-        Effect = "Allow"
-        Action = [
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:ListAllMyBuckets"
-        ]
-        Resource = [
-          "arn:aws:s3:::${var.backup_bucket_name}",
-          "arn:aws:s3:::*"
-        ]
-      },
-      {
-        Sid    = "BackupObjectAccess"
-        Effect = "Allow"
-        Action = [
-          "s3:PutObject",
-          "s3:GetObject",
-          "s3:DeleteObject"
-        ]
-        Resource = "arn:aws:s3:::${var.backup_bucket_name}/*"
-      }
-    ]
-  })
-}
-
-# Attach backup policy to backup user
-resource "upcloud_managed_object_storage_user_policy" "backup" {
-  username     = upcloud_managed_object_storage_user.backup.username
-  service_uuid = upcloud_managed_object_storage.main.id
-  name         = upcloud_managed_object_storage_policy.backup.name
-}
-
-# PDS user policy - restrict to PDS blobstore bucket only
-resource "upcloud_managed_object_storage_policy" "pds" {
-  name         = "${var.partition}-pds-policy"
-  description  = "Allow read/write access only to PDS blobstore bucket"
-  service_uuid = upcloud_managed_object_storage.main.id
-
-  # IAM policy document (URL-encoded JSON)
-  document = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "PDSBucketAccess"
-        Effect = "Allow"
-        Action = [
-          "s3:ListBucket",
-          "s3:GetBucketLocation"
-        ]
-        Resource = "arn:aws:s3:::${var.pds_blobstore_bucket_name}"
-      },
-      {
-        Sid    = "PDSObjectAccess"
-        Effect = "Allow"
-        Action = [
-          "s3:PutObject",
-          "s3:GetObject",
-          "s3:DeleteObject"
-        ]
-        Resource = "arn:aws:s3:::${var.pds_blobstore_bucket_name}/*"
-      }
-    ]
-  })
-}
-
-# Attach PDS policy to PDS user
-resource "upcloud_managed_object_storage_user_policy" "pds" {
-  username     = upcloud_managed_object_storage_user.pds.username
-  service_uuid = upcloud_managed_object_storage.main.id
-  name         = upcloud_managed_object_storage_policy.pds.name
+  bucket_name  = "${each.key}-${var.partition}"
+  user_name    = "${each.key}-${var.partition}-user"
+  policy_name  = "${each.key}-${var.partition}-policy"
+  description  = each.value.description
 }

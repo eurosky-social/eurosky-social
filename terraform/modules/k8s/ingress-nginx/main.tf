@@ -10,10 +10,10 @@ resource "helm_release" "nginx_ingress" {
 
   values = [
     templatefile("${path.module}/ingress-nginx-values.yaml", {
-      replica_count        = var.replica_count
-      topology_max_skew    = var.topology_max_skew
-      release_name         = "ingress-nginx"
-      maxmind_license_key  = var.maxmind_license_key
+      replica_count       = var.replica_count
+      topology_max_skew   = var.topology_max_skew
+      release_name        = "ingress-nginx"
+      maxmind_license_key = var.maxmind_license_key
     })
   ]
 }

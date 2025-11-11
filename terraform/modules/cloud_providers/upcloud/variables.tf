@@ -33,16 +33,6 @@ variable "autoscaler_password" {
   sensitive = true
 }
 
-variable "backup_bucket_name" {
-  description = "S3 bucket name for backups"
-  type        = string
-}
-
-variable "pds_blobstore_bucket_name" {
-  description = "S3 bucket name for PDS blobstore"
-  type        = string
-}
-
 variable "object_storage_region" {
   description = "UpCloud Object Storage region"
   type        = string
