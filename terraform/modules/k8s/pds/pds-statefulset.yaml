@@ -69,6 +69,7 @@ spec:
                 - ALL
           resources:
             limits:
+              # TODO: to scale vertically to multiple CPUs we would need to run different Node process in parallel + add Redis to share throttling
               cpu: 500m
               memory: 256Mi
       containers:
