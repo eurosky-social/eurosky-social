@@ -15,5 +15,5 @@ data:
             region: ${backup_region}
             force-path-style: true
             sync-interval: 15m
-            snapshot-interval: 6h
-            retention: 168h
+            snapshot-interval: 1h
+            retention: 1h
