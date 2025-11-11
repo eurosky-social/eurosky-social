@@ -44,13 +44,13 @@ grafana:
       memory: 64Mi
     limits:
       memory: 256Mi
-  affinity:
-    podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: grafana
-          topologyKey: kubernetes.io/hostname
+  # affinity:
+  #   podAntiAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       - labelSelector:
+  #           matchLabels:
+  #             app.kubernetes.io/name: grafana
+  #         topologyKey: kubernetes.io/hostname
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: topology.kubernetes.io/zone

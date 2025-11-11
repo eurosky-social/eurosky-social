@@ -26,5 +26,10 @@ terraform.rc
 # Terraform plan output file
 tfplan
 
+<<<<<<< HEAD
 # Kube config file
 kube-config
+=======
+# Ignore local MinIO data directory
+.minio-data/
+>>>>>>> d173284 (WIP)

@@ -16,14 +16,39 @@ module "scaleway" {
 module "k8s" {
   source = "../../modules/k8s"
 
-  kubeconfig_host                   = module.scaleway.kubeconfig_host
-  kubeconfig_token                  = module.scaleway.kubeconfig_token
-  kubeconfig_cluster_ca_certificate = module.scaleway.kubeconfig_cluster_ca_certificate
+  external_dns_provider = "scaleway"
+  external_dns_secrets = {
+    SCW_ACCESS_KEY = module.scaleway.dns_zone_access_key
+    SCW_SECRET_KEY = module.scaleway.dns_zone_secret_key
+  }
 
-  external_dns_access_key = module.scaleway.external_dns_access_key
-  external_dns_secret_key = module.scaleway.external_dns_secret_key
+  # Scaleway-specific LoadBalancer annotations
+  # Note: scw-loadbalancer-zone is set per-service automatically based on zone iteration
+  extra_nginx_annotations = {
+    "service.beta.kubernetes.io/scw-loadbalancer-zone"           = "ZONE_ALIAS_PLACEHOLDER"  # Placeholder - set dynamically to each.key
+    "service.beta.kubernetes.io/scw-loadbalancer-timeout-tunnel" = "120000"
+  }
 
-  ingress_nginx_zones = module.scaleway.zones
+  cert_manager_secret_name = "scaleway-credentials"
+  cert_manager_secrets = {
+    access-key = module.scaleway.dns_zone_access_key
+    secret-key = module.scaleway.dns_zone_secret_key
+  }
+  cert_manager_solver_config = <<YAML
+    - dns01:
+        webhook:
+          groupName: acme.scaleway.com
+          solverName: scaleway
+          config:
+            accessKeySecretRef:
+              name: scaleway-credentials
+              key: access-key
+            secretKeySecretRef:
+              name: scaleway-credentials
+              key: secret-key
+YAML
+
+  ingress_nginx_zones     = module.scaleway.zones
   cluster_domain          = module.scaleway.domain
   cert_manager_acme_email = var.cert_manager_acme_email
 
@@ -69,6 +94,9 @@ module "k8s" {
   pds_email_smtp_url       = var.pds_email_smtp_url
   pds_public_hostname      = var.pds_public_hostname
 
+# TODO: Increase to 3 for production HA (requires 3 availability zones)
+  postgres_instances                    = 2
+  postgres_storage_size                 = "10Gi"
   postgres_cluster_name                 = var.postgres_cluster_name
   postgres_recovery_source_cluster_name = var.postgres_recovery_source_cluster_name
   postgres_enable_recovery              = var.postgres_enable_recovery

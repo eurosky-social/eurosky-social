@@ -10,17 +10,18 @@
 module "cert_manager" {
   source = "./cert-manager"
 
-  scw_access_key = var.external_dns_access_key
-  scw_secret_key = var.external_dns_secret_key
-  acme_email     = var.cert_manager_acme_email
+  dns_secrets   = var.cert_manager_secrets
+  secret_name   = var.cert_manager_secret_name
+  solver_config = var.cert_manager_solver_config
+  acme_email    = var.cert_manager_acme_email
 }
 
 module "ingress_nginx" {
   source = "./ingress-nginx"
 
-  zones          = var.ingress_nginx_zones
-  cluster_domain = var.cluster_domain
-  cloud_provider = "scaleway"
+  zones                   = var.ingress_nginx_zones
+  cluster_domain          = var.cluster_domain
+  extra_nginx_annotations = var.extra_nginx_annotations
 
   depends_on = [module.cert_manager]
 }
@@ -28,10 +29,9 @@ module "ingress_nginx" {
 module "external_dns" {
   source = "./external-dns"
 
-  access_key     = var.external_dns_access_key
-  secret_key     = var.external_dns_secret_key
+  keys           = var.external_dns_secrets
   cluster_domain = var.cluster_domain
-  cloud_provider = "scaleway"
+  dns_provider   = var.external_dns_provider
 
   depends_on = [module.ingress_nginx]
 }
@@ -51,11 +51,16 @@ module "postgres" {
 
   storage_class                = var.postgres_storage_class
   backup_s3_access_key         = var.backup_s3_access_key
-  backup_s3_secret_key         = var.backup_s3_secret_key
+
   backup_s3_bucket             = var.backup_s3_bucket
   backup_s3_region             = var.backup_s3_region
   backup_s3_endpoint           = var.backup_s3_endpoint
+  backup_s3_secret_key         = var.backup_s3_secret_key
+
   ozone_db_password            = var.ozone_db_password
+  plc_db_password              = var.plc_db_password
+  postgres_instances           = var.postgres_instances
+  postgres_storage_size        = var.postgres_storage_size
   postgres_cluster_name        = var.postgres_cluster_name
   recovery_source_cluster_name = var.postgres_recovery_source_cluster_name
   enable_recovery              = var.postgres_enable_recovery
@@ -86,33 +91,38 @@ module "ozone" {
 }
 
 module "pds" {
+  count = var.pds_enabled ? 1 : 0
   source = "./pds"
 
-  cluster_domain           = var.cluster_domain
-  cert_manager_issuer      = var.pds_cert_manager_issuer
-  storage_provisioner      = var.pds_storage_provisioner
-  pds_storage_size         = var.pds_storage_size
-  backup_bucket            = var.backup_s3_bucket
-  backup_region            = var.backup_s3_region
-  backup_endpoint          = var.backup_s3_endpoint
-  backup_access_key        = var.backup_s3_access_key
-  backup_secret_key        = var.backup_s3_secret_key
-  pds_jwt_secret           = var.pds_jwt_secret
-  pds_admin_password       = var.pds_admin_password
-  pds_plc_rotation_key     = var.pds_plc_rotation_key
-  pds_blobstore_bucket     = var.pds_blobstore_bucket
-  pds_blobstore_access_key = var.pds_blobstore_access_key
-  pds_blobstore_secret_key = var.pds_blobstore_secret_key
-  pds_did_plc_url          = var.pds_did_plc_url
-  pds_bsky_app_view_url    = var.pds_bsky_app_view_url
-  pds_bsky_app_view_did    = var.pds_bsky_app_view_did
-  pds_report_service_url   = var.pds_report_service_url
-  pds_report_service_did   = var.pds_report_service_did
-  pds_blob_upload_limit    = var.pds_blob_upload_limit
-  pds_log_enabled          = var.pds_log_enabled
-  pds_email_from_address   = var.pds_email_from_address
-  pds_email_smtp_url       = var.pds_email_smtp_url
-  pds_public_hostname      = var.pds_public_hostname
+  enabled = var.pds_enabled
+  partition = var.pds_partition
+  domain = var.cluster_domain
+  image_name = var.pds_image_name
+  image_tag = var.pds_image_tag
+  replicas = var.pds_replicas
+
+  pds_admin_password = var.pds_admin_password
+  pds_blobstore_disk_location = var.pds_blobstore_disk_location
+  pds_data_directory = var.pds_data_directory
+  pds_did_plc_url = var.pds_did_plc_url
+  pds_hostname = var.pds_public_hostname
+  pds_jwt_secret = var.pds_jwt_secret
+  pds_port = var.pds_port
+  pds_plc_rotation_key_k256_private_key_hex = var.pds_plc_rotation_key
+  pds_recovery_did_key = var.pds_recovery_did_key
+  pds_disable_ssrf_protection = var.pds_disable_ssrf_protection
+  pds_dev_mode = var.pds_dev_mode
+  pds_invite_required = var.pds_invite_required
+  pds_bsky_app_view_url = var.pds_bsky_app_view_url
+  pds_bsky_app_view_did = var.pds_bsky_app_view_did
+  pds_email_smtp_url = var.pds_email_smtp_url
+  pds_email_from_address = var.pds_email_from_address
+  pds_moderation_email_smtp_url = var.pds_moderation_email_smtp_url
+  pds_moderation_email_address = var.pds_moderation_email_address
+  pds_mod_service_url = var.pds_mod_service_url
+  pds_mod_service_did = var.pds_mod_service_did
+  log_enabled = var.pds_log_enabled
+  log_level = var.pds_log_level
 
   depends_on = [module.ingress_nginx]
 }

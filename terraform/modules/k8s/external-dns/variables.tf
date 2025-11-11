@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 variable "api_token" {
   description = "Cloudflare API token for external-dns"
   type        = string
+=======
+variable "keys" {
+  description = "Cloud provider keys for external-dns"
+  type        = map(string)
+>>>>>>> d173284 (WIP)
   sensitive   = true
 }
 
@@ -9,6 +15,7 @@ variable "cluster_domain" {
   type        = string
 }
 
+<<<<<<< HEAD
 variable "sync_policy" {
   description = "external-dns sync policy (sync or upsert-only)"
   type        = string
@@ -61,4 +68,9 @@ variable "resources_limits_memory" {
   description = "Memory resource limits"
   type        = string
   default     = "128Mi"
+=======
+variable "dns_provider" {
+  description = "Cloud provider name"
+  type        = string
+>>>>>>> d173284 (WIP)
 }

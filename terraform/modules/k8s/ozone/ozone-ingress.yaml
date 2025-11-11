@@ -23,7 +23,11 @@ metadata:
     nginx.ingress.kubernetes.io/session-cookie-secure: "true"
     nginx.ingress.kubernetes.io/session-cookie-samesite: "Lax"
     nginx.ingress.kubernetes.io/session-cookie-change-on-failure: "true"
+<<<<<<< HEAD
     external-dns.alpha.kubernetes.io/target: "ingress.${ozone_cluster_domain}"
+=======
+    # TODO: Consider CDN integration (Cloudflare or cloud provider CDN) per GUIDELINES.md networking requirement
+>>>>>>> d173284 (WIP)
     # TODO: Add nginx.ingress.kubernetes.io/configuration-snippet for WebSocket upgrade headers if needed
     # TODO: Consider adding nginx.ingress.kubernetes.io/enable-cors for CORS support if needed
 spec:

@@ -37,9 +37,13 @@ variable "backup_s3_endpoint" {
 }
 
 variable "ozone_db_password" {
-  description = "PostgreSQL password for Ozone user"
+  description = "The password for the Ozone database user."
   type        = string
-  sensitive   = true
+}
+
+variable "plc_db_password" {
+  description = "The password for the PLC database user."
+  type        = string
 }
 
 variable "cnpg_version" {
@@ -54,6 +58,27 @@ variable "barman_plugin_chart_version" {
   default     = "0.2.0"
 }
 
+<<<<<<< HEAD
+=======
+variable "monitoring_enabled" {
+  description = "Enable Prometheus monitoring"
+  type        = bool
+  default     = false
+}
+
+variable "postgres_instances" {
+  description = "Number of PostgreSQL instances"
+  type        = number
+  default     = 1
+}
+
+variable "postgres_storage_size" {
+  description = "PostgreSQL storage size"
+  type        = string
+  default     = "1Gi"
+}
+
+>>>>>>> d173284 (WIP)
 variable "postgres_cluster_name" {
   description = "PostgreSQL cluster name (increment version for recovery: postgres-cluster-v2, v3, etc.)"
   type        = string

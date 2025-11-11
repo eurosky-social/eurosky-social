@@ -3,6 +3,21 @@ output "zones" {
   value       = var.zones
 }
 
+<<<<<<< HEAD
+=======
+output "dns_zone_access_key" {
+  description = "Scaleway DNS zone access key (for external-dns and cert-manager)"
+  value       = scaleway_iam_api_key.external_dns.access_key
+  sensitive   = true
+}
+
+output "dns_zone_secret_key" {
+  description = "Scaleway DNS zone secret key (for external-dns and cert-manager)"
+  value       = scaleway_iam_api_key.external_dns.secret_key
+  sensitive   = true
+}
+
+>>>>>>> d173284 (WIP)
 output "kubeconfig" {
   description = "Kubernetes cluster kubeconfig"
   value       = scaleway_k8s_cluster.kapsule_multi_az.kubeconfig

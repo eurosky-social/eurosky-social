@@ -11,7 +11,7 @@ metadata:
     # TODO: Add app.kubernetes.io/managed-by: terraform label
 spec:
   # TODO: Increase to 3 replicas for production HA
-  replicas: 1
+  replicas: ${instances}
   selector:
     matchLabels:
       app: ozone
@@ -34,10 +34,10 @@ spec:
     spec:
       # TODO: Verify Ozone handles SIGTERM gracefully (closes WebSocket connections before exit)
       terminationGracePeriodSeconds: 300
-      topologySpreadConstraints: # TODO: Verify this works with replicas=1, may need whenUnsatisfiable: ScheduleAnyway initially
+      topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: topology.kubernetes.io/zone
-          whenUnsatisfiable: DoNotSchedule
+          whenUnsatisfiable: "%{if instances == 1}ScheduleAnyway%{else}DoNotSchedule%{endif}"
           labelSelector:
             matchLabels:
               app: ozone

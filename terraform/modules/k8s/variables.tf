@@ -1,30 +1,35 @@
-variable "kubeconfig_host" {
-  description = "Kubernetes API server host"
-  type        = string
-}
 
-variable "kubeconfig_token" {
-  description = "Kubernetes authentication token"
-  type        = string
+variable "external_dns_secrets" {
+  description = "Cloud provider secrets for external-dns (map of env var names to secret values)"
+  type        = map(string)
   sensitive   = true
 }
 
-variable "kubeconfig_cluster_ca_certificate" {
-  description = "Kubernetes cluster CA certificate (base64 encoded)"
+variable "external_dns_provider" {
+  description = "Cloud provider name for external-dns (scaleway, cloudflare, etc.)"
   type        = string
+}
+
+variable "extra_nginx_annotations" {
+  description = "Extra annotations for ingress-nginx LoadBalancer (cloud provider specific or DNS overrides)"
+  type        = map(string)
+  default     = {}
+}
+
+variable "cert_manager_secrets" {
+  description = "DNS provider secrets for cert-manager (map of key names to secret values)"
+  type        = map(string)
   sensitive   = true
 }
 
-variable "external_dns_access_key" {
-  description = "Scaleway access key for external-dns"
+variable "cert_manager_secret_name" {
+  description = "Name for the cert-manager DNS credentials secret"
   type        = string
-  sensitive   = true
 }
 
-variable "external_dns_secret_key" {
-  description = "Scaleway secret key for external-dns"
+variable "cert_manager_solver_config" {
+  description = "DNS01 solver configuration (YAML string) - provider-specific, defined by caller"
   type        = string
-  sensitive   = true
 }
 
 variable "ingress_nginx_zones" {
@@ -126,9 +131,13 @@ variable "ozone_admin_dids" {
 }
 
 variable "ozone_db_password" {
-  description = "PostgreSQL password for Ozone user"
+  description = "The password for the Ozone database user."
   type        = string
-  sensitive   = true
+}
+
+variable "plc_db_password" {
+  description = "The password for the PLC database user."
+  type        = string
 }
 
 variable "ozone_admin_password" {
@@ -247,6 +256,105 @@ variable "pds_public_hostname" {
   description = "Public hostname for PDS (optional, defaults to pds.<cluster_domain>)"
   type        = string
   default     = null
+}
+
+variable "pds_enabled" {
+  description = "Whether to deploy the PDS service."
+  type        = bool
+  default     = true
+}
+
+variable "pds_moderation_email_smtp_url" {
+  description = "SMTP URL for moderation email sending."
+  type        = string
+  default     = ""
+}
+
+variable "pds_moderation_email_address" {
+  description = "Moderation email address."
+  type        = string
+  default     = ""
+}
+
+variable "pds_mod_service_url" {
+  description = "Moderation service URL (Ozone)."
+  type        = string
+}
+
+variable "pds_mod_service_did" {
+  description = "Moderation service DID (Ozone)."
+  type        = string
+}
+
+variable "pds_port" {
+  description = "PDS service port."
+  type        = number
+  default     = 3000
+}
+
+variable "pds_recovery_did_key" {
+  description = "PDS recovery DID key."
+  type        = string
+}
+
+variable "pds_disable_ssrf_protection" {
+  description = "Disable SSRF protection for PDS."
+  type        = bool
+  default     = true
+}
+
+variable "pds_dev_mode" {
+  description = "Enable PDS development mode."
+  type        = bool
+  default     = true
+}
+
+variable "pds_invite_required" {
+  description = "Require invite code for PDS."
+  type        = bool
+  default     = false
+}
+
+variable "pds_image_name" {
+  description = "The name of the PDS Docker image."
+  type        = string
+  default     = "ghcr.io/bluesky-social/pds"
+}
+
+variable "pds_image_tag" {
+  description = "The tag of the PDS Docker image."
+  type        = string
+  default     = "latest"
+}
+
+variable "pds_replicas" {
+  description = "The number of replicas for the PDS deployment."
+  type        = number
+  default     = 1
+}
+
+variable "pds_partition" {
+  description = "The partition for the current environment (e.g., 'local', 'dev', 'prod')."
+  type        = string
+}
+
+
+variable "pds_log_level" {
+  description = "Log level for PDS."
+  type        = string
+  default     = "debug"
+}
+
+variable "postgres_instances" {
+  description = "Number of PostgreSQL instances (1 for local/dev, 3+ for production HA)"
+  type        = number
+  default     = 1
+}
+
+variable "postgres_storage_size" {
+  description = "PostgreSQL storage size"
+  type        = string
+  default     = "1Gi"
 }
 
 variable "postgres_cluster_name" {

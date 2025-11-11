@@ -78,6 +78,7 @@ resource "kubectl_manifest" "ozone_deployment" {
     ca_secret_name  = kubernetes_secret.postgres_ca_ozone.metadata[0].name
     config_checksum = local.config_checksum
     secret_checksum = local.secret_checksum
+    instances       = 1
   })
 
   server_side_apply = true

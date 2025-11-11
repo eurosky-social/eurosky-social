@@ -4,20 +4,24 @@ metadata:
   name: ${cluster_name}
   namespace: ${namespace}
 spec:
-  instances: 2 # TODO: Increase to 3 for production HA (requires 3 availability zones)
+  instances: ${instances}
 
-  imageName: ghcr.io/cloudnative-pg/postgresql:16.6 # TODO: Pin to specific digest for immutability
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.6
 
   storage:
     storageClass: ${storage_class}
+<<<<<<< HEAD
     size: 20Gi
+=======
+    size: ${storage_size}
+>>>>>>> d173284 (WIP)
 
   primaryUpdateStrategy: unsupervised
 
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: topology.kubernetes.io/zone
-      whenUnsatisfiable: DoNotSchedule
+      whenUnsatisfiable: "%{if instances == 1}ScheduleAnyway%{else}DoNotSchedule%{endif}"
       labelSelector:
         matchLabels:
           cnpg.io/cluster: ${cluster_name}
@@ -56,6 +60,11 @@ spec:
         login: true
         passwordSecret:
           name: ozone-db-secret
+      - name: plc_user
+        ensure: present
+        login: true
+        passwordSecret:
+          name: plc-db-secret
 
   bootstrap:
 %{ if !enable_recovery ~}
@@ -67,6 +76,9 @@ spec:
         - CREATE DATABASE ozone OWNER ozone_user;
         - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ozone_user;
         - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ozone_user;
+        - CREATE DATABASE plc_dev OWNER plc_user;
+        - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO plc_user;
+        - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO plc_user;
 %{ else ~}
     recovery:
       source: postgres-backup-recovery

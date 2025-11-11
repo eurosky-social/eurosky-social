@@ -4,6 +4,12 @@ variable "namespace" {
   default     = "pds"
 }
 
+variable "enabled" {
+  description = "Whether to deploy the PDS service."
+  type        = bool
+  default     = true
+}
+
 variable "cluster_domain" {
   description = "Cluster domain for ingress"
   type        = string

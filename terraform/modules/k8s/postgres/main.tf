@@ -75,6 +75,24 @@ resource "kubernetes_secret" "ozone_db" {
   type = "kubernetes.io/basic-auth"
 }
 
+resource "kubernetes_secret" "plc_db" {
+  metadata {
+    name      = "plc-db-secret"
+    namespace = kubernetes_namespace.databases.metadata[0].name
+
+    labels = {
+      "cnpg.io/reload" = "true"
+    }
+  }
+
+  data = {
+    username = "plc_user"
+    password = var.plc_db_password
+  }
+
+  type = "kubernetes.io/basic-auth"
+}
+
 resource "kubectl_manifest" "postgres_rbac" {
   yaml_body = templatefile("${path.module}/postgres-rbac.yaml", {
     namespace    = kubernetes_namespace.databases.metadata[0].name
@@ -107,6 +125,8 @@ resource "kubectl_manifest" "postgres_cluster" {
     namespace                    = kubernetes_secret.ozone_db.metadata[0].namespace
     cluster_name                 = var.postgres_cluster_name
     storage_class                = var.storage_class
+    instances                    = var.postgres_instances
+    storage_size                 = var.postgres_storage_size
     backup_objectstore_name      = local.backup_objectstore_name
     recovery_source_cluster_name = var.recovery_source_cluster_name
     enable_recovery              = var.enable_recovery
