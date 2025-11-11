@@ -53,7 +53,7 @@ spec:
               subPath: litestream.yml
       containers:
         - name: relay
-          image: ghcr.io/eurosky-social/indigo:relay-latest@sha256:471b5d5c04750d25699083bb1176f82bbad1d46a4ace4105a9313f18e7ffd636
+          image: ghcr.io/eurosky-social/indigo:relay-latest@sha256:41362f1fec5139c73516ace48b2e419d77f51e02834f1195d9373b65cfe452bf
           ports:
             - name: api
               containerPort: 2470

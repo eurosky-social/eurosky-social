@@ -115,7 +115,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"relay\",pod=~\"relay-.*\",container!=\"\"}[5m])) by (container)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"relay\",pod=~\"relay-.*\",container!=\"\"}[$__rate_interval])) by (container)",
           "refId": "A",
           "legendFormat": "{{container}}"
         }
@@ -295,7 +295,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(container_network_receive_bytes_total{namespace=\"relay\",pod=~\"relay-.*\"}[5m]))",
+          "expr": "sum(rate(container_network_receive_bytes_total{namespace=\"relay\",pod=~\"relay-.*\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "Receive"
         },
@@ -304,7 +304,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(container_network_transmit_bytes_total{namespace=\"relay\",pod=~\"relay-.*\"}[5m]))",
+          "expr": "sum(rate(container_network_transmit_bytes_total{namespace=\"relay\",pod=~\"relay-.*\"}[$__rate_interval]))",
           "refId": "B",
           "legendFormat": "Transmit"
         }
@@ -473,7 +473,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(nginx_ingress_controller_requests{exported_namespace=\"relay\"}[5m])) by (status)",
+          "expr": "sum(rate(nginx_ingress_controller_requests{exported_namespace=\"relay\"}[$__rate_interval])) by (status)",
           "refId": "A",
           "legendFormat": "{{status}}"
         }
@@ -537,7 +537,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "topk(10, sum(rate(nginx_ingress_controller_requests{exported_namespace=\"relay\"}[5m])) by (remote_addr))",
+          "expr": "topk(10, sum(rate(nginx_ingress_controller_requests{exported_namespace=\"relay\"}[$__rate_interval])) by (remote_addr))",
           "refId": "A",
           "legendFormat": "{{remote_addr}}"
         }
@@ -602,7 +602,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "topk(10, sum(rate(nginx_ingress_controller_requests{exported_namespace=\"relay\"}[5m])) by (path))",
+          "expr": "topk(10, sum(rate(nginx_ingress_controller_requests{exported_namespace=\"relay\"}[$__rate_interval])) by (path))",
           "refId": "A",
           "format": "table",
           "instant": true
@@ -738,7 +738,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(nginx_ingress_controller_requests{exported_namespace=\"relay\"}[5m])) by (geoip_latitude, geoip_longitude)",
+          "expr": "sum(rate(nginx_ingress_controller_requests{exported_namespace=\"relay\"}[$__rate_interval])) by (geoip_latitude, geoip_longitude)",
           "refId": "A",
           "format": "table"
         }
@@ -1011,7 +1011,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(http_requests_total{job=\"relay\"}[5m]))",
+          "expr": "sum(rate(http_requests_total{job=\"relay\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "Subscribers"
         }
@@ -1113,7 +1113,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(atproto_identity_resolve_did[5m])) by (status)",
+          "expr": "sum(rate(atproto_identity_resolve_did[$__rate_interval])) by (status)",
           "refId": "A",
           "legendFormat": "{{status}}"
         }
@@ -1270,7 +1270,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(atproto_identity_resolve_did_duration_bucket[5m])) by (le, status))",
+          "expr": "histogram_quantile(0.99, sum(rate(atproto_identity_resolve_did_duration_bucket[$__rate_interval])) by (le, status))",
           "refId": "A",
           "legendFormat": "p99 {{status}}"
         },
@@ -1279,7 +1279,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(atproto_identity_resolve_did_duration_bucket[5m])) by (le, status))",
+          "expr": "histogram_quantile(0.95, sum(rate(atproto_identity_resolve_did_duration_bucket[$__rate_interval])) by (le, status))",
           "refId": "B",
           "legendFormat": "p95 {{status}}"
         }
@@ -1381,7 +1381,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "topk(10, sum(rate(events_received_counter[5m])) by (pds))",
+          "expr": "topk(10, sum(rate(events_received_counter[$__rate_interval])) by (pds))",
           "refId": "A",
           "legendFormat": "{{pds}}"
         }
@@ -1471,7 +1471,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(events_handle_duration_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(events_handle_duration_bucket[$__rate_interval])) by (le))",
           "refId": "A",
           "legendFormat": "p99"
         },
@@ -1480,7 +1480,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(events_handle_duration_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(events_handle_duration_bucket[$__rate_interval])) by (le))",
           "refId": "B",
           "legendFormat": "p95"
         },
@@ -1489,110 +1489,12 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(events_handle_duration_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.50, sum(rate(events_handle_duration_bucket[$__rate_interval])) by (le))",
           "refId": "C",
           "legendFormat": "p50"
         }
       ],
       "title": "Event Handle Duration",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "eventsps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 51
-      },
-      "id": 43,
-      "options": {
-        "legend": {
-          "calcs": [
-            "last"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "rate(repo_commits_received_counter[5m])",
-          "refId": "A",
-          "legendFormat": "Commits"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "rate(repo_sync_received_counter[5m])",
-          "refId": "B",
-          "legendFormat": "Syncs"
-        }
-      ],
-      "title": "Repo Events Rate",
       "type": "timeseries"
     },
     {
@@ -1677,7 +1579,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(indigo_repo_stream_bytes_total[5m]))",
+          "expr": "sum(rate(indigo_repo_stream_bytes_total[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "Total"
         }
@@ -1836,7 +1738,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "rate(indigo_scheduler_work_items_added_total[5m])",
+          "expr": "rate(indigo_scheduler_work_items_added_total[$__rate_interval])",
           "refId": "A",
           "legendFormat": "Added"
         },
@@ -1845,7 +1747,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "rate(indigo_scheduler_work_items_processed_total[5m])",
+          "expr": "rate(indigo_scheduler_work_items_processed_total[$__rate_interval])",
           "refId": "B",
           "legendFormat": "Processed"
         }
@@ -2102,7 +2004,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "rate(plc_cache_hits_total[5m])",
+          "expr": "rate(plc_cache_hits_total[$__rate_interval])",
           "refId": "A",
           "legendFormat": "Hits"
         },
@@ -2111,7 +2013,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "rate(plc_cache_misses_total[5m])",
+          "expr": "rate(plc_cache_misses_total[$__rate_interval])",
           "refId": "B",
           "legendFormat": "Misses"
         }
@@ -2200,7 +2102,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "rate(plc_memcache_hits_total[5m])",
+          "expr": "rate(plc_memcache_hits_total[$__rate_interval])",
           "refId": "A",
           "legendFormat": "Memcache Hits"
         },
@@ -2209,7 +2111,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "rate(plc_memcache_misses_total[5m])",
+          "expr": "rate(plc_memcache_misses_total[$__rate_interval])",
           "refId": "B",
           "legendFormat": "Memcache Misses"
         }
@@ -2311,7 +2213,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(http_requests_total{job=\"relay\"}[5m])) by (code)",
+          "expr": "sum(rate(http_requests_total{job=\"relay\"}[$__rate_interval])) by (code)",
           "refId": "A",
           "legendFormat": "{{code}}"
         }
@@ -2401,7 +2303,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=\"relay\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=\"relay\"}[$__rate_interval])) by (le))",
           "refId": "A",
           "legendFormat": "p99"
         },
@@ -2410,7 +2312,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"relay\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"relay\"}[$__rate_interval])) by (le))",
           "refId": "B",
           "legendFormat": "p95"
         },
@@ -2419,7 +2321,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{job=\"relay\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{job=\"relay\"}[$__rate_interval])) by (le))",
           "refId": "C",
           "legendFormat": "p50"
         }
@@ -2508,7 +2410,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_size_bytes_bucket{job=\"relay\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_size_bytes_bucket{job=\"relay\"}[$__rate_interval])) by (le))",
           "refId": "A",
           "legendFormat": "Request p95"
         },
@@ -2517,103 +2419,12 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(http_response_size_bytes_bucket{job=\"relay\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_response_size_bytes_bucket{job=\"relay\"}[$__rate_interval])) by (le))",
           "refId": "B",
           "legendFormat": "Response p95"
         }
       ],
       "title": "HTTP Message Sizes",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "loki",
-        "uid": "P8E80F9AEF21F6940"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 84
-      },
-      "id": 75,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "P8E80F9AEF21F6940"
-          },
-          "expr": "sum(rate({namespace=\"relay\", container=\"relay\"} |= \"dropping commit message for non-active account\" | json | __error__=\"\" [5m])) by (status)",
-          "refId": "A",
-          "legendFormat": "{{status}}"
-        }
-      ],
-      "title": "Dropped Commits Rate by Account Status",
       "type": "timeseries"
     },
     {
@@ -2699,12 +2510,12 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(events_warn_counter[5m])) by (pds)",
+          "expr": "sum by(pds) (topk(20, events_warn_counter))",
           "refId": "A",
           "legendFormat": "{{pds}}"
         }
       ],
-      "title": "Dropped Events Rate by PDS",
+      "title": "Dropped Events by PDS",
       "type": "timeseries"
     },
     {
@@ -2765,12 +2576,194 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(increase(events_warn_counter[5m]))",
+          "expr": "sum(increase(events_warn_counter[$__rate_interval]))",
           "refId": "A"
         }
       ],
       "title": "Total Dropped Events (5m)",
       "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 0,
+        "y": 88
+      },
+      "id": 81,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(rate(lexicon_type_counter[$__rate_interval])) by (lexicon_type)",
+          "refId": "A",
+          "legendFormat": "{{lexicon_type}}"
+        }
+      ],
+      "title": "Lexicon Types Rate (Firehose Commits)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 0,
+        "y": 96
+      },
+      "id": 82,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(rate(lexicon_type_counter{lexicon_type!~\"app.bsky.*\"}[$__rate_interval])) by (lexicon_type)",
+          "refId": "A",
+          "legendFormat": "{{lexicon_type}}"
+        }
+      ],
+      "title": "Lexicon Types Rate (Non-Bluesky)",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
