@@ -6,7 +6,7 @@ metadata:
 data:
   DATABASE_URL: "sqlite://${relay_db_path}"
   RELAY_PERSIST_DIR: "${relay_persist_dir}"
-  RELAY_REPLAY_WINDOW: "12h"
+  RELAY_REPLAY_WINDOW: "6h"
   RELAY_DEFAULT_ACCOUNT_LIMIT: "100"
   RELAY_TRUSTED_DOMAINS: "*.host.bsky.network,*.eurosky.social"
   RELAY_LOG_LEVEL: "info"
