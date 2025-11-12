@@ -298,7 +298,8 @@ grafana:
         datasource: Prometheus
       # TODO: the geo view and few more panels are broken - trying to refactor gnetId #13865
       nginx-geoip-analytics:
-        file: dashboards/nginx-geoip-analytics.json
+        json: >-
+          ${nginx_geoip_analytics_json}
 
       # PostgreSQL (CloudNativePG)
       cnpg-cluster:
@@ -357,6 +358,16 @@ prometheus:
       objectStorageConfig:
         key: thanos.yaml
         name: thanos-objstore-config
+    # Fix for XAmzContentSHA256Mismatch with S3-compatible storage (UpCloud, Ceph, etc)
+    # Newer AWS SDK versions (used by Thanos) enforce checksums that non-AWS services don't support
+    # See: https://docs.aws.amazon.com/sdkref/latest/guide/feature-dataintegrity.html
+    containers:
+      - name: thanos-sidecar
+        env:
+          - name: AWS_REQUEST_CHECKSUM_CALCULATION
+            value: when_required
+          - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+            value: when_required
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false

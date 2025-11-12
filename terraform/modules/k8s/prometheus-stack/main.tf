@@ -15,18 +15,19 @@ resource "helm_release" "kube_prometheus_stack" {
 
   values = [
     templatefile("${path.module}/values.yaml", {
-      pds_dashboard_json     = jsonencode(jsondecode(file("${path.module}/dashboards/pds-dashboard.json")))
-      relay_dashboard_json   = jsonencode(jsondecode(file("${path.module}/dashboards/relay-dashboard.json")))
-      grafana_admin_password = var.grafana_admin_password
-      storage_class          = var.storage_class
-      cluster_domain         = var.cluster_domain
-      alert_email            = var.alert_email
-      smtp_server            = var.smtp_server
-      smtp_port              = var.smtp_port
-      smtp_require_tls       = var.smtp_require_tls
-      smtp_username          = var.smtp_username
-      smtp_password          = var.smtp_password
-      deadmansswitch_url     = var.deadmansswitch_url
+      pds_dashboard_json               = jsonencode(jsondecode(file("${path.module}/dashboards/pds-dashboard.json")))
+      relay_dashboard_json             = jsonencode(jsondecode(file("${path.module}/dashboards/relay-dashboard.json")))
+      nginx_geoip_analytics_json       = jsonencode(jsondecode(file("${path.module}/dashboards/nginx-geoip-analytics.json")))
+      grafana_admin_password           = var.grafana_admin_password
+      storage_class                    = var.storage_class
+      cluster_domain                   = var.cluster_domain
+      alert_email                      = var.alert_email
+      smtp_server                      = var.smtp_server
+      smtp_port                        = var.smtp_port
+      smtp_require_tls                 = var.smtp_require_tls
+      smtp_username                    = var.smtp_username
+      smtp_password                    = var.smtp_password
+      deadmansswitch_url               = var.deadmansswitch_url
     })
   ]
 
