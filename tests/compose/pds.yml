@@ -2,29 +2,29 @@ services:
   pds:
     image: ghcr.io/bluesky-social/pds:latest
     environment:
+      LOG_ENABLED: "true"
+      LOG_LEVEL: "debug"
       NODE_ENV: production
       PDS_ADMIN_PASSWORD: admin123
       PDS_BLOBSTORE_DISK_LOCATION: /app/data/blobs
-      PDS_DATA_DIRECTORY: /app/data
-      PDS_DID_PLC_URL: https://plc.${PARTITION}.${DOMAIN}
-      PDS_HOSTNAME: pds.${PARTITION}.${DOMAIN}
-      PDS_JWT_SECRET: dev-secret-change-in-production
-      PDS_PORT: 3000
-      PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX: da7a7d92e8d8f8e6f2a5a1b8c4d3e2f1a9b7c5d4e3f2a8b6c9d7e5f3a1b4c6d8
-      PDS_RECOVERY_DID_KEY: did:key:zQ3shsd3JjGDd8auYXp76QWijpjiwbPUv4oVdcACmXBjYnRsa
-      PDS_DISABLE_SSRF_PROTECTION: true
-      PDS_DEV_MODE: true
-      PDS_INVITE_REQUIRED: false
-      PDS_BSKY_APP_VIEW_URL: https://bsky.${PARTITION}.${DOMAIN}
       PDS_BSKY_APP_VIEW_DID: did:web:bsky.${PARTITION}.${DOMAIN}
-      PDS_EMAIL_SMTP_URL: smtp://maildev:1025
+      PDS_BSKY_APP_VIEW_URL: https://bsky.${PARTITION}.${DOMAIN}
+      PDS_DATA_DIRECTORY: /app/data
+      PDS_DEV_MODE: true
+      PDS_DID_PLC_URL: https://plc.${PARTITION}.${DOMAIN}
+      PDS_DISABLE_SSRF_PROTECTION: true
       PDS_EMAIL_FROM_ADDRESS: noreply@pds.${PARTITION}.${DOMAIN}
-      PDS_MODERATION_EMAIL_SMTP_URL: smtp://maildev:1025
-      PDS_MODERATION_EMAIL_ADDRESS: moderation@pds.${PARTITION}.${DOMAIN}
-      PDS_MOD_SERVICE_URL: https://ozone.${PARTITION}.${DOMAIN}
+      PDS_EMAIL_SMTP_URL: smtp://maildev:1025
+      PDS_HOSTNAME: pds.${PARTITION}.${DOMAIN}
+      PDS_INVITE_REQUIRED: false
+      PDS_JWT_SECRET: dev-secret-change-in-production
       PDS_MOD_SERVICE_DID: ${PDS_MOD_SERVICE_DID:-did:plc:fake-plc-123456789}
-      LOG_ENABLED: "true"
-      LOG_LEVEL: "debug"
+      PDS_MOD_SERVICE_URL: https://ozone.${PARTITION}.${DOMAIN}
+      PDS_MODERATION_EMAIL_ADDRESS: moderation@pds.${PARTITION}.${DOMAIN}
+      PDS_MODERATION_EMAIL_SMTP_URL: smtp://maildev:1025
+      PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX: da7a7d92e8d8f8e6f2a5a1b8c4d3e2f1a9b7c5d4e3f2a8b6c9d7e5f3a1b4c6d8
+      PDS_PORT: 3000
+      PDS_RECOVERY_DID_KEY: did:key:zQ3shsd3JjGDd8auYXp76QWijpjiwbPUv4oVdcACmXBjYnRsa
     volumes:
       - pds_data:/app/data
     depends_on:
