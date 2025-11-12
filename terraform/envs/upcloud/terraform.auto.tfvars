@@ -35,4 +35,4 @@ loki_storage_class = "upcloud-block-storage-standard" # TODO: "upcloud-block-sto
 
 # Relay
 relay_storage_class = "upcloud-block-storage-standard"
-relay_storage_size  = "90Gi"
+relay_storage_size  = "120Gi"
