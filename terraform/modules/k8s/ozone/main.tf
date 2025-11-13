@@ -2,21 +2,30 @@ locals {
   hostname         = "ozone.${var.cluster_domain}"
   ozone_public_url = "https://${local.hostname}"
 
-  # ConfigMap/Secret checksums for triggering rolling updates
-  config_checksum = sha256(jsonencode({
+  # Rendered templates stored in locals
+  ozone_configmap_yaml = templatefile("${path.module}/ozone-configmap.yaml", {
+    namespace         = var.namespace
     ozone_public_url  = local.ozone_public_url
     ozone_appview_url = var.ozone_appview_url
     ozone_appview_did = var.ozone_appview_did
     ozone_server_did  = var.ozone_server_did
     ozone_admin_dids  = var.ozone_admin_dids
     pds_hostname      = var.pds_hostname
-  }))
+  })
 
-  secret_checksum = sha256(jsonencode({
-    ozone_db_password     = var.ozone_db_password
-    ozone_admin_password  = var.ozone_admin_password
-    ozone_signing_key_hex = var.ozone_signing_key_hex
-  }))
+  ozone_secret_yaml = templatefile("${path.module}/ozone-secret.yaml", {
+    namespace              = var.namespace
+    db_password_urlencoded = urlencode(var.ozone_db_password)
+    ozone_admin_password   = var.ozone_admin_password
+    ozone_signing_key_hex  = var.ozone_signing_key_hex
+    postgres_cluster_name  = var.postgres_cluster_name
+    postgres_namespace     = var.postgres_namespace
+    postgres_pooler_name   = var.postgres_pooler_name
+  })
+
+  # Checksums computed from rendered YAML (automatically tracks all changes)
+  config_checksum = sha256(local.ozone_configmap_yaml)
+  secret_checksum = sha256(local.ozone_secret_yaml)
 }
 
 resource "kubernetes_namespace" "ozone" {
@@ -43,15 +52,7 @@ resource "kubernetes_secret" "postgres_ca_ozone" {
 }
 
 resource "kubectl_manifest" "ozone_configmap" {
-  yaml_body = templatefile("${path.module}/ozone-configmap.yaml", {
-    namespace         = kubernetes_namespace.ozone.metadata[0].name
-    ozone_public_url  = local.ozone_public_url
-    ozone_appview_url = var.ozone_appview_url
-    ozone_appview_did = var.ozone_appview_did
-    ozone_server_did  = var.ozone_server_did
-    ozone_admin_dids  = var.ozone_admin_dids
-    pds_hostname      = var.pds_hostname
-  })
+  yaml_body = local.ozone_configmap_yaml
 
   server_side_apply = true
   wait              = true
@@ -59,15 +60,7 @@ resource "kubectl_manifest" "ozone_configmap" {
 
 resource "kubectl_manifest" "ozone_secret" {
   # TODO: Replace with external secret management solution (External Secrets Operator, Sealed Secrets)
-  yaml_body = templatefile("${path.module}/ozone-secret.yaml", {
-    namespace              = kubernetes_namespace.ozone.metadata[0].name
-    db_password_urlencoded = urlencode(var.ozone_db_password)
-    ozone_admin_password   = var.ozone_admin_password
-    ozone_signing_key_hex  = var.ozone_signing_key_hex
-    postgres_cluster_name  = var.postgres_cluster_name
-    postgres_namespace     = var.postgres_namespace
-    postgres_pooler_name   = var.postgres_pooler_name
-  })
+  yaml_body = local.ozone_secret_yaml
 
   server_side_apply = true
   wait              = true
@@ -84,6 +77,11 @@ resource "kubectl_manifest" "ozone_deployment" {
 
   server_side_apply = true
   wait              = true
+
+  depends_on = [
+    kubectl_manifest.ozone_configmap,
+    kubectl_manifest.ozone_secret
+  ]
 }
 
 resource "kubectl_manifest" "ozone_service" {
