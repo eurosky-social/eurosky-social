@@ -49,13 +49,13 @@ All commands use `npm exec tsx` to run TypeScript files directly without requiri
     ```
 - Custom text with image:
     ```bash
-    npm exec ts-node src/create_flash_post.ts -- --image spam.jpg --text "Custom text"
+    npm exec tsx src/create_flash_post.ts -- --image spam.jpg --text "Custom text"
     ```
 
 ### Report a post
 
 ```bash
-npm exec tsx src/report_flash_post.ts -- <uri> <cid> --reasonType <type> [--reason "description"]
+npm exec tsx src/report_flash_post.ts -- $uri $cid --reasonType $type [--reason "description"]
 ```
 
 - `<uri>`: AT URI of the post (e.g., `at://did:plc:.../app.bsky.feed.post/abc123`)
