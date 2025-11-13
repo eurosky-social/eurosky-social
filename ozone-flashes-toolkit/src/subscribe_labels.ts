@@ -67,17 +67,22 @@ async function main(): Promise<void> {
         }
 
         isAlive = false;
+        console.log('Sending ping');
         ws.ping();
       }, pingIntervalMs);
     });
 
     ws.on('pong', () => {
+      console.log('Received pong');
       isAlive = true;
     });
 
     ws.on('message', (data: Buffer) => {
       try {
         const [header, body] = cborDecodeMulti(new Uint8Array(data));
+        if ((header as any).t! === "#labels") {
+          (body as any).labels.forEach(l => l.sig = "[redacted]");
+        }
         console.log(JSON.stringify({ header, body }, null, 2));
       } catch (e) {
         console.error('Failed to decode message:', e);
