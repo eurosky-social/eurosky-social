@@ -37,7 +37,7 @@ A TypeScript CLI toolkit for testing the integration of Flashes events on the AT
 
 ## Usage
 
-All commands use `npm exec ts-node` to run TypeScript files directly without requiring a global installation.
+All commands use `npm exec tsx` to run TypeScript files directly without requiring a global installation.
 
 ### Create posts
 
@@ -45,7 +45,7 @@ All commands use `npm exec ts-node` to run TypeScript files directly without req
 
 - Spam test image (for perceptual hash detection):
     ```bash
-    npm exec ts-node src/create_flash_post.ts -- --image spam.jpg
+    npm exec tsx src/create_flash_post.ts -- --image spam.jpg
     ```
 - Custom text with image:
     ```bash
@@ -55,7 +55,7 @@ All commands use `npm exec ts-node` to run TypeScript files directly without req
 ### Report a post
 
 ```bash
-npm exec ts-node src/report_flash_post.ts -- <uri> <cid> --reasonType <type> [--reason "description"]
+npm exec tsx src/report_flash_post.ts -- <uri> <cid> --reasonType <type> [--reason "description"]
 ```
 
 - `<uri>`: AT URI of the post (e.g., `at://did:plc:.../app.bsky.feed.post/abc123`)
@@ -66,19 +66,19 @@ npm exec ts-node src/report_flash_post.ts -- <uri> <cid> --reasonType <type> [--
 
 - Last 50 events:
     ```bash
-    npm exec ts-node src/get_ozone_events.ts
+    npm exec tsx src/get_ozone_events.ts
     ```
 - Only reports:
     ```bash
-    npm exec ts-node src/get_ozone_events.ts -- --reports
+    npm exec tsx src/get_ozone_events.ts -- --reports
     ```
 - By event ID:
     ```bash
-    npm exec ts-node src/get_ozone_events.ts -- --id <id>
+    npm exec tsx src/get_ozone_events.ts -- --id <id>
     ```
 - By subject URI:
     ```bash
-    npm exec ts-node src/get_ozone_events.ts -- --subject <uri>
+    npm exec tsx src/get_ozone_events.ts -- --subject <uri>
     ```
 
 ### Query labels
@@ -86,7 +86,7 @@ npm exec ts-node src/report_flash_post.ts -- <uri> <cid> --reasonType <type> [--
 Query labels from Ozone using the `com.atproto.label.queryLabels` API:
 
 ```bash
-npm exec ts-node src/query_labels.ts -- --uriPatterns <pattern1> [<pattern2> ...]
+npm exec tsx src/query_labels.ts -- --uriPatterns <pattern1> [<pattern2> ...]
 ```
 
 - `--uriPatterns`: One or more URI patterns to query (e.g., `at://did:plc:*/app.flashes.feed.post/*`)
@@ -96,7 +96,7 @@ npm exec ts-node src/query_labels.ts -- --uriPatterns <pattern1> [<pattern2> ...
 **Example:**
 
 ```bash
-npm exec ts-node src/query_labels.ts -- --uriPatterns "at://did:plc:autcqcg4hsvgdf3hwt4cvci3/*"
+npm exec tsx src/query_labels.ts -- --uriPatterns "at://did:plc:autcqcg4hsvgdf3hwt4cvci3/*"
 ```
 
 ### Subscribe to label stream
@@ -104,7 +104,7 @@ npm exec ts-node src/query_labels.ts -- --uriPatterns "at://did:plc:autcqcg4hsvg
 Subscribe to real-time label events using WebSocket connection to `com.atproto.label.subscribeLabels`:
 
 ```bash
-npm exec ts-node src/subscribe_labels.ts -- [--cursor <cursor>]
+npm exec tsx src/subscribe_labels.ts -- [--cursor <cursor>]
 ```
 
 - `--cursor` (optional): Start from specific cursor position (default: 0)
@@ -114,7 +114,7 @@ The script will maintain a WebSocket connection and print all label events as th
 **Example:**
 
 ```bash
-npm exec ts-node src/subscribe_labels.ts -- --cursor 0
+npm exec tsx src/subscribe_labels.ts -- --cursor 0
 ```
 
 ### Fetch and hash a flash post's image blob
@@ -122,7 +122,7 @@ npm exec ts-node src/subscribe_labels.ts -- --cursor 0
 Use the `get_flash_post.ts` script to fetch a flash post by DID and rkey, validate its structure, extract the image blob, and print its SHA256 hash.
 
 ```bash
-npm exec ts-node src/get_flash_post.ts -- --did <did> --rkey <rkey>
+npm exec tsx src/get_flash_post.ts -- --did <did> --rkey <rkey>
 ```
 
 - `--did`: The DID of the user (e.g., `did:plc:autcqcg4hsvgdf3hwt4cvci3`)
@@ -137,7 +137,7 @@ The script will:
 **Example:**
 
 ```bash
-npm exec ts-node src/get_flash_post.ts -- --did did:plc:autcqcg4hsvgdf3hwt4cvci3 --rkey 3lx5ilffuul24
+npm exec tsx src/get_flash_post.ts -- --did did:plc:autcqcg4hsvgdf3hwt4cvci3 --rkey 3lx5ilffuul24
 ```
 
 If the post or blob is invalid, errors will be printed with details.
@@ -178,12 +178,12 @@ The toolkit includes `spam.jpg` as a reference image for testing perceptual hash
 
 2. Post a story with the spam image:
    ```bash
-   npm exec ts-node src/create_flash_post.ts -- --image spam.jpg
+   npm exec tsx src/create_flash_post.ts -- --image spam.jpg
    ```
 
 3. Check for spam detection events in Ozone:
    ```bash
-   npm exec ts-node src/get_ozone_events.ts
+   npm exec tsx src/get_ozone_events.ts
    ```
 
 ### Test Images
