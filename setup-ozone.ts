@@ -87,8 +87,8 @@ async function createProfile(agent: AtpAgent): Promise<void> {
   await agent.app.bsky.actor.profile.create(
     { repo: agent.session!.did },
     {
-      displayName: "Ozone Moderator",
-      description: "Automated moderation service",
+      displayName: "Eurosky Ozone Moderator",
+      description: "Moderation service",
       createdAt: new Date().toISOString(),
     }
   );
