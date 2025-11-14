@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ozone-config
+  namespace: ${namespace}
+  # TODO: Add standard labels (app, app.kubernetes.io/name, app.kubernetes.io/version, etc.)
+data:
+  HANDLE_RESOLVER_URL: "https://bsky.social" # TODO: HANDLE_RESOLVER_URL is not in official env.ts - verify correct var name
+  LOG_ENABLED: "true"
+  LOG_LEVEL: "info" # TODO: Consider using structured JSON logging for better observability
+  NODE_ENV: "production"
+  OZONE_ADMIN_DIDS: "${ozone_admin_dids}"
+  OZONE_APPVIEW_DID: "${ozone_appview_did}"
+  OZONE_APPVIEW_URL: "${ozone_appview_url}"
+  OZONE_DB_MIGRATE: "1" # TODO: OZONE_DB_MIGRATE is not in official env.ts - verify if this is legacy or custom
+  OZONE_DID_PLC_URL: "https://plc.directory"
+  OZONE_PDS_DID: "did:web:${pds_hostname}"
+  OZONE_PDS_URL: "https://${pds_hostname}"
+  OZONE_PUBLIC_URL: "${ozone_public_url}"
+  OZONE_SERVER_DID: "${ozone_server_did}"
+  PLC_DIRECTORY_URL: "https://plc.directory" # TODO: PLC_DIRECTORY_URL is not in official env.ts - verify if needed or remove
+  # TODO: Add OZONE_PORT if non-default port is needed (default is 3000)
+  # TODO: Consider adding OZONE_DB_POOL_SIZE, OZONE_DB_POOL_MAX_USES, OZONE_DB_POOL_IDLE_TIMEOUT_MS for connection pooling tuning
+  # TODO: Consider adding OZONE_DID_CACHE_STALE_TTL, OZONE_DID_CACHE_MAX_TTL for DID caching optimization
+  # TODO: Consider adding OZONE_MODERATOR_DIDS, OZONE_TRIAGE_DIDS for role-based access control
+  # TODO: Consider adding OZONE_APPVIEW_PUSH_EVENTS for event push configuration
+  # TODO: Consider adding OZONE_JETSTREAM_URL for Jetstream integration if needed

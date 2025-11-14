@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${namespace}
+  namespace: ${namespace}
+  labels:
+    app: ${namespace}
+    app.kubernetes.io/name: ${namespace}
+    app.kubernetes.io/component: moderation
+    # TODO: Add app.kubernetes.io/version label for version tracking
+    # TODO: Add app.kubernetes.io/managed-by: terraform label
+spec:
+  # TODO: Increase to 3 replicas for production HA
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${namespace}
+      app.kubernetes.io/name: ${namespace}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ${namespace}
+        app.kubernetes.io/name: ${namespace}
+        app.kubernetes.io/component: moderation
+        # TODO: Add app.kubernetes.io/version label for version tracking
+      annotations:
+        checksum/config: "${config_checksum}"
+        checksum/secret: "${secret_checksum}"
+    spec:
+      # TODO: Verify Ozone handles SIGTERM gracefully (closes WebSocket connections before exit)
+      terminationGracePeriodSeconds: 300
+      topologySpreadConstraints: # TODO: Verify this works with replicas=1, may need whenUnsatisfiable: ScheduleAnyway initially
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: ${namespace}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - ${namespace}
+                topologyKey: kubernetes.io/hostname
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: postgres-ca
+          secret:
+            secretName: ${ca_secret_name}
+            defaultMode: 0640
+      containers:
+        - name: ${namespace}
+          image: ${ozone_image}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: ozone-config
+            - secretRef:
+                name: ozone-secrets
+                # TODO: Mount secrets as files instead of env vars for better security (prevents process listing exposure)
+          env:
+            - name: PGSSLROOTCERT
+              value: /var/run/postgresql/ca.crt
+            - name: NODE_EXTRA_CA_CERTS
+              value: /var/run/postgresql/ca.crt
+          volumeMounts:
+            - name: postgres-ca
+              mountPath: /var/run/postgresql
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false # TODO: Investigate if Ozone can run with readOnlyRootFilesystem: true + emptyDir for writable paths
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          # TODO: Increase resources for production (e.g., cpu: 500m-1000m, memory: 512Mi-1Gi)
+          resources:
+            requests:
+              cpu: 250m
+              memory: 250Mi
+            limits:
+              cpu: 250m
+              memory: 250Mi
+          livenessProbe: # TODO: Use /xrpc/_health endpoint instead of / for more accurate health checks
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe: # TODO: Use /xrpc/_health endpoint instead of / for more accurate health checks
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1
+          startupProbe: # TODO: Use /xrpc/_health endpoint instead of / for more accurate health checks
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+            successThreshold: 1
+          # TODO: Verify if Ozone exposes Prometheus metrics endpoint (check app documentation)
+          # TODO: Add metrics port to container if Ozone exposes Prometheus metrics on different port
+          # TODO: Create ServiceMonitor CRD for Ozone metrics (preferred over prometheus.io/scrape annotations)
+
+
+# TODO: Add Grafana dashboard + recording rules for Ozone LogQL

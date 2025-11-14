@@ -145,6 +145,42 @@ output "pds_blobstore_s3_secret_key" {
   sensitive   = true
 }
 
+# PDS Berlin blobstore bucket credentials
+output "pds_berlin_blobstore_s3_bucket" {
+  value       = module.s3_bucket["pds-berlin-blobs"].bucket_name
+  description = "PDS Berlin blobstore S3 bucket name"
+}
+
+output "pds_berlin_blobstore_s3_access_key" {
+  value       = module.s3_bucket["pds-berlin-blobs"].access_key_id
+  description = "S3 access key ID for PDS Berlin blobstore"
+  sensitive   = true
+}
+
+output "pds_berlin_blobstore_s3_secret_key" {
+  value       = module.s3_bucket["pds-berlin-blobs"].secret_access_key
+  description = "S3 secret access key for PDS Berlin blobstore"
+  sensitive   = true
+}
+
+# PDS Berlin backup bucket credentials
+output "pds_berlin_backup_s3_bucket" {
+  value       = module.s3_bucket["pds-berlin-backup"].bucket_name
+  description = "PDS Berlin backup S3 bucket name"
+}
+
+output "pds_berlin_backup_s3_access_key" {
+  value       = module.s3_bucket["pds-berlin-backup"].access_key_id
+  description = "S3 access key ID for PDS Berlin backups"
+  sensitive   = true
+}
+
+output "pds_berlin_backup_s3_secret_key" {
+  value       = module.s3_bucket["pds-berlin-backup"].secret_access_key
+  description = "S3 secret access key for PDS Berlin backups"
+  sensitive   = true
+}
+
 output "storage_provisioner" {
   value       = "storage.csi.upcloud.com"
   description = "Storage provisioner for persistent volumes"

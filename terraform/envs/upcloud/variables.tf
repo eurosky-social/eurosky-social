@@ -134,6 +134,23 @@ variable "ozone_signing_key_hex" {
   sensitive   = true
 }
 
+variable "ozone_berlin_db_password" {
+  description = "PostgreSQL password for Ozone Berlin (store in tfvars for DR/portability)"
+  type        = string
+  sensitive   = true
+}
+
+variable "ozone_berlin_admin_password" {
+  description = "Admin password for Ozone Berlin"
+  type        = string
+  sensitive   = true
+}
+
+variable "ozone_berlin_signing_key_hex" {
+  description = "Signing key (hex) for Ozone Berlin"
+  type        = string
+  sensitive   = true
+}
 
 variable "pds_jwt_secret" {
   description = "JWT secret for PDS authentication"
@@ -161,6 +178,37 @@ variable "pds_dpop_secret" {
 
 variable "pds_recovery_did_key" {
   description = "Recovery DID key (did:key format) - additional PDS-controlled recovery mechanism"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "pds_berlin_jwt_secret" {
+  description = "JWT secret for PDS Berlin authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_admin_password" {
+  description = "Admin password for PDS Berlin"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_plc_rotation_key" {
+  description = "PLC rotation key for PDS Berlin (K256 private key hex)"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_dpop_secret" {
+  description = "DPoP secret for PDS Berlin OAuth token binding (32-byte hex)"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_recovery_did_key" {
+  description = "Recovery DID key for PDS Berlin (did:key format) - additional PDS-controlled recovery mechanism"
   type        = string
   sensitive   = true
   default     = ""

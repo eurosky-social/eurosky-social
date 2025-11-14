@@ -1,0 +1,12 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: pds-berlin-storage
+provisioner: ${storage_provisioner}
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+
+# TODO: Add standard labels (app.kubernetes.io/name, app.kubernetes.io/component, app.kubernetes.io/managed-by)
+# TODO: Add parameters block with provisioner-specific settings (e.g., type, iopsPerGB, encrypted, fsType)
+# TODO: Add mountOptions if specific mount options are needed for SQLite performance (e.g., noatime, data=ordered)

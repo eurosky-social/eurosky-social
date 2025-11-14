@@ -156,3 +156,62 @@ module "relay" {
 
   depends_on = [module.ingress_nginx]
 }
+
+module "ozone_berlin" {
+  source = "./ozone-berlin"
+
+  cluster_domain               = var.cluster_domain
+  ozone_berlin_db_password     = var.ozone_berlin_db_password
+  ozone_berlin_admin_password  = var.ozone_berlin_admin_password
+  ozone_berlin_signing_key_hex = var.ozone_berlin_signing_key_hex
+  postgres_namespace           = module.postgres.namespace
+  postgres_cluster_name        = module.postgres.cluster_name
+  postgres_ca_secret_name      = module.postgres.ca_secret_name
+
+  depends_on = [module.postgres, module.ingress_nginx]
+}
+
+module "pds_berlin" {
+  source = "./pds-berlin"
+
+  cluster_domain                = var.cluster_domain
+  storage_provisioner           = var.pds_storage_provisioner
+  backup_bucket                 = var.pds_berlin_backup_s3_bucket
+  backup_region                 = var.pds_berlin_backup_s3_region
+  backup_endpoint               = var.pds_berlin_backup_s3_endpoint
+  backup_access_key             = var.pds_berlin_backup_s3_access_key
+  backup_secret_key             = var.pds_berlin_backup_s3_secret_key
+  pds_jwt_secret                = var.pds_berlin_jwt_secret
+  pds_admin_password            = var.pds_berlin_admin_password
+  pds_plc_rotation_key          = var.pds_berlin_plc_rotation_key
+  pds_dpop_secret               = var.pds_berlin_dpop_secret
+  pds_recovery_did_key          = var.pds_berlin_recovery_did_key
+  pds_blobstore_bucket          = var.pds_berlin_blobstore_bucket
+  pds_blobstore_access_key      = var.pds_berlin_blobstore_access_key
+  pds_blobstore_secret_key      = var.pds_berlin_blobstore_secret_key
+  pds_email_from_address        = var.pds_email_from_address
+  pds_email_smtp_url            = var.pds_email_smtp_url
+  pds_moderation_email_address  = var.pds_moderation_email_address
+  pds_moderation_email_smtp_url = var.pds_moderation_email_smtp_url
+
+  depends_on = [module.ingress_nginx]
+}
+
+module "hepa" {
+  source = "./hepa"
+
+  cluster_domain       = var.cluster_domain
+  ozone_did            = "did:plc:m4jxet5jry3f5xjxxedu6mt3"
+  ozone_admin_password = var.ozone_berlin_admin_password
+  pds_admin_password   = var.pds_berlin_admin_password
+
+  depends_on = [module.pds_berlin, module.ozone_berlin]
+}
+
+module "jetstream" {
+  source = "./jetstream"
+
+  cluster_domain = var.cluster_domain
+
+  depends_on = [module.relay, module.ingress_nginx]
+}

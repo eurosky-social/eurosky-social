@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jetstream
+  namespace: ${namespace}
+  annotations:
+    nginx.ingress.kubernetes.io/websocket-services: jetstream
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    external-dns.alpha.kubernetes.io/target: "ingress.${cluster_domain}"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ${hostname}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jetstream
+                port:
+                  number: 6008

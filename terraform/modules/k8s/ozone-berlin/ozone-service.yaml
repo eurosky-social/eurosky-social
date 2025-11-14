@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${namespace}
+  namespace: ${namespace}
+  labels:
+    app: ${namespace}
+    app.kubernetes.io/name: ${namespace}
+    app.kubernetes.io/component: moderation
+    # TODO: Add app.kubernetes.io/version and app.kubernetes.io/managed-by labels
+  # TODO: Add annotations for Prometheus metrics scraping if ServiceMonitor is not used
+spec:
+  type: ClusterIP
+  selector:
+    app: ${namespace}
+    app.kubernetes.io/name: ${namespace}
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+    # TODO: Verify if Ozone exposes Prometheus metrics endpoint (check app documentation)
+    # TODO: Add separate metrics port if Ozone exposes Prometheus metrics on different port (e.g., port 9090)
+    # TODO: Create ServiceMonitor CRD for Ozone metrics instead of using prometheus.io/scrape annotations
+  sessionAffinity: ClientIP # TODO: SessionAffinity ClientIP is used for WebSocket sticky sessions - verify this works correctly with ingress cookie affinity
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800 # TODO: Verify 3-hour timeout is appropriate for WebSocket connection duration

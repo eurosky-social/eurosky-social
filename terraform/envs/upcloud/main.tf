@@ -13,9 +13,13 @@ module "upcloud" {
   ingress_hostnames = [
     "grafana.${var.cluster_domain}",
     "ozone.${var.cluster_domain}",
+    "live2025demo-ozone.${var.cluster_domain}",
     "relay.${var.cluster_domain}",
+    "jetstream.${var.cluster_domain}",
     var.pds_hostname,
-    "*.${var.pds_hostname}"
+    "*.${var.pds_hostname}",
+    "live2025demo.${var.cluster_domain}",
+    "*.live2025demo.${var.cluster_domain}",
   ]
 }
 
@@ -49,6 +53,10 @@ module "k8s" {
   ozone_db_password     = var.ozone_db_password
   ozone_admin_password  = var.ozone_admin_password
   ozone_signing_key_hex = var.ozone_signing_key_hex
+
+  ozone_berlin_db_password     = var.ozone_berlin_db_password
+  ozone_berlin_admin_password  = var.ozone_berlin_admin_password
+  ozone_berlin_signing_key_hex = var.ozone_berlin_signing_key_hex
 
   pds_hostname                  = var.pds_hostname
   pds_storage_provisioner       = module.upcloud.storage_provisioner
@@ -112,4 +120,18 @@ module "k8s" {
   relay_backup_s3_secret_key = module.upcloud.relay_backup_s3_secret_key
   relay_backup_s3_region     = module.upcloud.object_storage_region
   relay_backup_s3_endpoint   = module.upcloud.object_storage_endpoint
+
+  pds_berlin_jwt_secret            = var.pds_berlin_jwt_secret
+  pds_berlin_admin_password        = var.pds_berlin_admin_password
+  pds_berlin_plc_rotation_key      = var.pds_berlin_plc_rotation_key
+  pds_berlin_dpop_secret           = var.pds_berlin_dpop_secret
+  pds_berlin_recovery_did_key      = var.pds_berlin_recovery_did_key
+  pds_berlin_blobstore_bucket      = module.upcloud.pds_berlin_blobstore_s3_bucket
+  pds_berlin_blobstore_access_key  = module.upcloud.pds_berlin_blobstore_s3_access_key
+  pds_berlin_blobstore_secret_key  = module.upcloud.pds_berlin_blobstore_s3_secret_key
+  pds_berlin_backup_s3_bucket      = module.upcloud.pds_berlin_backup_s3_bucket
+  pds_berlin_backup_s3_access_key  = module.upcloud.pds_berlin_backup_s3_access_key
+  pds_berlin_backup_s3_secret_key  = module.upcloud.pds_berlin_backup_s3_secret_key
+  pds_berlin_backup_s3_region      = module.upcloud.object_storage_region
+  pds_berlin_backup_s3_endpoint    = module.upcloud.object_storage_endpoint
 }

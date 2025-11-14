@@ -1,0 +1,110 @@
+variable "cluster_domain" {
+  description = "Cluster domain for ingress"
+  type        = string
+}
+
+variable "storage_provisioner" {
+  description = "Storage provisioner for PDS volumes"
+  type        = string
+}
+
+variable "backup_bucket" {
+  description = "S3 bucket for Litestream backups"
+  type        = string
+}
+
+variable "backup_region" {
+  description = "S3 region for backup bucket"
+  type        = string
+}
+
+variable "backup_endpoint" {
+  description = "S3 endpoint URL for backup bucket"
+  type        = string
+}
+
+variable "backup_access_key" {
+  description = "S3 access key for Litestream backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "backup_secret_key" {
+  description = "S3 secret key for Litestream backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_jwt_secret" {
+  description = "JWT secret for PDS authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_admin_password" {
+  description = "Admin password for PDS"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_plc_rotation_key" {
+  description = "PLC rotation key (K256 private key hex)"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_dpop_secret" {
+  description = "DPoP secret for OAuth token binding (32-byte hex)"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_recovery_did_key" {
+  description = "Recovery DID key (did:key format) - additional PDS-controlled recovery mechanism"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "pds_blobstore_bucket" {
+  description = "S3 bucket for PDS blob storage"
+  type        = string
+}
+
+variable "pds_blobstore_access_key" {
+  description = "S3 access key for PDS blobstore"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_blobstore_secret_key" {
+  description = "S3 secret key for PDS blobstore"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_email_from_address" {
+  description = "Email from address for PDS notifications"
+  type        = string
+  default     = ""
+}
+
+variable "pds_email_smtp_url" {
+  description = "SMTP URL for email sending (format: smtps://user:pass@host:port/)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "pds_moderation_email_address" {
+  description = "Email from address for admin moderation communications"
+  type        = string
+  default     = ""
+}
+
+variable "pds_moderation_email_smtp_url" {
+  description = "SMTP URL for moderation emails (format: smtps://user:pass@host:port/)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}

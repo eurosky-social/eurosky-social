@@ -139,6 +139,24 @@ variable "ozone_signing_key_hex" {
   sensitive   = true
 }
 
+variable "ozone_berlin_db_password" {
+  description = "PostgreSQL password for Ozone Berlin user"
+  type        = string
+  sensitive   = true
+}
+
+variable "ozone_berlin_admin_password" {
+  description = "Admin password for Ozone Berlin"
+  type        = string
+  sensitive   = true
+}
+
+variable "ozone_berlin_signing_key_hex" {
+  description = "Signing key (hex) for Ozone Berlin"
+  type        = string
+  sensitive   = true
+}
+
 variable "pds_hostname" {
   description = "PDS hostname (e.g., berlin-demo.eurosky.social)"
   type        = string
@@ -152,6 +170,37 @@ variable "pds_storage_provisioner" {
 variable "pds_storage_size" {
   description = "PDS storage size"
   type        = string
+}
+
+variable "pds_berlin_jwt_secret" {
+  description = "JWT secret for PDS authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_admin_password" {
+  description = "Admin password for PDS"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_plc_rotation_key" {
+  description = "PLC rotation key (K256 private key hex)"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_dpop_secret" {
+  description = "DPoP secret for OAuth token binding (32-byte hex)"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_recovery_did_key" {
+  description = "Recovery DID key (did:key format) - additional PDS-controlled recovery mechanism"
+  type        = string
+  sensitive   = true
+  default     = ""
 }
 
 variable "pds_jwt_secret" {
@@ -183,6 +232,50 @@ variable "pds_recovery_did_key" {
   type        = string
   sensitive   = true
   default     = ""
+}
+
+variable "pds_berlin_blobstore_bucket" {
+  description = "S3 bucket for PDS blob storage"
+  type        = string
+}
+
+variable "pds_berlin_blobstore_access_key" {
+  description = "S3 access key for PDS blobstore"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_blobstore_secret_key" {
+  description = "S3 secret key for PDS blobstore"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_backup_s3_bucket" {
+  description = "S3 bucket for PDS Berlin backups"
+  type        = string
+}
+
+variable "pds_berlin_backup_s3_access_key" {
+  description = "S3 access key for PDS Berlin backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_backup_s3_secret_key" {
+  description = "S3 secret key for PDS Berlin backups"
+  type        = string
+  sensitive   = true
+}
+
+variable "pds_berlin_backup_s3_region" {
+  description = "S3 region for PDS Berlin backup bucket"
+  type        = string
+}
+
+variable "pds_berlin_backup_s3_endpoint" {
+  description = "S3 endpoint URL for PDS Berlin backup bucket"
+  type        = string
 }
 
 variable "pds_blobstore_bucket" {

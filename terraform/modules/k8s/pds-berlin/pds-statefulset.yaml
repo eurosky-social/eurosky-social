@@ -1,0 +1,210 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name:  ${namespace}
+  namespace: ${namespace}
+  labels:
+    app:  ${namespace}
+    app.kubernetes.io/name:  ${namespace}
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  serviceName: pds-headless
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app:  ${namespace}
+      app.kubernetes.io/name:  ${namespace}
+  template:
+    metadata:
+      labels:
+        app:  ${namespace}
+        app.kubernetes.io/name:  ${namespace}
+        app.kubernetes.io/component: server
+      annotations:
+        checksum/pds-config: "${pds_config_checksum}"
+        checksum/pds-secret: "${pds_secret_checksum}"
+        checksum/litestream-config: "${litestream_config_checksum}"
+        checksum/litestream-secret: "${litestream_secret_checksum}"
+    spec:
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: litestream-restore
+          image: litestream/litestream:0.5.2@sha256:e4fd484cb1cd9d6fa58fff7127d551118e150ab75b389cf868a053152ba6c9c0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              for db in account sequencer did_cache; do
+                echo "Attempting to restore ${pds_data_directory}/$${db}.sqlite..."
+                litestream restore \
+                  -if-db-not-exists \
+                  -if-replica-exists \
+                  -config /etc/litestream.yml \
+                  ${pds_data_directory}/$${db}.sqlite || echo "No backup found for $${db}.sqlite, skipping"
+              done
+              echo "Restore complete"
+          env:
+            # Fix for XAmzContentSHA256Mismatch with S3-compatible storage (UpCloud, Ceph, etc)
+            # Newer AWS SDK versions enforce checksums that non-AWS services don't support
+            # See: https://docs.aws.amazon.com/sdkref/latest/guide/feature-dataintegrity.html
+            - name: AWS_REQUEST_CHECKSUM_CALCULATION
+              value: when_required
+            - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+              value: when_required
+          envFrom:
+            - secretRef:
+                name: litestream-credentials
+                # TODO: Mount secrets as files instead of env vars for better security (prevents process listing exposure)
+          volumeMounts:
+            - name: pds-data
+              mountPath: ${pds_data_directory}
+            - name: litestream-config
+              mountPath: /etc/litestream.yml
+              subPath: litestream.yml
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              # TODO: to scale vertically to multiple CPUs we would need to run different Node process in parallel + add Redis to share throttling
+              cpu: 500m
+              memory: 256Mi
+      containers:
+        - name: pds
+          image: ghcr.io/bluesky-social/pds:0.4.188@sha256:87881525ec7a5cd2411a71b81a70ee2af9b5d79d770f9d1d1b84f74f91da4a9f
+          ports:
+            - containerPort: 2583
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: pds-config
+            - secretRef:
+                name: pds-secrets
+                # TODO: Mount secrets as files instead of env vars for better security (prevents process listing exposure)
+          volumeMounts:
+            - name: pds-data
+              mountPath: ${pds_data_directory}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /xrpc/_health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /xrpc/_health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1
+          startupProbe:
+            httpGet:
+              path: /xrpc/_health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+            successThreshold: 1
+        - name: litestream
+          image: litestream/litestream:0.5.2@sha256:e4fd484cb1cd9d6fa58fff7127d551118e150ab75b389cf868a053152ba6c9c0
+          args:
+            - replicate
+          env:
+            # Fix for XAmzContentSHA256Mismatch with S3-compatible storage (UpCloud, Ceph, etc)
+            # Newer AWS SDK versions enforce checksums that non-AWS services don't support
+            # See: https://docs.aws.amazon.com/sdkref/latest/guide/feature-dataintegrity.html
+            - name: AWS_REQUEST_CHECKSUM_CALCULATION
+              value: when_required
+            - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+              value: when_required
+          envFrom:
+            - secretRef:
+                name: litestream-credentials
+                # TODO: Mount secrets as files instead of env vars for better security (prevents process listing exposure)
+          volumeMounts:
+            - name: pds-data
+              mountPath: ${pds_data_directory}
+            - name: litestream-config
+              mountPath: /etc/litestream.yml
+              subPath: litestream.yml
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+        - name: litestream-config
+          configMap:
+            name: litestream-config
+  volumeClaimTemplates:
+    - metadata:
+        name: pds-data
+        labels:
+          app:  ${namespace}
+          app.kubernetes.io/name:  ${namespace}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        volumeMode: Filesystem
+        storageClassName: pds-berlin-storage
+        resources:
+          requests:
+            storage: ${pds_storage_size}
+
+# TODO: Increase Litestream resources if needed based on replication load
+# TODO: Add Litestream metrics endpoint for replication lag monitoring (requires Litestream config update)
+# TODO: Add Litestream metrics to Grafana dashboard
+# TODO: Configure alerting on Litestream replication lag and service health
+# TODO: Test disaster recovery restore procedure from S3
+# TODO: Document and automate failover procedures
+# TODO: Hot standby pod with read-only Litestream-restored databases
+# TODO: Verify 60s total startup time (12 * 5s) is sufficient for cold start + S3 restore
+# TODO: Add liveness probe to detect Litestream replication failures
+# TODO: Improve Grafana dashboard
+# TODO: Create backup script for all user account databases before shutdown - call it on preStop hook

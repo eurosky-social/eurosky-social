@@ -49,6 +49,12 @@ locals {
     pds-blobs = {
       description = "PDS user content"
     }
+    pds-berlin-blobs = {
+      description = "PDS Berlin user content"
+    }
+    pds-berlin-backup = {
+      description = "PDS Berlin SQLite backups"
+    }
   }
 }
 

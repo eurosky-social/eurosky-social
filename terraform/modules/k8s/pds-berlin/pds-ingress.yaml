@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name:  ${namespace}
+  namespace: ${namespace}
+  labels:
+    app:  ${namespace}
+    app.kubernetes.io/name:  ${namespace}
+    app.kubernetes.io/component: server
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/websocket-services: "relay"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/use-http2: "false"
+    external-dns.alpha.kubernetes.io/target: "ingress.${cluster_domain}"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ${hostname}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name:  ${namespace}
+                port:
+                  number: 80
+    - host: "*.${hostname}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name:  ${namespace}
+                port:
+                  number: 80
+# TODO: Test proxy-body-size limit (100m) is sufficient for user uploads
+# TODO: Evaluate timeout settings (60s) under production load
+# TODO: Add session affinity if PDS uses WebSocket or requires sticky sessions
+# TODO: Consider CDN integration (Cloudflare or cloud provider CDN)
+# TODO: Add security headers (X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy)
+# TODO: Add CORS configuration if PDS serves API from different origins
+# TODO: Consider WAF rules for additional protection
+# TODO: Consider rate limiting per client IP (nginx.ingress.kubernetes.io/limit-connections)
+# TODO: Compare rate limits PDS_RATE_LIMITS_ENABLED vs ingress/load balancer

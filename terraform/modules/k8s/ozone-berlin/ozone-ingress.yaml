@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${namespace}
+  namespace: ${namespace}
+  labels:
+    app: ${namespace}
+    app.kubernetes.io/name: ${namespace}
+    app.kubernetes.io/component: moderation
+    # TODO: Add app.kubernetes.io/version and app.kubernetes.io/managed-by labels
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    # Cookie-based sticky sessions (mainly for WebSocket connections)
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/affinity-mode: "persistent"
+    nginx.ingress.kubernetes.io/session-cookie-name: "ozone-berlin-affinity"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
+    nginx.ingress.kubernetes.io/session-cookie-secure: "true"
+    nginx.ingress.kubernetes.io/session-cookie-samesite: "Lax"
+    nginx.ingress.kubernetes.io/session-cookie-change-on-failure: "true"
+    external-dns.alpha.kubernetes.io/target: "ingress.${ozone_cluster_domain}"
+    # TODO: Add nginx.ingress.kubernetes.io/configuration-snippet for WebSocket upgrade headers if needed
+    # TODO: Consider adding nginx.ingress.kubernetes.io/enable-cors for CORS support if needed
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ${hostname}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${namespace}
+                port:
+                  number: 80
