@@ -24,13 +24,16 @@
 	url = ../.github.git
 [submodule "ozone"]
 	path = ozone
-	url = git@github.com:eurosky-social/ozone.git
+	url = ../ozone.git
 [submodule "firehose-processor-aas"]
 	path = firehose-processor-aas
 	url = git@github.com:erikologic/firehose-processor-aas.git
 [submodule "rsky"]
 	path = rsky
-	url = git@github.com:eurosky-social/rsky.git
+	url = ../rsky.git
 [submodule "litestream"]
 	path = litestream
 	url = https://github.com/eurosky-social/litestream
+[submodule "goat"]
+	path = goat
+	url = ../goat.git
