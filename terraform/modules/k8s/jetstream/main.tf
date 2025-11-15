@@ -56,7 +56,7 @@ resource "kubernetes_stateful_set" "jetstream" {
 
         resources {
           requests = {
-            storage = "20Gi"
+            storage = "60Gi"
           }
         }
       }
