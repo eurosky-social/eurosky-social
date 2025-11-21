@@ -4,6 +4,9 @@
 module "k8s" {
   source = "../../modules/k8s"
 
+  # Kubeconfig configuration - use local kube-config file
+  kubeconfig_path = "${path.module}/kube-config"
+
   # External DNS configuration
   external_dns_provider = "cloudflare"
   external_dns_secrets = {
@@ -14,6 +17,9 @@ module "k8s" {
   extra_nginx_annotations = {
     "external-dns.alpha.kubernetes.io/target" = "127.0.0.1"
   }
+
+  # MaxMind GeoIP (optional for local - use empty string to disable)
+  maxmind_license_key = ""
 
   cert_manager_secret_name = "cloudflare-api-token"
   cert_manager_secrets = {
@@ -61,6 +67,7 @@ YAML
   backup_s3_endpoint   = "http://${data.external.machine_ip.result.ip}:${local.minio_api_port}"
 
   # PDS configuration
+  pds_partition            = var.environment_partition
   pds_storage_provisioner  = var.pds_storage_provisioner  # rancher.io/local-path for k3d
   pds_storage_size         = var.pds_storage_size
   pds_jwt_secret           = var.pds_jwt_secret
@@ -79,6 +86,9 @@ YAML
   pds_email_from_address   = var.pds_email_from_address
   pds_email_smtp_url       = var.pds_email_smtp_url
   pds_public_hostname      = var.pds_public_hostname
+  pds_mod_service_url      = var.pds_report_service_url
+  pds_mod_service_did      = var.pds_report_service_did
+  pds_recovery_did_key     = ""  # Not needed for local dev
 
   # PostgreSQL configuration for local development
   postgres_instances    = 1
@@ -90,53 +100,8 @@ YAML
   pds_enabled = var.enable_pds
 }
 
-module "pds" {
-  source = "../../modules/pds"
-
-  enabled = var.enable_pds
-  partition = var.environment_partition
-  domain = var.cluster_domain
-  image_name = var.pds_image_name
-  image_tag = var.pds_image_tag
-  replicas = var.pds_replicas
-
-  pds_admin_password = var.pds_admin_password
-  pds_blobstore_disk_location = var.pds_blobstore_disk_location
-  pds_data_directory = var.pds_data_directory
-  pds_did_plc_url = var.pds_did_plc_url
-  pds_hostname = var.pds_hostname
-  pds_jwt_secret = var.pds_jwt_secret
-  pds_port = var.pds_port
-  pds_plc_rotation_key_k256_private_key_hex = var.pds_plc_rotation_key_k256_private_key_hex
-  pds_recovery_did_key = var.pds_recovery_did_key
-  pds_disable_ssrf_protection = var.pds_disable_ssrf_protection
-  pds_dev_mode = var.pds_dev_mode
-  pds_invite_required = var.pds_invite_required
-  pds_bsky_app_view_url = var.pds_bsky_app_view_url
-  pds_bsky_app_view_did = var.pds_bsky_app_view_did
-  pds_email_smtp_url = var.pds_email_smtp_url
-  pds_email_from_address = var.pds_email_from_address
-  pds_moderation_email_smtp_url = var.pds_moderation_email_smtp_url
-  pds_moderation_email_address = var.pds_moderation_email_address
-  pds_mod_service_url = var.pds_mod_service_url
-  pds_mod_service_did = var.pds_mod_service_did
-  log_enabled = var.pds_log_enabled
-  log_level = var.pds_log_level
-
-  depends_on = [module.ingress_nginx]
-}
-
-module "plc" {
-  count = var.enable_plc ? 1 : 0
-  source = "../../modules/plc"
-
-  enabled   = var.enable_plc
-  partition = var.environment_partition
-  domain    = var.cluster_domain
-  postgres_cluster_name = var.postgres_cluster_name
-  postgres_namespace    = "databases"
-  plc_db_password       = var.plc_db_password
-}
+# TODO: PDS and PLC modules are managed by the k8s module
+# These standalone module blocks are not needed and cause configuration conflicts
 
 # Get machine IP for k8s cluster access
 data "external" "machine_ip" {

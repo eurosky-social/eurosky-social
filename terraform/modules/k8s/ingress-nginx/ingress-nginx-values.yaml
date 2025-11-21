@@ -9,11 +9,15 @@ controller:
       memory: 128Mi
     limits:
       memory: 256Mi
+%{ if maxmind_license_key != "" ~}
 
   maxmindLicenseKey: "${maxmind_license_key}"
+%{ endif ~}
 
   config:
+%{ if maxmind_license_key != "" ~}
     use-geoip2: "true"
+%{ endif ~}
 
     # Preserve client IP addresses for logging and application-level rate limiting
     # UpCloud LB in HTTP mode sets X-Forwarded-For with real client IPs
@@ -25,9 +29,15 @@ controller:
     # File upload size limit (default 1MB is too restrictive for blob uploads)
     proxy-body-size: "50m"
 
-    # Structured JSON logging for Loki/Grafana with GeoIP2 fields
+    # Structured JSON logging for Loki/Grafana
     log-format-escape-json: "true"
+%{ if maxmind_license_key != "" ~}
+    # Log format with GeoIP2 fields
     log-format-upstream: '{"time":"$time_iso8601","remote_addr":"$remote_addr","x_forwarded_for":"$http_x_forwarded_for","request_id":"$req_id","remote_user":"$remote_user","bytes_sent":"$bytes_sent","request_time":"$request_time","status":"$status","vhost":"$host","request_proto":"$server_protocol","path":"$uri","request_query":"$args","request_length":"$request_length","method":"$request_method","http_referrer":"$http_referer","http_user_agent":"$http_user_agent","upstream_addr":"$upstream_addr","upstream_status":"$upstream_status","upstream_response_time":"$upstream_response_time","upstream_response_length":"$upstream_response_length","geoip_country_code":"$geoip2_city_country_code","geoip_country_name":"$geoip2_city_country_name","geoip_city":"$geoip2_city","geoip_latitude":"$geoip2_latitude","geoip_longitude":"$geoip2_longitude"}'
+%{ else ~}
+    # Log format without GeoIP2 fields (license key not provided)
+    log-format-upstream: '{"time":"$time_iso8601","remote_addr":"$remote_addr","x_forwarded_for":"$http_x_forwarded_for","request_id":"$req_id","remote_user":"$remote_user","bytes_sent":"$bytes_sent","request_time":"$request_time","status":"$status","vhost":"$host","request_proto":"$server_protocol","path":"$uri","request_query":"$args","request_length":"$request_length","method":"$request_method","http_referrer":"$http_referer","http_user_agent":"$http_user_agent","upstream_addr":"$upstream_addr","upstream_status":"$upstream_status","upstream_response_time":"$upstream_response_time","upstream_response_length":"$upstream_response_length"}'
+%{ endif ~}
 
     # Loose rate limiting
     limit-req-zone: "$binary_remote_addr zone=global:10m rate=100r/s"

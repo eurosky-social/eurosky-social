@@ -29,11 +29,7 @@ resource "kubernetes_service" "nginx" {
         "external-dns.alpha.kubernetes.io/healthcheck-mode" = "all"
         "external-dns.alpha.kubernetes.io/healthcheck-url"  = "http://ingress.${var.cluster_domain}/healthz"
       },
-<<<<<<< HEAD
       var.extra_annotations
-=======
-      { for k, v in var.extra_nginx_annotations : k => replace(v, "ZONE_ALIAS_PLACEHOLDER", each.key) }
->>>>>>> d173284 (WIP)
     )
   }
 

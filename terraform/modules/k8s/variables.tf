@@ -1,3 +1,43 @@
+# Kubeconfig variables (optional - if not provided, will use kubeconfig file)
+variable "kubeconfig_path" {
+  description = "Path to kubeconfig file (use when kubeconfig_host is empty)"
+  type        = string
+  default     = "~/.kube/config"
+}
+
+variable "kubeconfig_host" {
+  description = "Kubernetes API server host (leave empty to use kubeconfig file)"
+  type        = string
+  default     = ""
+}
+
+variable "kubeconfig_token" {
+  description = "Kubernetes API token (leave empty to use kubeconfig file)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "kubeconfig_client_certificate" {
+  description = "Base64-encoded client certificate (leave empty to use kubeconfig file)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "kubeconfig_client_key" {
+  description = "Base64-encoded client key (leave empty to use kubeconfig file)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "kubeconfig_cluster_ca_certificate" {
+  description = "Base64-encoded cluster CA certificate (leave empty to use kubeconfig file)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
 
 variable "external_dns_secrets" {
   description = "Cloud provider secrets for external-dns (map of env var names to secret values)"
@@ -14,6 +54,13 @@ variable "extra_nginx_annotations" {
   description = "Extra annotations for ingress-nginx LoadBalancer (cloud provider specific or DNS overrides)"
   type        = map(string)
   default     = {}
+}
+
+variable "maxmind_license_key" {
+  description = "MaxMind license key for GeoIP2 database (get free key at https://www.maxmind.com/en/geolite2/signup)"
+  type        = string
+  sensitive   = true
+  default     = ""
 }
 
 variable "cert_manager_secrets" {

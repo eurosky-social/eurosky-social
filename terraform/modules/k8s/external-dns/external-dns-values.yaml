@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 provider: cloudflare
 
 podAnnotations:
@@ -10,52 +9,27 @@ env:
       secretKeyRef:
         name: ${secret_name}
         key: CF_API_TOKEN
-=======
-# TODO this is tied to the cloud provider
-provider: ${dns_provider}
-
-env:
-%{ for key in keys(keys) ~}
-  - name: ${key}
-    valueFrom:
-      secretKeyRef:
-        name: external-dns-${dns_provider}
-        key: ${key}
-%{ endfor ~}
->>>>>>> d173284 (WIP)
 
 sources:
   - service
   - ingress
 
-<<<<<<< HEAD
 policy: ${sync_policy}
-=======
-domainFilters:
-  - ${cluster_domain}
-
-policy: sync
->>>>>>> d173284 (WIP)
 
 registry: txt
-txtOwnerId: external-dns
-txtPrefix: external-dns-
+txtOwnerId: "${txt_owner_id}"
+txtPrefix: "${txt_prefix}"
 
-logLevel: info
-logFormat: json
+logLevel: ${log_level}
+logFormat: ${log_format}
 
 resources:
   requests:
-    cpu: 50m
-    memory: 64Mi
+    cpu: ${resources_requests_cpu}
+    memory: ${resources_requests_memory}
   limits:
-<<<<<<< HEAD
     cpu: ${resources_limits_cpu}
     memory: ${resources_limits_memory}
 
 serviceMonitor:
   enabled: true
-=======
-    cpu: 200m
-    memory: 128Mi
->>>>>>> d173284 (WIP)
